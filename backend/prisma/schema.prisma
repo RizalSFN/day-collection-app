@@ -1,15 +1,120 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+model users {
+  id         Int      @id @default(autoincrement())
+  name       String   @db.VarChar(255)
+  username   String   @db.VarChar(255)
+  email      String   @unique(map: "email") @db.VarChar(255)
+  password   String   @db.VarChar(255)
+  created_at DateTime @default(now()) @db.Timestamp(0)
+}
+
+model products {
+  id               Int                @id @default(autoincrement())
+  name             String             @db.VarChar(150)
+  slug             String             @db.VarChar(150)
+  description      String             @db.Text
+  main_image       String             @db.VarChar(255)
+  base_price       Decimal            @db.Decimal(10, 2)
+  status           products_status
+  created_at       DateTime           @default(now()) @db.Timestamp(0)
+  updated_at       DateTime           @default(now()) @db.Timestamp(0)
+  marketplace_link marketplace_link[]
+  product_gallery  product_gallery[]
+  product_variant  product_variant[]
+}
+
+model banner {
+  id         Int      @id @default(autoincrement())
+  title      String   @db.VarChar(100)
+  image_url  String   @db.VarChar(255)
+  link       String   @db.VarChar(255)
+  is_active  Boolean
+  created_at DateTime @default(now()) @db.Timestamp(0)
+}
+
+model marketplace_link {
+  id                   Int                  @id @default(autoincrement())
+  product_id           Int
+  platform_id          Int
+  url                  String               @db.VarChar(255)
+  is_active            Boolean
+  created_at           DateTime             @default(now()) @db.Timestamp(0)
+  products             products             @relation(fields: [product_id], references: [id], onUpdate: Restrict, map: "marketplace_link_ibfk_1")
+  marketplace_platform marketplace_platform @relation(fields: [platform_id], references: [id], onUpdate: Restrict, map: "marketplace_link_ibfk_2")
+
+  @@index([platform_id], map: "platform_id")
+  @@index([product_id], map: "product_id")
+}
+
+model marketplace_platform {
+  id               Int                @id @default(autoincrement())
+  name             String             @db.VarChar(100)
+  created_at       DateTime           @default(now()) @db.Timestamp(0)
+  marketplace_link marketplace_link[]
+}
+
+model product_color {
+  id              Int               @id @default(autoincrement())
+  name            String            @db.VarChar(50)
+  hex_code        String            @db.VarChar(7)
+  created_at      DateTime          @default(now()) @db.Timestamp(0)
+  product_variant product_variant[]
+}
+
+model product_gallery {
+  id         Int      @id @default(autoincrement())
+  product_id Int
+  image_url  String   @db.VarChar(255)
+  alt_text   String   @db.VarChar(150)
+  sort_order Int
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  products   products @relation(fields: [product_id], references: [id], onUpdate: Restrict, map: "product_gallery_ibfk_1")
+
+  @@index([product_id], map: "product_id")
+}
+
+model product_size {
+  id              Int               @id @default(autoincrement())
+  name            String            @db.VarChar(10)
+  created_at      DateTime          @default(now()) @db.Timestamp(0)
+  product_variant product_variant[]
+}
+
+model product_variant {
+  id            Int           @id @default(autoincrement())
+  product_id    Int
+  color_id      Int
+  size_id       Int
+  image_url     String        @db.VarChar(255)
+  is_available  Boolean       @default(true)
+  created_at    DateTime      @default(now()) @db.Timestamp(0)
+  products      products      @relation(fields: [product_id], references: [id], onUpdate: Restrict, map: "product_variant_ibfk_1")
+  product_color product_color @relation(fields: [color_id], references: [id], onUpdate: Restrict, map: "product_variant_ibfk_2")
+  product_size  product_size  @relation(fields: [size_id], references: [id], onUpdate: Restrict, map: "product_variant_ibfk_3")
+
+  @@index([color_id], map: "color_id")
+  @@index([product_id], map: "product_id")
+  @@index([size_id], map: "size_id")
+}
+
+model settings {
+  id         Int      @id @default(autoincrement())
+  name       String   @db.VarChar(100)
+  value      String   @db.Text
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  updated_at DateTime @default(now()) @db.Timestamp(0)
+}
+
+enum products_status {
+  active
+  inactive
 }
