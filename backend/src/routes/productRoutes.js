@@ -5,7 +5,7 @@ import {
     getProductById,
     updateProduct,
     deleteProduct
-} from "../controllers/productController";
+} from "../controllers/productController.js";
 
 const productRoutes = express.Router()
 
