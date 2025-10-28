@@ -9,7 +9,7 @@ export const createMarketplacePlatform = async (data) => {
 }
 
 export const getAllMarketplacePlatform = async () => {
-    return await prisma.marketplace_platform.find({
+    return await prisma.marketplace_platform.findMany({
         include: { marketplace_link: true },
         orderBy: { id: "asc" }
     })
