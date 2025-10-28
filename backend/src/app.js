@@ -3,6 +3,7 @@ import cors from "cors"
 import dotenv from "dotenv"
 import { errorHandler } from "./middlewares/errorMiddleware.js"
 import productRoutes from "./routes/productRoutes.js"
+import authRoutes from "./routes/authRoutes.js"
 
 dotenv.config()
 const app = express()
@@ -12,6 +13,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 app.use("/api/products", productRoutes)
+app.use("/api/auth", authRoutes)
 
 app.get("/", (req, res) => {
     res.send("E-Commerce API is running...")

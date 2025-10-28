@@ -8,7 +8,7 @@ export const register = async (data) => {
         where: { email: data.email }
     })
 
-    if (existingUser) throw new errorResponse(res, "Email already exist", 400)
+    if (existingUser) return false
 
     const hashedPassword = await bcrypt.hash(data.password, 10)
 
