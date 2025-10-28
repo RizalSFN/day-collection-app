@@ -5,7 +5,7 @@ import {
     getByIdMarketplaceLink,
     updateMarketplaceLink,
     deleteMarketplaceLink
-} from "../controllers/marketplaceLinkController";
+} from "../controllers/marketplaceLinkController.js";
 
 const marketplaceLinkRoutes = express.Router()
 
