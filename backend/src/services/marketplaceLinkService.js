@@ -47,10 +47,22 @@ export const updateMarketplaceLink = async (id, data) => {
     return await prisma.marketplace_link.update({
         where: { id: Number(id) },
         data: {
-            product_id: Number(data.product_id),
-            platform_id: Number(data.platform_id),
+            ...(data.product_id && {
+                products: { connect: { id: Number(data.product_id) } }
+            }),
+            ...(data.platform_id && {
+                marketplace_platform: { connect: { id: Number(data.platform_id) } }
+            }),
             url: data.url,
             is_active: data.is_active
+        },
+        include: {
+            products: {
+                select: { id: true, name: true, slug: true }
+            },
+            marketplace_platform: {
+                select: { id: true, name: true }
+            }
         }
     })
 }
