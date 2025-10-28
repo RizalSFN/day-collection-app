@@ -13,8 +13,8 @@ app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-app.use("/api/products", productRoutes)
-app.use("/api/auth", authenticate, authRoutes)
+app.use("/api/auth", authRoutes)
+app.use("/api/products", authenticate, productRoutes)
 
 app.get("/", (req, res) => {
     res.send("E-Commerce API is running...")

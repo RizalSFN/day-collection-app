@@ -4,7 +4,7 @@ import { errorResponse } from "../utils/responseHelper.js";
 export const authenticate = async (req, res, next) => {
     const authHeader = req.headers.authorization
 
-    if (!authHeader || !authHeader.startWith("Bearer ")) {
+    if (!authHeader) {
         return errorResponse(res, "Unauthorized: No token provided", 401)
     }
 
