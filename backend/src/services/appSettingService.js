@@ -9,7 +9,7 @@ export const createAppSetting = async (data) => {
     })
 }
 
-export const getAppSetting = async () => {
+export const getAllAppSetting = async () => {
     return await prisma.settings.findMany({
         orderBy: { id: "asc" }
     })
