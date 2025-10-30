@@ -7,6 +7,7 @@ import authRoutes from "./routes/authRoutes.js"
 import { authenticate } from "./middlewares/authMiddleware.js"
 import marketplacePlatformRoutes from "./routes/marketplacePlatformRoutes.js"
 import marketplaceLinkRoutes from "./routes/marketplaceLinkRoutes.js"
+import appSettingRoutes from "./routes/appSettingRoutes.js"
 
 dotenv.config()
 const app = express()
@@ -19,6 +20,7 @@ app.use("/api/auth", authRoutes)
 app.use("/api/products", authenticate, productRoutes)
 app.use("/api/marketplace-platform", authenticate, marketplacePlatformRoutes)
 app.use("/api/marketplace-link", authenticate, marketplaceLinkRoutes)
+app.use("/api/app-setting", authenticate, appSettingRoutes)
 
 app.get("/", (req, res) => {
     res.send("E-Commerce API is running...")
