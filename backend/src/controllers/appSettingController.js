@@ -27,6 +27,6 @@ export const updateAppSetting = async (req, res) => {
         return successResponse(res, appSetting, "Berhasil mengubah data app setting", 200)
     } catch (error) {
         console.log(error);
-        return errorResponse(res, "Gagal memuat data app setting", 500)
+        return errorResponse(res, "Gagal mengubah data app setting", 500)
     }
 }
