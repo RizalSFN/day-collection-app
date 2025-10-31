@@ -2,17 +2,6 @@ import prisma from "../config/db.js";
 import { v2 as cloudinary } from "cloudinary";
 
 export const createProduct = async (data, file) => {
-    // return await prisma.products.create({
-    //     data: {
-    //         name: data.name,
-    //         slug: data.slug,
-    //         description: data.description,
-    //         main_image: data.main_image,
-    //         base_price: data.base_price,
-    //         status: data.status
-    //     }
-    // })
-
     let imageUrl = null
 
     if (file) {
