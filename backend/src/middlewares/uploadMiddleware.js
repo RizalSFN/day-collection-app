@@ -3,23 +3,36 @@ import path from "path"
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, "uploads/")
+        cb(null, "src/uploads")
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalName))
+        cb(null, Date.now() + path.extname(file.originalname))
     }
 })
 
-const upload = multer({
-    storage,
-    fileFilter: (req, file, cb) => {
-        const allowed = /jpeg|jpg|png|webp/
-        const extname = allowed.test(path.extname(file.originalName).toLowerCase())
-        const mimetype = allowed.test(file.mimetype)
+// const upload = multer({
+//     storage,
+//     fileFilter: (req, file, cb) => {
+//         const allowed = /jpeg|jpg|png|webp/
+//         const extname = allowed.test(path.extname(file.originalName).toLowerCase())
+//         const mimetype = allowed.test(file.mimetype)
 
-        if (extname && mimetype) return cb(null, true)
-        cb("Error: Only images are allowed!")
+//         if (extname && mimetype) return cb(null, true)
+//         cb("Error: Only images are allowed!")
+//     }
+// })
+const fileFilter = (req, file, cb) => {
+    if (!file || !file.originalname) {
+        return cb(new Error("No file provided"), false);
     }
-})
 
-export default upload
+    const ext = path.extname(file.originalname).toLowerCase();
+    const allowed = [".jpg", ".jpeg", ".png", ".webp"];
+
+    if (!allowed.includes(ext)) {
+        return cb(new Error("Only image files are allowed!"), false);
+    }
+    cb(null, true);
+};
+
+export const upload = multer({ storage, fileFilter })

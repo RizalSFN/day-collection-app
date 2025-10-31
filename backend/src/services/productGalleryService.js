@@ -71,7 +71,7 @@ export const deleteProductGallery = async (id) => {
 
     const publicId = productGallery.image_url.split("/").slice(-2).join("/").split(".")[0]
 
-    await cloudinary.uploader.upload(publicId)
+    await cloudinary.uploader.destroy(publicId)
     return await prisma.product_gallery.delete({
         where: { id: Number(id) }
     })
