@@ -1,23 +1,20 @@
+import fs from "fs";
 import prisma from "../config/db.js";
 import { v2 as cloudinary } from "cloudinary";
 
-export const createProduct = async (data, file) => {
-    let imageUrl = null
+export const createProduct = async (data, filePath) => {
+    const uploadResult = await cloudinary.uploader.upload(filePath, {
+        folder: "product_main_image"
+    })
 
-    if (file) {
-        const uploadResult = await cloudinary.uploader.upload({
-            folder: "product_main_images"
-        })
-
-        imageUrl = uploadResult.secure_url
-    }
+    fs.unlinkSync(filePath)
 
     return await prisma.products.create({
         data: {
             name: data.name,
             slug: data.slug,
             description: data.description,
-            main_image: imageUrl,
+            main_image: uploadResult.secure_url,
             base_price: data.base_price,
             status: data.status
         }
@@ -60,39 +57,29 @@ export const getProductById = async (id) => {
     })
 }
 
-export const updateProduct = async (id, data, file) => {
-    const product = await prisma.products.findMany({
-        where: { id: Number(id) }
-    })
-
-    let imageUrl = product.main_image
-
-    if (file) {
-        if (product.main_image) {
-            const urlParts = product.main_image.split("/")
-            const fileNameWithExt = urlParts[urlParts.length() - 1]
-            const folderName = urlParts[urlParts.length() - 2]
-            const publicId = `${folderName}/${fileNameWithExt.split(".")[0]}`
-            await cloudinary.uploader.destroy(publicId)
-        }
-
-        const uploadResult = await cloudinary.uploader.upload(file.path, {
-            folder: "product_main_images"
-        })
-        imageUrl = uploadResult.secure_url
+export const updateProduct = async (id, data, filePath) => {
+    let updateData = {
+        name: data.name,
+        slug: data.slug,
+        description: data.description,
+        base_price: data.base_price,
+        status: data.status
     }
+
+    if (filePath) {
+        const uploadResult = await cloudinary.uploader.upload(filePath, {
+            folder: "product_main_image"
+        })
+
+        fs.unlinkSync(filePath)
+        updateData.main_image = uploadResult.secure_url
+    }
+
+    updateData.updated_at = new Date()
 
     return await prisma.products.update({
         where: { id: Number(id) },
-        data: {
-            name: data.name,
-            slug: data.slug,
-            description: data.description,
-            main_image: imageUrl,
-            base_price: data.base_price,
-            status: data.status,
-            updated_at: new Date()
-        }
+        data: updateData
     })
 }
 

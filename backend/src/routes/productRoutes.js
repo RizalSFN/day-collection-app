@@ -1,4 +1,5 @@
 import express from "express";
+import { upload } from "../middlewares/uploadMiddleware.js";
 import {
     createProduct,
     getAllProducts,
@@ -9,10 +10,10 @@ import {
 
 const productRoutes = express.Router()
 
-productRoutes.post("/", createProduct)
+productRoutes.post("/", upload.single("main_image"), createProduct)
 productRoutes.get("/", getAllProducts)
 productRoutes.get("/:id", getProductById)
-productRoutes.put("/:id", updateProduct)
+productRoutes.put("/:id", upload.single("main_image"), updateProduct)
 productRoutes.delete("/:id", deleteProduct)
 
 export default productRoutes

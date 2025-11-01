@@ -3,7 +3,7 @@ import { errorResponse, successResponse } from "../utils/responseHelper.js";
 
 export const createProduct = async (req, res) => {
     try {
-        const product = await productService.createProduct(req.body)
+        const product = await productService.createProduct(req.body, req.file.path)
         return successResponse(res, product, "Berhasil menambahkan data product", 201)
     } catch (error) {
         console.log(error);
@@ -38,7 +38,7 @@ export const getProductById = async (req, res) => {
 
 export const updateProduct = async (req, res) => {
     try {
-        const product = await productService.updateProduct(req.params.id, req.body)
+        const product = await productService.updateProduct(req.params.id, req.body, req.file?.path)
         return successResponse(res, product, "Berhasil mengubah data product")
     } catch (error) {
         console.log(error);
