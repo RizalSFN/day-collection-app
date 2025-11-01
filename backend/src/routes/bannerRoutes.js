@@ -1,4 +1,5 @@
 import express from "express";
+import { upload } from "../middlewares/uploadMiddleware.js";
 import {
     createBanner,
     getAllBanner,
@@ -7,8 +8,8 @@ import {
 
 const bannerRoutes = express.Router()
 
-bannerRoutes.post("/", createBanner)
+bannerRoutes.post("/", upload.single("image_url"), createBanner)
 bannerRoutes.get("/", getAllBanner)
-bannerRoutes.put("/:id", updateBanner)
+bannerRoutes.put("/:id", upload.single("image_url"), updateBanner)
 
 export default bannerRoutes
