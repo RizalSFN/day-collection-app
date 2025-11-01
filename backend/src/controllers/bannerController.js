@@ -3,7 +3,7 @@ import { errorResponse, successResponse } from "../utils/responseHelper.js"
 
 export const createBanner = async (req, res) => {
     try {
-        const banner = await bannerService.createBanner(req.body)
+        const banner = await bannerService.createBanner(req.body, req.file)
         return successResponse(res, banner, "Berhasil membuat data banner", 201)
     } catch (error) {
         console.log(error);
@@ -23,7 +23,7 @@ export const getAllBanner = async (req, res) => {
 
 export const updateBanner = async (req, res) => {
     try {
-        const banner = await bannerService.updateBanner(req.params.id, req.body)
+        const banner = await bannerService.updateBanner(req.params.id, req.body, req.file?.path)
         return successResponse(res, banner, "Berhasil mengubah data banner", 200)
     } catch (error) {
         console.log(error);
