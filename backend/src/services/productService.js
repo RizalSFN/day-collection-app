@@ -89,7 +89,7 @@ export const deleteProduct = async (id) => {
     })
 
     if (product.main_image) {
-        const urlParts = product.base_image.split("/");
+        const urlParts = product.main_image.split("/");
         const fileNameWithExt = urlParts[urlParts.length - 1];
         const folderName = urlParts[urlParts.length - 2];
         const publicId = `${folderName}/${fileNameWithExt.split(".")[0]}`;
