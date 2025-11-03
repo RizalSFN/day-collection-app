@@ -19,7 +19,7 @@ export default function Home() {
                         <button className="bg-amber-500 hover:bg-amber-600 text-white px-8 py-3 rounded-full text-lg font-medium shadow-md transition">
                             Belanja Sekarang
                         </button>
-                        <button className="border-2 border-amber-500 text-amber-600 hover:bg-amber-50 px-8 py-3 rounded-full text-lg font-medium transition">
+                        <button className="border-2 border-amber-500 text-amber-600 hover:bg-amber-500 hover:text-white px-8 py-3 rounded-full text-lg font-medium transition">
                             Lihat Koleksi
                         </button>
                     </div>
