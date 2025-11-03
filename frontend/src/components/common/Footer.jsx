@@ -4,7 +4,7 @@ export default function Footer() {
             <div className="max-w-7xl mx-auto px-6 py-10 text-center md:text-left grid md:grid-cols-3 gap-8">
                 {/* Brand */}
                 <div>
-                    <h2 className="text-2xl font-bold text-amber-600">DayCollection</h2>
+                    <h2 className="text-2xl font-bold text-amber-600">Day<span className="text-gray-900">Collection</span></h2>
                     <p className="text-gray-600 mt-3 text-sm leading-relaxed">
                         Platform belanja sederhana dengan pilihan produk berkualitas dan tampilan minimalis.
                     </p>
