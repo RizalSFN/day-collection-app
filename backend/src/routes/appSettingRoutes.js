@@ -4,11 +4,13 @@ import {
     getAllAppSetting,
     updateAppSetting
 } from "../controllers/appSettingController.js"
+import { authenticate } from "../middlewares/authMiddleware.js"
 
 const appSettingRoutes = express.Router()
 
-appSettingRoutes.post("/", createAppSetting)
 appSettingRoutes.get("/", getAllAppSetting)
-appSettingRoutes.put("/:id", updateAppSetting)
+
+appSettingRoutes.post("/", authenticate, createAppSetting)
+appSettingRoutes.put("/:id", authenticate, updateAppSetting)
 
 export default appSettingRoutes

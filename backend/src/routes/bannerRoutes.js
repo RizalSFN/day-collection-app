@@ -5,11 +5,13 @@ import {
     getAllBanner,
     updateBanner
 } from "../controllers/bannerController.js";
+import { authenticate } from "../middlewares/authMiddleware.js";
 
 const bannerRoutes = express.Router()
 
-bannerRoutes.post("/", upload.single("image_url"), createBanner)
 bannerRoutes.get("/", getAllBanner)
-bannerRoutes.put("/:id", upload.single("image_url"), updateBanner)
+
+bannerRoutes.post("/", authenticate, upload.single("image_url"), createBanner)
+bannerRoutes.put("/:id", authenticate, upload.single("image_url"), updateBanner)
 
 export default bannerRoutes

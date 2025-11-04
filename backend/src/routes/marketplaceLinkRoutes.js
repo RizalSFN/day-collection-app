@@ -6,13 +6,15 @@ import {
     updateMarketplaceLink,
     deleteMarketplaceLink
 } from "../controllers/marketplaceLinkController.js";
+import { authenticate } from "../middlewares/authMiddleware.js";
 
 const marketplaceLinkRoutes = express.Router()
 
-marketplaceLinkRoutes.post("/", createMarketplaceLink)
 marketplaceLinkRoutes.get("/", getAllMarketplaceLink)
 marketplaceLinkRoutes.get("/:id", getByIdMarketplaceLink)
-marketplaceLinkRoutes.put("/:id", updateMarketplaceLink)
-marketplaceLinkRoutes.delete("/:id", deleteMarketplaceLink)
+
+marketplaceLinkRoutes.post("/", authenticate, createMarketplaceLink)
+marketplaceLinkRoutes.put("/:id", authenticate, updateMarketplaceLink)
+marketplaceLinkRoutes.delete("/:id", authenticate, deleteMarketplaceLink)
 
 export default marketplaceLinkRoutes

@@ -7,12 +7,14 @@ import {
     updateProductGallery,
     deleteProductGallery
 } from "../controllers/productGalleryController.js";
+import { authenticate } from "../middlewares/authMiddleware.js";
 
 const productGalleryRoutes = express.Router()
 
 productGalleryRoutes.get("/", getAllProductGalleries)
 productGalleryRoutes.get("/:id", getProductGalleryById)
-productGalleryRoutes.post("/", upload.single("image"), async (req, res, next) => {
+
+productGalleryRoutes.post("/", authenticate, upload.single("image"), async (req, res, next) => {
     try {
         if (!req.file) {
             return res.status(400).json({ message: "File image is required" });
@@ -23,7 +25,7 @@ productGalleryRoutes.post("/", upload.single("image"), async (req, res, next) =>
         next(error);
     }
 })
-productGalleryRoutes.put("/:id", upload.single("image"), updateProductGallery)
-productGalleryRoutes.delete("/:id", deleteProductGallery)
+productGalleryRoutes.put("/:id", authenticate, upload.single("image"), updateProductGallery)
+productGalleryRoutes.delete("/:id", authenticate, deleteProductGallery)
 
 export default productGalleryRoutes
