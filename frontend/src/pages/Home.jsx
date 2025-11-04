@@ -1,6 +1,22 @@
-import MainLayout from "../layouts/MainLayout";
+import { useEffect, useState } from "react";
+import MainLayout from "../layouts/MainLayout.jsx";
+import { getProducts } from "../services/productService.js";
+import { getBanner } from "../services/bannerService.js";
 
 export default function Home() {
+    const [products, setProducts] = useState([])
+    const [banner, setBanner] = useState([])
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const dataProduct = await getProducts()
+            const dataBanner = await getBanner()
+            setProducts(dataProduct)
+            setBanner(dataBanner)
+        }
+        fetchData()
+    }, [])
+
     return (
         <MainLayout>
             {/* Hero Section */}
@@ -19,50 +35,52 @@ export default function Home() {
                         <button className="bg-amber-500 hover:bg-amber-600 text-white px-8 py-3 rounded-full text-lg font-medium shadow-md transition">
                             Belanja Sekarang
                         </button>
-                        <button className="border-2 border-amber-500 text-amber-600 hover:bg-amber-500 hover:text-white px-8 py-3 rounded-full text-lg font-medium transition">
+                        <a href="#koleksi" className="border-2 border-amber-500 text-amber-600 hover:bg-amber-500 hover:text-white px-8 py-3 rounded-full text-lg font-medium transition">
                             Lihat Koleksi
-                        </button>
+                        </a>
                     </div>
                 </div>
 
                 {/* Image Section */}
                 <div className="md:w-1/2 mb-10 md:mb-0 flex justify-center">
-                    <img
-                        src="/assets/hero-fashion.png"
-                        alt="Day Collection Hero"
-                        className="w-80 md:w-96 rounded-2xl shadow-lg border border-amber-100"
-                    />
+                    {banner.map((banner) => (
+                        <img
+                            src={banner.image_url}
+                            alt={banner.title}
+                            className="w-80 md:w-96 rounded-2xl"
+                        />
+                    ))}
                 </div>
             </section>
 
             {/* Product Preview Section */}
-            <section className="py-16 bg-yellow-50 rounded-3xl mt-12">
+            <section id="koleksi" className="py-16 bg-yellow-50 rounded-3xl mt-12">
                 <div className="text-center mb-10">
                     <h2 className="text-3xl font-bold text-gray-800">Koleksi Terbaru</h2>
                     <p className="text-gray-600 mt-2">Produk pilihan dengan desain modern dan bahan berkualitas.</p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto px-6">
-                    {[
-                        { name: "Kemeja Linen Putih", price: "Rp249.000", img: "/assets/product1.jpg" },
-                        { name: "Sweater Oversize Cream", price: "Rp199.000", img: "/assets/product2.jpg" },
-                        { name: "Celana Kulot Hitam", price: "Rp179.000", img: "/assets/product3.jpg" },
-                    ].map((p, i) => (
-                        <div
-                            key={i}
-                            className="bg-white shadow-sm rounded-2xl overflow-hidden border border-gray-100 hover:shadow-md transition"
-                        >
-                            <img src={p.img} alt={p.name} className="w-full h-64 object-cover" />
-                            <div className="p-5">
-                                <h3 className="text-lg font-semibold text-gray-800">{p.name}</h3>
-                                <p className="text-amber-600 font-medium mt-1">{p.price}</p>
-                                <button className="mt-4 w-full bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-lg transition">
-                                    Tambah ke Keranjang
-                                </button>
+                {products.length === 0 ? (
+                    <p className="text-gray-500">Tidak ada koleksi produk tersedia.</p>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto px-6">
+                        {products.map((product, i) => (
+                            <div
+                                key={i}
+                                className="bg-white shadow-sm rounded-2xl overflow-hidden border border-gray-100 hover:shadow-md transition"
+                            >
+                                <img src={product.main_image} alt={product.slug} className="w-full h-64 object-cover" />
+                                <div className="p-5">
+                                    <h3 className="text-lg font-semibold text-gray-800">{product.name}</h3>
+                                    <p className="text-amber-600 font-medium mt-1">Rp {parseInt(product.base_price).toLocaleString("id-ID")}</p>
+                                    <button className="mt-4 w-full bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-lg transition">
+                                        Tambah ke Keranjang
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                )}
             </section>
         </MainLayout>
     );
