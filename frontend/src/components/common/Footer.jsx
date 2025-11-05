@@ -66,7 +66,6 @@ export default function Footer() {
                         <li><a href="/" className="hover:text-amber-600">Beranda</a></li>
                         <li><a href="/produk" className="hover:text-amber-600">Produk</a></li>
                         <li><a href="/tentang" className="hover:text-amber-600">Tentang</a></li>
-                        <li><a href="/kontak" className="hover:text-amber-600">Kontak</a></li>
                     </ul>
                 </div>
 

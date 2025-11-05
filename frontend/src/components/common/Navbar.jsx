@@ -17,7 +17,6 @@ export default function Navbar() {
                     <Link to="/" className="hover:text-amber-600 transition">Beranda</Link>
                     <Link to="/produk" className="hover:text-amber-600 transition">Produk</Link>
                     <Link to="/tentang" className="hover:text-amber-600 transition">Tentang</Link>
-                    <Link to="/kontak" className="hover:text-amber-600 transition">Kontak</Link>
 
                     <Link
                         to="/login"
