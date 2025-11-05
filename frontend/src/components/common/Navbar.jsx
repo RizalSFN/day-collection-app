@@ -1,8 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
+    const location = useLocation()
+
+    const isActive = (path) => location.pathname == path
 
     return (
         <nav className="fixed top-0 left-0 w-full bg-white/90 backdrop-blur-md shadow-sm z-50">
@@ -14,9 +17,33 @@ export default function Navbar() {
 
                 {/* Menu for Desktop */}
                 <div className="hidden md:flex items-center gap-8 text-gray-700 font-medium">
-                    <Link to="/" className="text-amber-600 transition">Beranda</Link>
-                    <Link to="/produk" className="hover:text-amber-600 transition">Produk</Link>
-                    <Link to="/tentang" className="hover:text-amber-600 transition">Tentang</Link>
+                    <Link
+                        to="/"
+                        className={`${isActive("/") ? "text-amber-600 font-semibold" : "text-gray-600 hover:text-amber-600"
+                            } transition`}
+                    >
+                        Beranda
+                    </Link>
+
+                    <Link
+                        to="/produk"
+                        className={`${isActive("/produk")
+                                ? "text-amber-600 font-semibold"
+                                : "text-gray-600 hover:text-amber-600"
+                            } transition`}
+                    >
+                        Produk
+                    </Link>
+
+                    <Link
+                        to="/tentang"
+                        className={`${isActive("/tentang")
+                                ? "text-amber-600 font-semibold"
+                                : "text-gray-600 hover:text-amber-600"
+                            } transition`}
+                    >
+                        Tentang
+                    </Link>
 
                     <Link
                         to="/login"
