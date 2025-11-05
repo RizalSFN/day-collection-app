@@ -1,4 +1,53 @@
+import { useEffect, useState } from "react";
+import { getAppSetting } from "../../services/appSettingService";
+import { Mail, Phone, MapPinned } from "lucide-react"
+
 export default function Footer() {
+    const [description, setDescription] = useState("")
+    const [settings, setSettings] = useState([])
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const dataAppSetting = await getAppSetting()
+
+                if (Array.isArray(dataAppSetting)) {
+                    setSettings(dataAppSetting)
+
+                    const appDesc = dataAppSetting.find(
+                        (item) => item.name.toLowerCase().includes("deskripsi")
+                    )
+
+                    if (appDesc) {
+                        setDescription(appDesc.value)
+                    }
+                } else {
+                    console.warn("Response tidak valid:", dataAppSetting)
+                }
+            } catch (error) {
+                console.error("Gagal memuat data app setting:", error)
+            }
+        }
+        fetchData()
+    }, [])
+
+    const infoList = settings.filter((item) => {
+        const lower = item.name.toLowerCase()
+        return (
+            lower.includes("email") ||
+            lower.includes("telepon") ||
+            lower.includes("alamat")
+        )
+    })
+
+    const getIcon = (name) => {
+        const lower = name.toLowerCase()
+        if (lower.includes("email")) return <Mail className="w-5 h-5 text-yellow-800" />
+        if (lower.includes("telepon")) return <Phone className="w-5 h-5 text-yellow-800" />;
+        if (lower.includes("alamat")) return <MapPinned className="w-5 h-5 text-yellow-800" />;
+        return null
+    }
+
     return (
         <footer className="bg-gray-50 border-t border-gray-200 mt-20">
             <div className="max-w-7xl mx-auto px-6 py-10 text-center md:text-left grid md:grid-cols-3 gap-8">
@@ -6,7 +55,7 @@ export default function Footer() {
                 <div>
                     <h2 className="text-2xl font-bold text-amber-600">Day<span className="text-gray-900">Collection</span></h2>
                     <p className="text-gray-600 mt-3 text-sm leading-relaxed">
-                        Platform belanja sederhana dengan pilihan produk berkualitas dan tampilan minimalis.
+                        {description || ""}
                     </p>
                 </div>
 
@@ -24,19 +73,20 @@ export default function Footer() {
                 {/* Contact */}
                 <div>
                     <h3 className="text-gray-800 font-semibold mb-3">Hubungi Kami</h3>
-                    <p className="text-gray-600 text-sm">Email: support@daycollection.com</p>
-                    <p className="text-gray-600 text-sm">Telepon: +62 812 3456 7890</p>
-                    <div className="flex justify-center md:justify-start gap-4 mt-4">
-                        <a href="#" className="text-gray-500 hover:text-amber-600 transition">
-                            <i className="fab fa-instagram text-xl"></i>
-                        </a>
-                        <a href="#" className="text-gray-500 hover:text-amber-600 transition">
-                            <i className="fab fa-facebook text-xl"></i>
-                        </a>
-                        <a href="#" className="text-gray-500 hover:text-amber-600 transition">
-                            <i className="fab fa-twitter text-xl"></i>
-                        </a>
-                    </div>
+                    {infoList.length > 0 ? (
+                        <div className="space-y-2 text-gray-600">
+                            {infoList.map((info, i) => (
+                                <p key={i} className="flex space-x-2">
+                                    {getIcon(info.name)}
+                                    <span>{info.value}</span>
+                                </p>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="flex space-x-2 text-gray-600">
+                            Data belum tersedia
+                        </p>
+                    )}
                 </div>
             </div>
 

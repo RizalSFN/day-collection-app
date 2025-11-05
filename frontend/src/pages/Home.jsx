@@ -43,10 +43,11 @@ export default function Home() {
 
                 {/* Image Section */}
                 <div className="md:w-1/2 mb-10 md:mb-0 flex justify-center">
-                    {banner.map((banner) => (
+                    {banner.map((banner, i) => (
                         <img
                             src={banner.image_url}
                             alt={banner.title}
+                            key={i}
                             className="w-80 md:w-96 rounded-2xl"
                         />
                     ))}
