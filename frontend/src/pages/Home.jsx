@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import MainLayout from "../layouts/MainLayout.jsx";
 import { getProducts } from "../services/productService.js";
 import { getBanner } from "../services/bannerService.js";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, ChevronRight } from "lucide-react";
 
 export default function Home() {
     const [products, setProducts] = useState([])
@@ -99,16 +99,7 @@ export default function Home() {
                     className="flex items-center text-amber-600 hover:text-amber-700 font-medium transition"
                 >
                     <span>Lihat produk lainnya</span>
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        strokeWidth={2}
-                        stroke="currentColor"
-                        className="w-5 h-5 ml-2"
-                    >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                    </svg>
+                    <ChevronRight className="w-5 h-5 ml-2 hover:text-amber-700" />
                 </a>
             </div>
         </MainLayout>
