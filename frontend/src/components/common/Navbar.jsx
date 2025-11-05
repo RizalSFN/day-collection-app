@@ -14,7 +14,7 @@ export default function Navbar() {
 
                 {/* Menu for Desktop */}
                 <div className="hidden md:flex items-center gap-8 text-gray-700 font-medium">
-                    <Link to="/" className="hover:text-amber-600 transition">Beranda</Link>
+                    <Link to="/" className="text-amber-600 transition">Beranda</Link>
                     <Link to="/produk" className="hover:text-amber-600 transition">Produk</Link>
                     <Link to="/tentang" className="hover:text-amber-600 transition">Tentang</Link>
 
