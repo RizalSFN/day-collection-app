@@ -92,6 +92,25 @@ export default function Home() {
                     </div>
                 )}
             </section>
+
+            <div className="flex justify-center mt-5">
+                <a
+                    href="/produk"
+                    className="flex items-center text-amber-600 hover:text-amber-700 font-medium transition"
+                >
+                    <span>Lihat produk lainnya</span>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth={2}
+                        stroke="currentColor"
+                        className="w-5 h-5 ml-2"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
         </MainLayout>
     );
 }
