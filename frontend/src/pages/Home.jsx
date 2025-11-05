@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import MainLayout from "../layouts/MainLayout.jsx";
 import { getProducts } from "../services/productService.js";
 import { getBanner } from "../services/bannerService.js";
+import { ShoppingCart } from "lucide-react";
 
 export default function Home() {
     const [products, setProducts] = useState([])
@@ -74,9 +75,17 @@ export default function Home() {
                                 <div className="p-5">
                                     <h3 className="text-lg font-semibold text-gray-800">{product.name}</h3>
                                     <p className="text-amber-600 font-medium mt-1">Rp {parseInt(product.base_price).toLocaleString("id-ID")}</p>
-                                    <button className="mt-4 w-full bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-lg transition">
-                                        Tambah ke Keranjang
-                                    </button>
+                                    <div className="mt-4 flex space-x-3">
+                                        <button className="py-2 px-4 bg-amber-500 hover:bg-amber-600 text-white justify-center items-center rounded-lg transition">
+                                            <ShoppingCart />
+                                        </button>
+                                        <a
+                                            href={`/produk/${product.slug}`}
+                                            className="flex-1 text-center border border-amber-500 text-amber-600 hover:bg-amber-50 py-2 rounded-lg transition"
+                                        >
+                                            Lihat Detail
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         ))}
