@@ -20,7 +20,7 @@ export const getAllMarketplaceLink = async () => {
         orderBy: { id: "asc" },
         include: {
             products: {
-                select: { id: true, name: true, slug: true }
+                select: { id: true, name: true, slug: true, main_image: true, base_price: true, status: true }
             },
             marketplace_platform: {
                 select: { id: true, name: true }
