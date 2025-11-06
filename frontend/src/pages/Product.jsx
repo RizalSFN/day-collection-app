@@ -1,19 +1,22 @@
 import { useEffect, useState } from "react";
-import { getProducts } from "../services/productService";
 import { ShoppingCart, Search } from "lucide-react";
 import MainLayout from "../layouts/MainLayout";
+import { getMarketplaceLink } from "../services/marketplaceLinkService";
 
 export default function Produk() {
     const [products, setProducts] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
-    const [selectedProduct, setSelectedProduct] = useState(null)
-    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
+    // === Fetch data dari API ===
     useEffect(() => {
         const fetchProducts = async () => {
             try {
-                const response = await getProducts();
+                const response = await getMarketplaceLink();
                 setProducts(response)
+                console.log(response);
+
             } catch (error) {
                 console.error("Error fetching products:", error);
             }
@@ -22,26 +25,30 @@ export default function Produk() {
         fetchProducts();
     }, []);
 
-    const filteredProducts = products.filter((product) =>
+    // === Filtering berdasarkan pencarian ===
+    const filteredProducts = (products || []).filter((product) =>
         product.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    // === Modal handler ===
     const openModal = (product) => {
-        setSelectedProduct(product)
-        setIsModalOpen(true)
-    }
+        setSelectedProduct(product);
+        setIsModalOpen(true);
+    };
 
     const closeModal = () => {
-        setSelectedProduct(null)
-        setIsModalOpen(false)
-    }
+        setSelectedProduct(null);
+        setIsModalOpen(false);
+    };
 
     return (
         <MainLayout>
             <section className="max-w-7xl mx-auto px-6 py-16">
                 {/* Header Section */}
                 <div className="text-center mb-12">
-                    <h1 className="text-3xl font-bold text-gray-800">Koleksi Produk Kami</h1>
+                    <h1 className="text-3xl font-bold text-gray-800">
+                        Koleksi Produk Kami
+                    </h1>
                     <p className="text-gray-500 mt-2">
                         Temukan produk pilihan dengan kualitas terbaik untuk kebutuhan Anda.
                     </p>
@@ -107,7 +114,7 @@ export default function Produk() {
                     onClick={closeModal}
                 >
                     <div
-                        className="bg-white w-[90%] max-w-5xl rounded-2xl shadow-lg overflow-hidden flex flex-col md:flex-row animate-fadeIn"
+                        className="bg-white w-[90%] max-w-5xl rounded-2xl shadow-lg overflow-hidden flex flex-col md:flex-row animate-fadeIn relative"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Gambar Produk (Kiri) */}
@@ -126,48 +133,62 @@ export default function Produk() {
                                     {selectedProduct.name}
                                 </h3>
                                 <p className="text-amber-600 font-medium text-lg mt-2">
-                                    Rp {parseInt(selectedProduct.base_price).toLocaleString("id-ID")}
+                                    Rp{" "}
+                                    {parseInt(selectedProduct.base_price).toLocaleString("id-ID")}
                                 </p>
                                 <p className="text-gray-600 mt-4 leading-relaxed text-sm">
-                                    {selectedProduct.description || "Tidak ada deskripsi produk."}
+                                    {selectedProduct.description ||
+                                        "Belum ada deskripsi untuk produk ini."}
                                 </p>
                             </div>
 
+                            {/* Tombol Marketplace */}
                             <div className="mt-6 space-y-3">
-                                {selectedProduct.link_shopee && (
-                                    <a
-                                        href={selectedProduct.link_shopee}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="block bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-lg text-center font-medium transition"
-                                    >
-                                        Beli di Shopee
-                                    </a>
-                                )}
+                                <p className="text-gray-600 mt-4 leading-relaxed text-lg">
+                                    Checkout by
+                                </p>
+                                <div className="flex flex-row flex-wrap gap-3">
+                                    {selectedProduct.marketplace_links && selectedProduct.marketplace_links.length > 0 ? (
+                                        selectedProduct.marketplace_links.map((link) => {
+                                            // Tentukan warna tombol berdasarkan nama platform
+                                            const platformName = link.platform_name.toLowerCase();
+                                            let buttonColor = "";
 
-                                {selectedProduct.link_tokopedia && (
-                                    <a
-                                        href={selectedProduct.link_tokopedia}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="block bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg text-center font-medium transition"
-                                    >
-                                        Beli di Tokopedia
-                                    </a>
-                                )}
+                                            if (platformName.includes("shopee")) {
+                                                buttonColor = "bg-orange-500 hover:bg-orange-600";
+                                            } else if (platformName.includes("tokopedia")) {
+                                                buttonColor = "bg-green-500 hover:bg-green-600";
+                                            } else if (platformName.includes("lazada")) {
+                                                buttonColor = "bg-blue-500 hover:bg-blue-600";
+                                            } else {
+                                                buttonColor = "bg-gray-500 hover:bg-gray-600"; // default
+                                            }
 
-                                {!selectedProduct.link_shopee && !selectedProduct.link_tokopedia && (
-                                    <p className="text-gray-400 text-center text-sm">
-                                        Link pembelian belum tersedia.
-                                    </p>
-                                )}
+                                            return (
+                                                <a
+                                                    key={link.id}
+                                                    href={link.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className={`${buttonColor} text-white px-4 py-2 rounded-lg text-center font-medium transition`}
+                                                >
+                                                    {link.platform_name}
+                                                </a>
+                                            );
+                                        })
+                                    ) : (
+                                        <p className="text-gray-400 text-center text-sm">
+                                            Link pembelian belum tersedia.
+                                        </p>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
                         {/* Tombol Tutup */}
                         <button
                             onClick={closeModal}
-                            className="absolute top-5 right-5 text-gray-700 hover:text-gray-800 text-2xl font-bold"
+                            className="absolute top-4 right-5 text-gray-700 hover:text-gray-900 text-3xl font-bold"
                         >
                             ×
                         </button>
