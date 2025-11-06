@@ -34,7 +34,7 @@ export const getByIdMarketplaceLink = async (id) => {
         where: { id: Number(id) },
         include: {
             products: {
-                select: { id: true, name: true, slug: true }
+                select: { id: true, name: true, slug: true, main_image: true, base_price: true, status: true }
             },
             marketplace_platform: {
                 select: { id: true, name: true }
@@ -58,7 +58,7 @@ export const updateMarketplaceLink = async (id, data) => {
         },
         include: {
             products: {
-                select: { id: true, name: true, slug: true }
+                select: { id: true, name: true, slug: true, main_image: true, base_price: true, status: true }
             },
             marketplace_platform: {
                 select: { id: true, name: true }
