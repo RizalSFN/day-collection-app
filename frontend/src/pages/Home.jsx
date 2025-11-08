@@ -66,29 +66,40 @@ export default function Home() {
                     <center><p className="text-gray-500">Tidak ada koleksi produk tersedia.</p></center>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto px-6">
-                        {products.map((product, i) => (
-                            <div
-                                key={i}
-                                className="bg-white shadow-sm rounded-2xl overflow-hidden border border-gray-100 hover:shadow-md transition"
-                            >
-                                <img src={product.main_image} alt={product.slug} className="w-full h-64 object-cover" />
-                                <div className="p-5">
-                                    <h3 className="text-lg font-semibold text-gray-800">{product.name}</h3>
-                                    <p className="text-amber-600 font-medium mt-1">Rp {parseInt(product.base_price).toLocaleString("id-ID")}</p>
-                                    <div className="mt-4 flex space-x-3">
-                                        <button className="py-2 px-4 bg-amber-500 hover:bg-amber-600 text-white justify-center items-center rounded-lg transition">
-                                            <ShoppingCart />
-                                        </button>
-                                        <a
-                                            href={`/produk/${product.slug}`}
-                                            className="flex-1 text-center border border-amber-500 text-amber-600 hover:bg-amber-50 py-2 rounded-lg transition"
-                                        >
-                                            Lihat Detail
-                                        </a>
+                        {products
+                            // Urutkan berdasarkan tanggal terbaru
+                            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+                            // Ambil hanya 3 produk paling baru
+                            .slice(0, 3)
+                            .map((product, i) => (
+                                <div
+                                    key={i}
+                                    className="bg-white shadow-sm rounded-2xl overflow-hidden border border-gray-100 hover:shadow-md transition"
+                                >
+                                    <img
+                                        src={product.main_image}
+                                        alt={product.slug}
+                                        className="w-full h-64 object-cover"
+                                    />
+                                    <div className="p-5">
+                                        <h3 className="text-lg font-semibold text-gray-800">{product.name}</h3>
+                                        <p className="text-amber-600 font-medium mt-1">
+                                            Rp {parseInt(product.base_price).toLocaleString("id-ID")}
+                                        </p>
+                                        <div className="mt-4 flex space-x-3">
+                                            <button className="py-2 px-4 bg-amber-500 hover:bg-amber-600 text-white justify-center items-center rounded-lg transition">
+                                                <ShoppingCart />
+                                            </button>
+                                            <a
+                                                href={`/produk/${product.slug}`}
+                                                className="flex-1 text-center border border-amber-500 text-amber-600 hover:bg-amber-50 py-2 rounded-lg transition"
+                                            >
+                                                Lihat Detail
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
                     </div>
                 )}
             </section>
