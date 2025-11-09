@@ -28,8 +28,8 @@ export default function Navbar() {
                     <Link
                         to="/produk"
                         className={`${isActive("/produk")
-                                ? "text-amber-600 font-semibold"
-                                : "text-gray-600 hover:text-amber-600"
+                            ? "text-amber-600 font-semibold"
+                            : "text-gray-600 hover:text-amber-600"
                             } transition`}
                     >
                         Produk
@@ -38,15 +38,15 @@ export default function Navbar() {
                     <Link
                         to="/tentang"
                         className={`${isActive("/tentang")
-                                ? "text-amber-600 font-semibold"
-                                : "text-gray-600 hover:text-amber-600"
+                            ? "text-amber-600 font-semibold"
+                            : "text-gray-600 hover:text-amber-600"
                             } transition`}
                     >
                         Tentang
                     </Link>
 
                     <Link
-                        to="/login"
+                        to="/admin/login"
                         className="ml-4 bg-amber-500 hover:bg-amber-600 text-white px-5 py-2 rounded-full transition"
                     >
                         Admin Login
