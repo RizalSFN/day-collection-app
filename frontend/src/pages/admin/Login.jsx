@@ -1,14 +1,26 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { loginService } from "../../services/authService";
 import { setToken } from "../../utils/storage";
+import { getBanner } from "../../services/bannerService";
 
 const Login = () => {
     const [form, setForm] = useState({ email: "", password: "" })
     const [loading, setLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState("")
+    const [banner, setBanner] = useState([])
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const dataBanner = await getBanner()
+            setBanner(dataBanner)
+        }
+        fetchData()
+    })
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value })
+        console.log(form);
+
     }
 
     const handleSubmit = async (e) => {
@@ -17,7 +29,7 @@ const Login = () => {
         setLoading(true)
 
         try {
-            const response = await loginService()
+            const response = await loginService(form)
             if (response.success) {
                 setToken(response.data.token)
                 alert("login berhasil")
@@ -31,65 +43,88 @@ const Login = () => {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center from-amber-100 to-yellow-50">
-            <div className="bg-white shadow-lg rounded-2xl p-10 w-full max-w-md">
-                <h2 className="text-3xl font-bold text-gray-800 text-center mb-6">
-                    Admin Login
-                </h2>
-                <p className="text-gray-500 text-center mb-8">
-                    Masuk untuk mengelola konten website Anda
-                </p>
+        <div className="flex min-h-screen items-center justify-center px-6 py-12">
+            <div className="w-full max-w-md">
+                {banner.map((data, i) => (
+                    <img
+                        alt={data.title}
+                        src={data.image_url}
+                        key={i}
+                        className="mx-auto h-40 w-auto"
+                    />
+                ))}
+                <h1 className="font-bold text-2xl text-center my-5 tracking-wider">Day Collection</h1>
 
-                <form onSubmit={handleSubmit} className="space-y-5">
+
+                {errorMessage && (
+                    <div className="mb-4 p-3 font-semibold tracking-wide bg-red-200 text-red-600 rounded">
+                        {errorMessage}
+                    </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="mt-10 space-y-6">
                     <div>
-                        <label className="block text-gray-700 font-medium mb-2">
-                            Email
+                        <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">
+                            Email address
                         </label>
-                        <input
-                            type="email"
-                            name="email"
-                            value={form.email}
-                            onChange={handleChange}
-                            required
-                            placeholder="Masukkan email admin"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400"
-                        />
+                        <div className="mt-2">
+                            <input
+                                id="email"
+                                name="email"
+                                type="email"
+                                value={form.email}
+                                placeholder="Masukkan email"
+                                onChange={handleChange}
+                                required
+                                autoComplete="email"
+                                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-400 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                            />
+                        </div>
                     </div>
 
                     <div>
-                        <label className="block text-gray-700 font-medium mb-2">
-                            Password
-                        </label>
-                        <input
-                            type="password"
-                            name="password"
-                            value={form.password}
-                            onChange={handleChange}
-                            required
-                            placeholder="Masukkan password"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-400"
-                        />
+                        <div className="flex items-center justify-between">
+                            <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900">
+                                Password
+                            </label>
+                            <div className="text-sm">
+                                <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
+                                    Forgot password?
+                                </a>
+                            </div>
+                        </div>
+                        <div className="mt-2">
+                            <input
+                                id="password"
+                                name="password"
+                                type="password"
+                                value={form.password}
+                                placeholder="Masukkan password"
+                                onChange={handleChange}
+                                required
+                                autoComplete="password"
+                                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-400 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                            />
+                        </div>
                     </div>
 
-                    {errorMessage && (
-                        <div className="text-red-500 text-sm text-center">{errorMessage}</div>
-                    )}
-
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-amber-500 hover:bg-amber-600 text-white font-semibold py-3 rounded-lg transition flex items-center justify-center"
-                    >
-                        {loading ? (
-                            <>
-                                <Loader2 className="animate-spin mr-2 h-5 w-5" />
-                                Memproses...
-                            </>
-                        ) : (
-                            "Login Sekarang"
-                        )}
-                    </button>
+                    <div>
+                        <button
+                            type="submit"
+                            disabled={loading}
+                            className="flex w-full bg-amber-500 hover:bg-amber-600 justify-center rounded-md px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                        >
+                            {loading ? "Loading..." : "Login"}
+                        </button>
+                    </div>
                 </form>
+
+                <p className="mt-10 text-center text-sm/6 text-gray-500">
+                    Copyright@DayCollection
+                    <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
+                        2025
+                    </a>
+                </p>
             </div>
         </div>
     )

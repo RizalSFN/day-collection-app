@@ -13,7 +13,7 @@ export default function AppRoutes() {
                 <Route path="/produk" element={<Produk />} />
                 <Route path="/login" element={<Login />} />
                 <Route
-                    path="/admin"
+                    path="/admin/dashboard"
                     element={
                         <ProtectedRoute>
                             <Dashboard />
