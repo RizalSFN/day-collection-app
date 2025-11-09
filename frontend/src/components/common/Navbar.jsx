@@ -46,7 +46,7 @@ export default function Navbar() {
                     </Link>
 
                     <Link
-                        to="/admin/login"
+                        to="/login"
                         className="ml-4 bg-amber-500 hover:bg-amber-600 text-white px-5 py-2 rounded-full transition"
                     >
                         Admin Login
