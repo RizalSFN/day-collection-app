@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { loginService } from "../../services/authService";
 import { setToken } from "../../utils/storage";
 
-const login = () => {
+const Login = () => {
     const [form, setForm] = useState({ email: "", password: "" })
     const [loading, setLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState("")
@@ -95,4 +95,4 @@ const login = () => {
     )
 }
 
-export default login
+export default Login
