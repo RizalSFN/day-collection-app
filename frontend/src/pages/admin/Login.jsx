@@ -19,8 +19,6 @@ const Login = () => {
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value })
-        console.log(form);
-
     }
 
     const handleSubmit = async (e) => {
@@ -35,6 +33,7 @@ const Login = () => {
                 alert("login berhasil")
                 window.location.href = "/admin/dashboard"
             }
+            setErrorMessage(response)
         } catch (error) {
             setErrorMessage(error.message || "Login gagal")
         } finally {
