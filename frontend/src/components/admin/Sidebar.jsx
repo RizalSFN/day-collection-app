@@ -11,12 +11,12 @@ const Sidebar = () => {
     const menuItems = [
         { name: "Dashboard", icon: <LayoutDashboard size={20} />, path: "/admin/dashboard", status: isActive("/admin/dashboard") },
         { name: "Produk", icon: <Package size={20} />, path: "/admin/products", status: isActive("/admin/products") },
-        { name: "Pesanan", icon: <ShoppingCart size={20} />, path: "/admin/orders", status: isActive("/admin/orders") },
+        // { name: "Pesanan", icon: <ShoppingCart size={20} />, path: "/admin/orders", status: isActive("/admin/orders") },
     ];
 
-    const laporanSubmenu = [
-        { name: "Laporan Penjualan", path: "/admin/laporan/penjualan" },
-        { name: "Laporan Stok", path: "/admin/laporan/stok" },
+    const marketplaceSubMenu = [
+        { name: "Marketplace Link", path: "/admin/marketplace/link", status: isActive("/admin/marketplace/link") },
+        { name: "Marketplace Platform", path: "/admin/marketplace/platform", status: isActive("/admin/marketplace/platform") },
     ];
 
     const handleLogout = () => {
@@ -52,11 +52,14 @@ const Sidebar = () => {
                 <div>
                     <button
                         onClick={() => setOpenDropdown(!openDropdown)}
-                        className="w-full flex items-center justify-between px-6 py-3 hover:bg-amber-400 rounded-r-full transition-all duration-200 focus:outline-none"
+                        className={`w-full flex items-center justify-between px-6 py-3 rounded-r-full transition-all duration-200 focus:outline-none ${isActive("/admin/marketplace/link") || isActive("/admin/marketplace/platform")
+                            ? "bg-white text-amber-600 font-semibold"
+                            : "hover:bg-amber-400"
+                            }`}
                     >
                         <div className="flex items-center gap-3">
-                            <FileBarChart size={20} />
-                            <span>Laporan</span>
+                            <ShoppingCart size={20} />
+                            <span>Marketplace</span>
                         </div>
                         {openDropdown ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
                     </button>
@@ -64,14 +67,13 @@ const Sidebar = () => {
                     {/* Submenu */}
                     {openDropdown && (
                         <div className="flex flex-col ml-10 mt-1 border-l border-amber-300">
-                            {laporanSubmenu.map((sub) => (
+                            {marketplaceSubMenu.map((sub) => (
                                 <NavLink
                                     key={sub.name}
                                     to={sub.path}
-                                    className={({ isActive }) =>
-                                        `pl-4 py-2 text-sm rounded transition-all duration-200 ${isActive
-                                            ? "text-amber-800 bg-white font-medium"
-                                            : "text-amber-100 hover:text-white hover:translate-x-1"
+                                    className={`pl-4 py-2 text-sm rounded transition-all duration-200 ${sub.status
+                                        ? "text-amber-800 bg-white font-medium"
+                                        : "text-amber-100 hover:text-white hover:translate-x-1"
                                         }`
                                     }
                                 >
