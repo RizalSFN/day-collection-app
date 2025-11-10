@@ -3,8 +3,8 @@ import { Package, ShoppingCart, Users } from "lucide-react";
 
 const DashboardContent = () => {
     const stats = [
-        { title: "Total Produk", value: 128, icon: <Package />, color: "bg-amber-100 text-amber-700" },
-        { title: "Pesanan Baru", value: 32, icon: <ShoppingCart />, color: "bg-amber-200 text-amber-800" },
+        { title: "Marketplace", value: 3, icon: <ShoppingCart />, color: "bg-amber-100 text-amber-700" },
+        { title: "Total Produk", value: 32, icon: <Package />, color: "bg-amber-200 text-amber-800" },
         { title: "User Aktif", value: 54, icon: <Users />, color: "bg-amber-50 text-amber-700" },
     ];
 
