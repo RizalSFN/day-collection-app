@@ -18,6 +18,6 @@ export const login = async (req, res) => {
 
         return successResponse(res, { user, token }, "Login berhasil", 200)
     } catch (error) {
-        return errorResponse(res, "Invalid email or passwor", 500)
+        return errorResponse(res, "Invalid email or password", 500)
     }
 }
