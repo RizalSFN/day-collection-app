@@ -4,6 +4,7 @@ import Produk from "../pages/Product";
 import ProtectedRoute from "./protectedRoute";
 import Dashboard from "../pages/admin/Dashboard";
 import Login from "../pages/admin/Login";
+import Product from "../pages/admin/Product";
 
 export default function AppRoutes() {
     return (
@@ -17,6 +18,14 @@ export default function AppRoutes() {
                     element={
                         <ProtectedRoute>
                             <Dashboard />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/produk"
+                    element={
+                        <ProtectedRoute>
+                            <Product />
                         </ProtectedRoute>
                     }
                 />
