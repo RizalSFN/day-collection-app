@@ -23,7 +23,7 @@ export default function AppRoutes() {
                     }
                 />
                 <Route
-                    path="/admin/produk"
+                    path="/admin/products"
                     element={
                         <ProtectedRoute>
                             <Product />
