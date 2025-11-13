@@ -22,8 +22,8 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
     ];
 
     const marketplaceSubMenu = [
-        { name: "Marketplace Link", path: "/admin/marketplace/link", status: isActive("/admin/marketplace/link") },
-        { name: "Marketplace Platform", path: "/admin/marketplace/platform", status: isActive("/admin/marketplace/platform") },
+        { name: "Marketplace Link", path: "/admin/marketplace-link", status: isActive("/admin/marketplace-link") },
+        { name: "Marketplace Platform", path: "/admin/marketplace-platform", status: isActive("/admin/marketplace-platform") },
     ];
 
     const handleLogout = () => {
@@ -83,7 +83,7 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
                     <div>
                         <button
                             onClick={() => setOpenDropdown(!openDropdown)}
-                            className={`w-full flex items-center justify-between px-6 py-3 rounded-r-full transition-all duration-200 focus:outline-none ${isActive("/admin/marketplace/link") || isActive("/admin/marketplace/platform")
+                            className={`w-full flex items-center justify-between px-6 py-3 rounded-r-full transition-all duration-200 focus:outline-none ${isActive("/admin/marketplace-link") || isActive("/admin/marketplace-platform")
                                 ? "bg-white text-amber-600 font-semibold"
                                 : "hover:bg-amber-400"
                                 }`}
@@ -102,8 +102,8 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
                                         key={sub.name}
                                         to={sub.path}
                                         className={`pl-4 py-2 text-sm rounded transition-all duration-200 ${sub.status
-                                            ? "text-amber-800 bg-white font-medium"
-                                            : "text-amber-100 hover:text-white hover:translate-x-1"
+                                            ? "text-white font-medium"
+                                            : "text-amber-100 hover:text-white hover:font-medium"
                                             }`
                                         }
                                         onClick={closeSidebar}
