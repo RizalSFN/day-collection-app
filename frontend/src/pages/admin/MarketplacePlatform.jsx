@@ -2,22 +2,25 @@ import React, { useEffect, useState } from "react";
 import { getMarketplacePlatform } from "../../services/marketplacePlatformService";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import ModalAddMarketplacePlatform from "../../components/admin/ModalAddMarketplacePlatform";
 
 const MarketplacePlatform = () => {
     const [marketplacePlatform, setMarketplacePlatform] = useState([])
     const [loading, setLoading] = useState(true)
+    const [openModal, setOpenModal] = useState(false)
+
+    const fetchData = async () => {
+        try {
+            const response = await getMarketplacePlatform()
+            setMarketplacePlatform(response)
+        } catch (error) {
+            console.log("Gagal memuat data marketplace platform: ", error);
+        } finally {
+            setLoading(false)
+        }
+    }
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await getMarketplacePlatform()
-                setMarketplacePlatform(response)
-            } catch (error) {
-                console.log("Gagal memuat data marketplace platform: ", error);
-            } finally {
-                setLoading(false)
-            }
-        }
         fetchData()
     }, [])
 
@@ -28,11 +31,11 @@ const MarketplacePlatform = () => {
                     Manajemen Produk
                 </h2>
                 <button
-                    onClick={() => (window.location.href = "/admin/marketplace-platform/create")}
+                    onClick={() => setOpenModal(true)}
                     className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg transition"
                 >
                     <Plus size={18} />
-                    Tambah Marketplace Platform
+                    Tambah
                 </button>
             </div>
 
@@ -88,6 +91,13 @@ const MarketplacePlatform = () => {
                             )}
                         </tbody>
                     </table>
+
+                    {/* modal */}
+                    <ModalAddMarketplacePlatform
+                        isOpen={openModal}
+                        onClose={() => setOpenModal(false)}
+                        onSuccess={fetchData}
+                    />
                 </div>
             )}
         </DashboardLayout>
