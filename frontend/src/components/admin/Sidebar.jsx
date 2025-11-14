@@ -103,7 +103,7 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
                             {openDropdown ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
                         </button>
 
-                        {openDropdown && (
+                        {(openDropdown || isSubMenuActive) && (
                             <div className="flex flex-col ml-10 mt-1 border-l border-amber-300">
                                 {marketplaceSubMenu.map((sub) => (
                                     <NavLink
