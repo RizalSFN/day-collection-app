@@ -14,7 +14,6 @@ export const getMarketplacePlatform = async () => {
 export const createMarketplacePlatform = async (payload) => {
     try {
         const token = getToken()
-        console.log(token);
         const response = await api.post("/marketplace-platform", payload, {
             headers: { Authorization: `Bearer ${token}` }
         })
@@ -22,6 +21,19 @@ export const createMarketplacePlatform = async (payload) => {
         return response.data
     } catch (error) {
         console.log("Gagal membuat data marketplace platform: ", error);
+        return []
+    }
+}
+
+export const deleteMarketplacePlatform = async (id) => {
+    try {
+        const token = getToken()
+        await api.delete(`/marketplace-platform/${id}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        })
+        return true
+    } catch (error) {
+        console.log("Gagal menghapus data marketplace platform", error);
         return []
     }
 }
