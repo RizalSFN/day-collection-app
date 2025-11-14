@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getMarketplacePlatform } from "../../services/marketplacePlatformService";
+import { deleteMarketplacePlatform, getMarketplacePlatform } from "../../services/marketplacePlatformService";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import ModalAddMarketplacePlatform from "../../components/admin/ModalAddMarketplacePlatform";
@@ -23,6 +23,19 @@ const MarketplacePlatform = () => {
     useEffect(() => {
         fetchData()
     }, [])
+
+    const handleDelete = async (id) => {
+        if (window.confirm("Apakah anda yakin untuk menghapus peroduk ini?")) {
+            try {
+                await deleteMarketplacePlatform(id)
+                alert("Produk berhasil dihapus")
+                fetchData()
+            } catch (error) {
+                console.log(error);
+                alert("Terjadi kesalahan saat menghapus produk")
+            }
+        }
+    }
 
     return (
         <DashboardLayout>
@@ -72,6 +85,7 @@ const MarketplacePlatform = () => {
                                                 <Pencil size={16} />
                                             </button>
                                             <button
+                                                onClick={() => handleDelete(item.id)}
                                                 className="p-2 bg-red-100 text-red-600 hover:bg-red-200 rounded-lg transition"
                                             >
                                                 <Trash2 size={16} />
