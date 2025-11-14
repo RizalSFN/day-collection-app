@@ -3,11 +3,14 @@ import { deleteMarketplacePlatform, getMarketplacePlatform } from "../../service
 import DashboardLayout from "../../layouts/DashboardLayout";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import ModalAddMarketplacePlatform from "../../components/admin/ModalAddMarketplacePlatform";
+import ModalUpdateMarketplacePLatform from "../../components/admin/ModalUpdateMarketplacePlatform";
 
 const MarketplacePlatform = () => {
     const [marketplacePlatform, setMarketplacePlatform] = useState([])
     const [loading, setLoading] = useState(true)
     const [openModal, setOpenModal] = useState(false)
+    const [selectedPlatform, setSelectedPlatform] = useState(null)
+    const [openEditModal, setOpenEditModal] = useState(false)
 
     const fetchData = async () => {
         try {
@@ -23,6 +26,11 @@ const MarketplacePlatform = () => {
     useEffect(() => {
         fetchData()
     }, [])
+
+    const handleEdit = (platform) => {
+        setSelectedPlatform(platform)
+        setOpenEditModal(true)
+    }
 
     const handleDelete = async (id) => {
         if (window.confirm("Apakah anda yakin untuk menghapus peroduk ini?")) {
@@ -77,9 +85,7 @@ const MarketplacePlatform = () => {
                                         <td className="px-6 py-3 font-medium">{item.name}</td>
                                         <td className="px-6 py-3 flex items-center gap-2">
                                             <button
-                                                onClick={() =>
-                                                    (window.location.href = `/admin/marketplace-platform/edit/${item.id}`)
-                                                }
+                                                onClick={() => handleEdit(item)}
                                                 className="p-2 bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-lg transition"
                                             >
                                                 <Pencil size={16} />
@@ -111,6 +117,13 @@ const MarketplacePlatform = () => {
                         isOpen={openModal}
                         onClose={() => setOpenModal(false)}
                         onSuccess={fetchData}
+                    />
+
+                    <ModalUpdateMarketplacePLatform
+                        open={openEditModal}
+                        onClose={() => setOpenEditModal(false)}
+                        onSuccess={fetchData}
+                        platform={selectedPlatform}
                     />
                 </div>
             )}
