@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import Sidebar from "../components/admin/Sidebar";
 import { Menu } from "lucide-react";
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/ReactToastify.css'
 
 const DashboardLayout = ({ children }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -37,6 +39,7 @@ const DashboardLayout = ({ children }) => {
                 {/* Konten halaman */}
                 <main className="p-6 flex-1">{children}</main>
             </div>
+            <ToastContainer />
         </div>
     );
 };
