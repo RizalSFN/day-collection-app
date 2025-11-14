@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
     LayoutDashboard,
@@ -25,6 +25,14 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
         { name: "Marketplace Link", path: "/admin/marketplace-link", status: isActive("/admin/marketplace-link") },
         { name: "Marketplace Platform", path: "/admin/marketplace-platform", status: isActive("/admin/marketplace-platform") },
     ];
+
+    const isSubMenuActive = marketplaceSubMenu.some(sub => isActive(sub.path));
+
+    useEffect(() => {
+        if (isSubMenuActive) {
+            setOpenDropdown(true)
+        }
+    }, [location.pathname, isSubMenuActive])
 
     const handleLogout = () => {
         removeToken();
