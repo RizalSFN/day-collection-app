@@ -4,6 +4,7 @@ import DashboardLayout from "../../layouts/DashboardLayout";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import ModalAddMarketplacePlatform from "../../components/admin/ModalAddMarketplacePlatform";
 import ModalUpdateMarketplacePLatform from "../../components/admin/ModalUpdateMarketplacePlatform";
+import { toast } from "react-toastify";
 
 const MarketplacePlatform = () => {
     const [marketplacePlatform, setMarketplacePlatform] = useState([])
@@ -33,15 +34,29 @@ const MarketplacePlatform = () => {
     }
 
     const handleDelete = async (id) => {
-        if (window.confirm("Apakah anda yakin untuk menghapus peroduk ini?")) {
-            try {
-                await deleteMarketplacePlatform(id)
-                alert("Produk berhasil dihapus")
-                fetchData()
-            } catch (error) {
-                console.log(error);
-                alert("Terjadi kesalahan saat menghapus produk")
-            }
+        try {
+            toast(
+                ({ closeToast }) => (
+                    <div>
+                        <p>Yakin ingin menghapus data?</p>
+                        <button
+                            onClick={async () => {
+                                await deleteMarketplacePlatform(id);
+                                toast.success("Data berhasil dihapus");
+                                fetchData()
+                                closeToast();
+                            }}
+                            className="px-3 py-1 bg-red-600 text-white rounded-md"
+                        >
+                            Hapus
+                        </button>
+                    </div>
+                ),
+                { autoClose: false }
+            );
+        } catch (error) {
+            console.log(error);
+            toast.error("Gagal menghapus data marketplace platform")
         }
     }
 
