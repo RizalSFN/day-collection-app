@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { X } from "lucide-react";
 import { createMarketplacePlatform } from "../../services/marketplacePlatformService";
+import { toast } from "react-toastify";
 
 const ModalAddMarketplacePlatform = ({ isOpen, onClose, onSuccess }) => {
     const [name, setName] = useState("")
@@ -12,12 +13,15 @@ const ModalAddMarketplacePlatform = ({ isOpen, onClose, onSuccess }) => {
 
         try {
             await createMarketplacePlatform({ name })
+
+            toast.success("Berhasil menambah data marketplace platform")
+
             onSuccess()
             onClose()
             setName("")
         } catch (error) {
             console.log("Gagal menambah data marketplace platform", error);
-            alert("Gagal menambahkan platform marketplace")
+            toast.error("Gagal menambah data marketplace platform")
         }
     }
 
