@@ -49,10 +49,10 @@ export default function ModalUpdateMarketplaceLink({ data, onClose, onSuccess })
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
 
                     <div>
-                        <label>Product ID</label>
+                        <label>Product</label>
                         <select {...register("product_id")} className="w-full border p-2 rounded">
                             {products.map((item) => (
-                                <option key={item.id} value={item.id} selected={item.product_id == data.product_id ? "selected" : ""}>
+                                <option key={item.id} value={item.id} selected={item.id == data.product_id ? "selected" : ""}>
                                     {item.name}
                                 </option>
                             ))}
@@ -60,10 +60,10 @@ export default function ModalUpdateMarketplaceLink({ data, onClose, onSuccess })
                     </div>
 
                     <div>
-                        <label>Platform ID</label>
+                        <label>Platform</label>
                         <select {...register("platform_id")} className="w-full border p-2 rounded">
                             {platforms.map((item) => (
-                                <option key={item.id} value={item.id} selected={item.platform_id == data.platform_id ? "selected" : ""}>
+                                <option key={item.id} value={item.id} selected={item.id == data.platform_id ? "selected" : ""}>
                                     {item.name}
                                 </option>
                             ))}

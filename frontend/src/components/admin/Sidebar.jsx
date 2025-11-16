@@ -8,6 +8,7 @@ import {
     ChevronRight,
     LogOut,
     X,
+    Settings
 } from "lucide-react";
 import { removeToken } from "../../utils/storage";
 
@@ -19,6 +20,7 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
     const menuItems = [
         { name: "Dashboard", icon: <LayoutDashboard size={20} />, path: "/admin/dashboard", status: isActive("/admin/dashboard") },
         { name: "Produk", icon: <Package size={20} />, path: "/admin/products", status: isActive("/admin/products") },
+        { name: "Setting", icon: <Settings size={20} />, path: "/admin/setting", status: isActive("/admin/setting") },
     ];
 
     const marketplaceSubMenu = [
