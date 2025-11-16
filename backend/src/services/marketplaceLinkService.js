@@ -6,7 +6,7 @@ export const createMarketplaceLink = async (data) => {
             product_id: Number(data.product_id),
             platform_id: Number(data.platform_id),
             url: data.url,
-            is_active: data.is_active ?? true
+            is_active: Number(data.is_active) == 1 ? true : false
         },
         include: {
             products: true,
@@ -62,7 +62,7 @@ export const updateMarketplaceLink = async (id, data) => {
                 marketplace_platform: { connect: { id: Number(data.platform_id) } }
             }),
             url: data.url,
-            is_active: data.is_active
+            is_active: Number(data.is_active) == 1 ? true : false
         },
         include: {
             products: {
