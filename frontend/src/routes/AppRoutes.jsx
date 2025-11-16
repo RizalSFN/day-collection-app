@@ -6,6 +6,7 @@ import Dashboard from "../pages/admin/Dashboard";
 import Login from "../pages/admin/Login";
 import Product from "../pages/admin/Product";
 import MarketplacePlatform from "../pages/admin/MarketplacePlatform";
+import MarketplaceLink from "../pages/admin/MarketplaceLink";
 
 export default function AppRoutes() {
     return (
@@ -35,6 +36,14 @@ export default function AppRoutes() {
                     element={
                         <ProtectedRoute>
                             <MarketplacePlatform />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/marketplace-link"
+                    element={
+                        <ProtectedRoute>
+                            <MarketplaceLink />
                         </ProtectedRoute>
                     }
                 />
