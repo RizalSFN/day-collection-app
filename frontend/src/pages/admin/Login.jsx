@@ -30,7 +30,6 @@ const Login = () => {
             const response = await loginService(form)
             if (response.success) {
                 setToken(response.data.token)
-                alert("login berhasil")
                 window.location.href = "/admin/dashboard"
             }
             setErrorMessage(response)
