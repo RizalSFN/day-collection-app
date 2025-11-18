@@ -3,12 +3,12 @@ import { NavLink, useLocation } from "react-router-dom";
 import {
     LayoutDashboard,
     Package,
-    FileBarChart,
     ChevronDown,
     ChevronRight,
     LogOut,
     X,
-    Settings
+    Settings,
+    Store
 } from "lucide-react";
 import { removeToken } from "../../utils/storage";
 
@@ -20,7 +20,7 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
     const menuItems = [
         { name: "Dashboard", icon: <LayoutDashboard size={20} />, path: "/admin/dashboard", status: isActive("/admin/dashboard") },
         { name: "Produk", icon: <Package size={20} />, path: "/admin/products", status: isActive("/admin/products") },
-        { name: "Setting", icon: <Settings size={20} />, path: "/admin/setting", status: isActive("/admin/setting") },
+        { name: "Setting", icon: <Settings size={20} />, path: "/admin/settings", status: isActive("/admin/settings") },
     ];
 
     const marketplaceSubMenu = [
@@ -99,8 +99,8 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
                                 }`}
                         >
                             <div className="flex items-center gap-3">
-                                <FileBarChart size={20} />
-                                <span>Laporan</span>
+                                <Store size={20} />
+                                <span>Marketplace</span>
                             </div>
                             {openDropdown ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
                         </button>

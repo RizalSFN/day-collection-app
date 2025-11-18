@@ -7,6 +7,7 @@ import Login from "../pages/admin/Login";
 import Product from "../pages/admin/Product";
 import MarketplacePlatform from "../pages/admin/MarketplacePlatform";
 import MarketplaceLink from "../pages/admin/MarketplaceLink";
+import { Setting } from "../pages/admin/Setting";
 
 export default function AppRoutes() {
     return (
@@ -28,6 +29,14 @@ export default function AppRoutes() {
                     element={
                         <ProtectedRoute>
                             <Product />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/admin/settings"
+                    element={
+                        <ProtectedRoute>
+                            <Setting />
                         </ProtectedRoute>
                     }
                 />
