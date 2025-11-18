@@ -38,7 +38,7 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
 
     const handleLogout = () => {
         removeToken();
-        window.location.href = "/login";
+        window.location.href = "/";
     };
 
     return (
