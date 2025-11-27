@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { loginService } from "../../services/authService";
 import { setToken } from "../../utils/storage";
-import { getBanner } from "../../services/bannerService";
+import { getAppSetting } from "../../services/appSettingService";
 
 const Login = () => {
     const [form, setForm] = useState({ email: "", password: "" })
@@ -11,11 +11,11 @@ const Login = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            const dataBanner = await getBanner()
+            const dataBanner = await getAppSetting()
             setBanner(dataBanner)
         }
         fetchData()
-    })
+    }, [])
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value })
@@ -43,14 +43,17 @@ const Login = () => {
     return (
         <div className="flex min-h-screen items-center justify-center px-6 py-12">
             <div className="w-full max-w-md">
-                {banner.map((data, i) => (
-                    <img
-                        alt={data.title}
-                        src={data.image_url}
-                        key={i}
-                        className="mx-auto h-40 w-auto"
-                    />
-                ))}
+                {banner
+                    .filter(item => item.name === "banner")
+                    .map((item, i) => (
+                        <img
+                            key={i}
+                            src={item.value}
+                            alt="banner"
+                            className="mx-auto h-40 w-auto"
+                        />
+                    ))
+                }
                 <h1 className="font-bold text-2xl text-center my-5 tracking-wider">Day Collection</h1>
 
 
