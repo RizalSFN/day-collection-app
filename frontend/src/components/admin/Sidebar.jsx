@@ -7,6 +7,7 @@ import {
     ChevronRight,
     LogOut,
     X,
+    Image,
     Settings,
     Store
 } from "lucide-react";
@@ -21,6 +22,7 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
         { name: "Dashboard", icon: <LayoutDashboard size={20} />, path: "/admin/dashboard", status: isActive("/admin/dashboard") },
         { name: "Produk", icon: <Package size={20} />, path: "/admin/products", status: isActive("/admin/products") },
         { name: "Setting", icon: <Settings size={20} />, path: "/admin/settings", status: isActive("/admin/settings") },
+        { name: "Banner", icon: <Image size={20} />, path: "/admin/banner", status: isActive("/admin/banner") },
     ];
 
     const marketplaceSubMenu = [
