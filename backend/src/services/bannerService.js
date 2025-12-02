@@ -13,7 +13,6 @@ export const createBanner = async (data, filePath) => {
         data: {
             title: data.title,
             image_url: uploadResult.secure_url,
-            link: data.link,
             is_active: data.is_active ?? true
         }
     })
@@ -28,7 +27,6 @@ export const getAllBanner = async () => {
 export const updateBanner = async (id, data, filePath) => {
     let updateData = {
         title: data.title,
-        link: data.link,
         is_active: data.is_active ?? true
     }
 
