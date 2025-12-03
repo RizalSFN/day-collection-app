@@ -27,8 +27,20 @@ export const createBanner = async (payload) => {
 export const updateBanner = async (id, data) => {
     try {
         const token = getToken()
+        const formData = new FormData()
+
+        formData.append("title", data.title)
+        formData.append("is_active", data.is_active)
+
+        if (data.image_url && data.image_url.length > 0) {
+            formData.append("image_url", data.image_url[0])
+        }
+
         const response = await api.put(`/banner/${id}`, data, {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: {
+                "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ${token}`
+            }
         })
         return response.data
     } catch (error) {
