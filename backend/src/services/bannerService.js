@@ -18,16 +18,22 @@ export const createBanner = async (data, filePath) => {
     })
 }
 
-export const getAllBanner = async () => {
+export const getActiveBanner = async () => {
     return await prisma.banner.findFirst({
         where: { is_active: true }
+    })
+}
+
+export const getAllBanner = async () => {
+    return await prisma.banner.findMany({
+        orderBy: { id: 'asc' }
     })
 }
 
 export const updateBanner = async (id, data, filePath) => {
     let updateData = {
         title: data.title,
-        is_active: data.is_active ?? true
+        is_active: Number(data.is_active) == 1 ? true : false
     }
 
     if (filePath) {
