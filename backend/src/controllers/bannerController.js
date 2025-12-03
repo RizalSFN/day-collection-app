@@ -11,6 +11,16 @@ export const createBanner = async (req, res) => {
     }
 }
 
+export const getActiveBanner = async (req, res) => {
+    try {
+        const banner = await bannerService.getActiveBanner()
+        return successResponse(res, banner, "Berhasil memuat data banner", 200)
+    } catch (error) {
+        console.log(error);
+        return errorResponse(res, "Gagal memuat data banner", 500)
+    }
+}
+
 export const getAllBanner = async (req, res) => {
     try {
         const banner = await bannerService.getAllBanner()
