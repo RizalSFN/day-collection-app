@@ -19,8 +19,7 @@ export const createBanner = async (data, filePath) => {
 }
 
 export const getAllBanner = async () => {
-    return await prisma.banner.findUnique({
-        orderBy: { id: "asc" },
+    return await prisma.banner.findFirst({
         where: { is_active: true }
     })
 }
