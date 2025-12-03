@@ -11,6 +11,18 @@ export const getBanner = async () => {
     }
 }
 
+export const getActiveBanner = async () => {
+    try {
+        const response = await api.get("/banner/active")
+        console.log(response);
+
+        return response.data.data
+    } catch (error) {
+        console.error("Gagal memuat data banner: ", error);
+        return []
+    }
+}
+
 export const createBanner = async (payload) => {
     try {
         const token = getToken()
@@ -36,7 +48,7 @@ export const updateBanner = async (id, data) => {
             formData.append("image_url", data.image_url[0])
         }
 
-        const response = await api.put(`/banner/${id}`, data, {
+        const response = await api.put(`/banner/${id}`, formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
                 Authorization: `Bearer ${token}`
