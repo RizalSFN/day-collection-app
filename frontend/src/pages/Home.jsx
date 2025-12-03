@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import MainLayout from "../layouts/MainLayout.jsx";
 import { ShoppingCart, ChevronRight } from "lucide-react";
 import { getProducts } from "../services/productService.js"
-import { getBanner } from "../services/bannerService.js";
+import { getActiveBanner } from "../services/bannerService.js";
 
 export default function Home() {
     const [products, setProducts] = useState([])
@@ -13,7 +13,7 @@ export default function Home() {
     useEffect(() => {
         const fetchData = async () => {
             const response = await getProducts();
-            const dataBanner = await getBanner()
+            const dataBanner = await getActiveBanner()
             setProducts(response)
             setBanner(dataBanner)
         }
@@ -57,15 +57,11 @@ export default function Home() {
 
                 {/* Image Section */}
                 <div className="md:w-1/2 mb-10 md:mb-0 flex justify-center">
-                    {banner.map((item, i) => (
-                        <img
-                            key={i}
-                            src={item.image_url}
-                            alt={item.title}
-                            className="w-80 md:w-96 rounded-2xl"
-                        />
-                    ))
-                    }
+                    <img
+                        src={banner.image_url}
+                        alt={banner.title}
+                        className="w-80 md:w-96 rounded-2xl"
+                    />
                 </div>
             </section>
 

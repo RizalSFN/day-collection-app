@@ -62,14 +62,14 @@ export const Banner = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {banner.length > 0 ? (
-                                banner.map((item, index) => (
+                            {banner ? (
+                                banner.map((item, i) => (
                                     <tr
-                                        key={item.id}
+                                        key={i}
                                         className="border-b hover:bg-gray-50 transition"
                                     >
                                         <td className="px-6 py-3">
-                                            {index + 1}
+                                            {i + 1}
                                         </td>
                                         <td className="px-6 py-3 font-medium">{item.title}</td>
                                         <td className="px-6 py-3 font-medium">
@@ -79,7 +79,16 @@ export const Banner = () => {
                                                 className="h-20 object-cover"
                                             />
                                         </td>
-                                        <td className="px-6 py-3 font-medium">{item.is_active == 1 ? "aktif" : "nonaktif"}</td>
+                                        <td className="px-6 py-3 font-medium">
+                                            <span
+                                                className={`px-2 py-1 rounded text-xs font-medium ${item.is_active === true
+                                                    ? "bg-green-100 text-green-700"
+                                                    : "bg-red-100 text-red-700"
+                                                    }`}
+                                            >
+                                                {item.is_active == 1 ? "Aktif" : "Nonaktif"}
+                                            </span>
+                                        </td>
                                         <td className="px-6 py-9 flex items-center gap-2">
                                             <button
                                                 onClick={() => handleEdit(item)}
