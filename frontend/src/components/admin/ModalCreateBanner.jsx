@@ -48,7 +48,7 @@ export default function ModalCreateBanner({ onClose, onSuccess }) {
                             <div>
                                 <label className="font-medium">Gambar</label>
                                 <input
-                                    {...register("main_image")}
+                                    {...register("image_url")}
                                     type="file"
                                     className="w-full border p-2 rounded"
                                 />

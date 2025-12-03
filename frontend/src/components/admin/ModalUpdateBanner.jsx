@@ -7,8 +7,7 @@ export default function ModalUpdateBanner({ data, onClose, onSuccess }) {
     const { register, handleSubmit } = useForm({
         defaultValues: {
             title: data.title,
-            image_url: data.image_url,
-            is_active: data.is_active ? "1" : "0",
+            is_active: data.is_active ? 1 : 0
         }
     })
     const [loading, setLoading] = useState(false)
@@ -50,12 +49,10 @@ export default function ModalUpdateBanner({ data, onClose, onSuccess }) {
                             </div>
                             <div>
                                 <label>Status</label>
-                                <select {...register("is_active", {
-                                    setValueAs: (v) => v === "1"
-                                })}
+                                <select {...register("is_active")}
                                     defaultValue={data.is_active} className="w-full border p-2 rounded">
-                                    <option value={0}>Nonaktif</option>
-                                    <option value={1}>Aktif</option>
+                                    <option value="0">Nonaktif</option>
+                                    <option value="1">Aktif</option>
                                 </select>
                             </div>
                         </div>
