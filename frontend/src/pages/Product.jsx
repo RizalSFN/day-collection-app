@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ShoppingCart, Search } from "lucide-react";
+import { ShoppingCart, Search, ChevronsLeft, ChevronsRight } from "lucide-react";
 import MainLayout from "../layouts/MainLayout";
 import { getMarketplaceLink } from "../services/marketplaceLinkService";
 
@@ -8,6 +8,8 @@ export default function Produk() {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 1;
 
     // === Fetch data dari API ===
     useEffect(() => {
@@ -25,9 +27,20 @@ export default function Produk() {
         fetchProducts();
     }, []);
 
+    const indexOfLast = currentPage * itemsPerPage;
+    const indexOfFirst = indexOfLast - itemsPerPage;
+    const currentProducts = products.slice(indexOfFirst, indexOfLast);
+    const totalPages = Math.ceil(products.length / itemsPerPage);
+
+
     // === Filtering berdasarkan pencarian ===
-    const filteredProducts = (products || []).filter((product) =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredProducts = (currentProducts || []).filter((currentProducts) =>
+        currentProducts.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const paginatedProducts = filteredProducts.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
     );
 
     // === Modal handler ===
@@ -90,12 +103,12 @@ export default function Produk() {
                                     </p>
 
                                     <div className="mt-4 flex space-x-3">
-                                        <button className="py-2 px-4 bg-amber-500 hover:bg-amber-600 text-white justify-center items-center rounded-lg transition">
+                                        <button className="py-2 px-4 bg-amber-500 hover:bg-amber-600 hover:cursor-pointer text-white justify-center items-center rounded-lg transition">
                                             <ShoppingCart className="w-5 h-5" />
                                         </button>
                                         <button
                                             onClick={() => openModal(product)}
-                                            className="flex-1 text-center border border-amber-500 text-amber-600 hover:bg-amber-50 py-2 rounded-lg transition"
+                                            className="flex-1 text-center border border-amber-500 text-amber-600 hover:bg-amber-500 hover:text-white hover:cursor-pointer py-2 rounded-lg transition"
                                         >
                                             Lihat Detail
                                         </button>
@@ -105,6 +118,73 @@ export default function Produk() {
                         ))}
                     </div>
                 )}
+                {/* Pagination */}
+                <div className="flex justify-center items-center mt-10 gap-2">
+
+                    {/* Prev Button */}
+                    <button
+                        disabled={currentPage === 1}
+                        onClick={() => setCurrentPage(currentPage - 1)}
+                        className={`px-3 py-1 rounded border 
+            ${currentPage === 1 ? "bg-gray-200 text-gray-400" : "bg-white hover:bg-gray-100"}
+        `}
+                    >
+                        Prev
+                    </button>
+
+                    {/* --- Generate Dynamic Pages --- */}
+                    {(() => {
+                        const maxPages = 4; // Maksimal halaman tampil
+                        let startPage = 1;
+                        let endPage = totalPages;
+
+                        if (totalPages > maxPages) {
+                            const half = Math.floor(maxPages / 2);
+
+                            if (currentPage <= half + 1) {
+                                // Fokus di awal
+                                startPage = 1;
+                                endPage = maxPages;
+                            } else if (currentPage >= totalPages - half) {
+                                // Fokus di akhir
+                                startPage = totalPages - maxPages + 1;
+                                endPage = totalPages;
+                            } else {
+                                // Fokus di tengah
+                                startPage = currentPage - half;
+                                endPage = currentPage + half - 1;
+                            }
+                        }
+
+                        const pages = [];
+                        for (let i = startPage; i <= endPage; i++) {
+                            pages.push(
+                                <button
+                                    key={i}
+                                    onClick={() => setCurrentPage(i)}
+                                    className={`px-3 py-1 rounded border 
+                        ${currentPage === i ? "bg-amber-500 text-white" : "bg-white hover:bg-gray-100"}
+                    `}
+                                >
+                                    {i}
+                                </button>
+                            );
+                        }
+
+                        return pages;
+                    })()}
+
+                    {/* Next Button */}
+                    <button
+                        disabled={currentPage === totalPages}
+                        onClick={() => setCurrentPage(currentPage + 1)}
+                        className={`px-3 py-1 rounded border 
+            ${currentPage === totalPages ? "bg-gray-200 text-gray-400" : "bg-white hover:bg-gray-100"}
+        `}
+                    >
+                        Next
+                    </button>
+                </div>
             </section>
 
             {/* ===== MODAL DETAIL PRODUK ===== */}

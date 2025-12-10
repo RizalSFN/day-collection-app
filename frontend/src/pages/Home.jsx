@@ -106,12 +106,12 @@ export default function Home() {
                                             )}
                                         </p>
                                         <div className="mt-4 flex space-x-3">
-                                            <button className="py-2 px-4 bg-amber-500 hover:bg-amber-600 text-white justify-center products-center rounded-lg transition">
+                                            <button className="py-2 px-4 bg-amber-500 hover:bg-amber-600 hover:cursor-pointer text-white justify-center products-center rounded-lg transition">
                                                 <ShoppingCart />
                                             </button>
                                             <button
                                                 onClick={() => openModal(product)}
-                                                className="flex-1 text-center border border-amber-500 text-amber-600 hover:bg-amber-50 py-2 rounded-lg transition"
+                                                className="flex-1 text-center border border-amber-500 text-amber-600 hover:bg-amber-500 hover:text-white hover:cursor-pointer py-2 rounded-lg transition"
                                             >
                                                 Lihat Detail
                                             </button>
