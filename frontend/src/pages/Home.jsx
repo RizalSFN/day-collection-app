@@ -8,6 +8,7 @@ export default function Home() {
     const [products, setProducts] = useState([])
     const [banner, setBanner] = useState([])
     const [selectedProduct, setSelectedProduct] = useState(null);
+    const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false)
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
@@ -30,6 +31,15 @@ export default function Home() {
         setIsModalOpen(false);
     };
 
+    const openCheckoutModal = (product) => {
+        setSelectedProduct(product)
+        setIsCheckoutModalOpen(true)
+    }
+
+    const closeCheckoutModal = () => {
+        setSelectedProduct(null)
+        setIsCheckoutModalOpen(false)
+    }
 
     return (
         <MainLayout>
@@ -106,7 +116,9 @@ export default function Home() {
                                             )}
                                         </p>
                                         <div className="mt-4 flex space-x-3">
-                                            <button className="py-2 px-4 bg-amber-500 hover:bg-amber-600 hover:cursor-pointer text-white justify-center products-center rounded-lg transition">
+                                            <button
+                                                onClick={() => openCheckoutModal(product)}
+                                                className="py-2 px-4 bg-amber-500 hover:bg-amber-600 hover:cursor-pointer text-white justify-center products-center rounded-lg transition">
                                                 <ShoppingCart />
                                             </button>
                                             <button
@@ -206,6 +218,67 @@ export default function Home() {
                         <button
                             onClick={closeModal}
                             className="absolute top-4 right-5 text-gray-700 hover:text-gray-900 text-3xl font-bold"
+                        >
+                            ×
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal Cart */}
+            {isCheckoutModalOpen && selectedProduct && (
+                <div
+                    className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50"
+                    onClick={closeCheckoutModal}
+                >
+                    <div
+                        className="bg-white w-[90%] max-w-md rounded-2xl shadow-lg p-6 animate-fadeIn relative"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <h3 className="text-xl font-semibold text-gray-800 mb-4 text-center">
+                            Pilih Metode Checkout
+                        </h3>
+
+                        <div className="space-y-3">
+                            {selectedProduct.marketplace_link &&
+                                selectedProduct.marketplace_link.length > 0 ? (
+                                selectedProduct.marketplace_link.map((link) => {
+                                    const platformName = link.marketplace_platform.name.toLowerCase();
+                                    let buttonColor = "";
+
+                                    if (platformName.includes("shopee")) {
+                                        buttonColor = "bg-orange-500 hover:bg-orange-600";
+                                    } else if (platformName.includes("tokopedia")) {
+                                        buttonColor = "bg-green-500 hover:bg-green-600";
+                                    } else if (platformName.includes("lazada")) {
+                                        buttonColor = "bg-blue-500 hover:bg-blue-600";
+                                    } else {
+                                        buttonColor = "bg-gray-500 hover:bg-gray-600";
+                                    }
+
+                                    return (
+                                        <a
+                                            key={link.id}
+                                            href={link.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className={`${buttonColor} block text-white py-3 rounded-xl text-center font-medium transition`}
+                                        >
+                                            Checkout via {link.marketplace_platform.name}
+                                        </a>
+                                    );
+                                })
+                            ) : (
+                                <p className="text-gray-400 text-center text-sm">
+                                    Tidak ada opsi checkout tersedia.
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Tombol Tutup */}
+                        <button
+                            onClick={closeCheckoutModal}
+                            className="absolute top-4 right-4 text-gray-700 hover:text-gray-900 text-2xl font-bold"
                         >
                             ×
                         </button>

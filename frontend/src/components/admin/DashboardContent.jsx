@@ -1,11 +1,65 @@
-import React from "react";
-import { Package, ShoppingCart, Users } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Package, ShoppingCart, Image } from "lucide-react";
+import { getProducts } from "../../services/productService";
+import { getBanner } from "../../services/bannerService";
+import { getMarketplacePlatform } from "../../services/marketplacePlatformService"
 
 const DashboardContent = () => {
+    const [dashboardStats, setDashboardStats] = useState({
+        totalMarketplace: 0,
+        totalProducts: 0,
+        totalUsers: 0,
+    });
+
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchDashboardData = async () => {
+            try {
+                const [
+                    products,
+                    banner,
+                    marketplaces,
+                ] = await Promise.all([
+                    getProducts(),
+                    getBanner(),
+                    getMarketplacePlatform(),
+                ]);
+
+                setDashboardStats({
+                    totalProducts: products.length,
+                    totalBanner: banner.length,
+                    totalMarketplace: marketplaces.length,
+                });
+            } catch (error) {
+                console.error("Gagal memuat data dashboard:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDashboardData();
+    }, []);
+
     const stats = [
-        { title: "Marketplace", value: 3, icon: <ShoppingCart />, color: "bg-amber-100 text-amber-700" },
-        { title: "Total Produk", value: 32, icon: <Package />, color: "bg-amber-200 text-amber-800" },
-        { title: "User Aktif", value: 54, icon: <Users />, color: "bg-amber-50 text-amber-700" },
+        {
+            title: "Marketplace Platform",
+            value: dashboardStats.totalMarketplace,
+            icon: <ShoppingCart />,
+            color: "bg-amber-100 text-amber-700",
+        },
+        {
+            title: "Total Produk",
+            value: dashboardStats.totalProducts,
+            icon: <Package />,
+            color: "bg-amber-200 text-amber-800",
+        },
+        {
+            title: "User Aktif",
+            value: dashboardStats.totalBanner,
+            icon: <Image />,
+            color: "bg-amber-50 text-amber-700",
+        },
     ];
 
     return (
@@ -21,9 +75,19 @@ const DashboardContent = () => {
                         className={`flex items-center justify-between p-6 rounded-xl shadow-md ${item.color}`}
                     >
                         <div>
-                            <h3 className="text-lg font-medium">{item.title}</h3>
-                            <p className="text-3xl font-bold mt-1">{item.value}</p>
+                            <h3 className="text-lg font-medium">
+                                {item.title}
+                            </h3>
+
+                            {loading ? (
+                                <div className="h-8 w-16 bg-gray-300 animate-pulse rounded mt-2"></div>
+                            ) : (
+                                <p className="text-3xl font-bold mt-1">
+                                    {item.value}
+                                </p>
+                            )}
                         </div>
+
                         <div className="opacity-70">{item.icon}</div>
                     </div>
                 ))}
@@ -33,10 +97,11 @@ const DashboardContent = () => {
                 <h3 className="text-lg font-semibold mb-4 text-gray-800">
                     Aktivitas Terbaru
                 </h3>
+
                 <ul className="text-gray-600 space-y-2">
+                    <li>• Banner baru berhasil dipublikasikan</li>
                     <li>• Produk <b>"Sneakers Kuning"</b> berhasil ditambahkan</li>
-                    <li>• Pesanan baru dari pengguna <b>"Rizal Sofiana"</b></li>
-                    <li>• Stok produk <b>"Sepatu Lari Amber"</b> diperbarui</li>
+                    <li>• Marketplace <b>"Shopee"</b> diaktifkan</li>
                 </ul>
             </div>
         </div>
