@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ShoppingCart, Search, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { ShoppingCart, Search } from "lucide-react";
 import MainLayout from "../layouts/MainLayout";
 import { getMarketplaceLink } from "../services/marketplaceLinkService";
 
@@ -8,8 +8,9 @@ export default function Produk() {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false)
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 1;
+    const itemsPerPage = 6;
 
     // === Fetch data dari API ===
     useEffect(() => {
@@ -17,7 +18,6 @@ export default function Produk() {
             try {
                 const response = await getMarketplaceLink();
                 setProducts(response)
-                console.log(response);
 
             } catch (error) {
                 console.error("Error fetching products:", error);
@@ -29,18 +29,17 @@ export default function Produk() {
 
     const indexOfLast = currentPage * itemsPerPage;
     const indexOfFirst = indexOfLast - itemsPerPage;
-    const currentProducts = products.slice(indexOfFirst, indexOfLast);
-    const totalPages = Math.ceil(products.length / itemsPerPage);
-
 
     // === Filtering berdasarkan pencarian ===
-    const filteredProducts = (currentProducts || []).filter((currentProducts) =>
-        currentProducts.name.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredProducts = (products || []).filter((products) =>
+        products.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const totalPages = Math.ceil(products.length / itemsPerPage);
+
     const paginatedProducts = filteredProducts.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
+        indexOfFirst,
+        indexOfLast
     );
 
     // === Modal handler ===
@@ -48,6 +47,16 @@ export default function Produk() {
         setSelectedProduct(product);
         setIsModalOpen(true);
     };
+
+    const openCheckoutModal = (product) => {
+        setSelectedProduct(product)
+        setIsCheckoutModalOpen(true)
+    }
+
+    const closeCheckoutModal = () => {
+        setSelectedProduct(null)
+        setIsCheckoutModalOpen(false)
+    }
 
     const closeModal = () => {
         setSelectedProduct(null);
@@ -73,18 +82,21 @@ export default function Produk() {
                         type="text"
                         placeholder="Cari produk..."
                         value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        onChange={(e) => {
+                            setSearchTerm(e.target.value)
+                            setCurrentPage(1)
+                        }}
                         className="w-full border border-gray-300 rounded-lg py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-amber-500"
                     />
                     <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
                 </div>
 
                 {/* Product Grid */}
-                {filteredProducts.length === 0 ? (
+                {paginatedProducts.length === 0 ? (
                     <p className="text-center text-gray-500">Produk tidak ditemukan.</p>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {filteredProducts.map((product, i) => (
+                        {paginatedProducts.map((product, i) => (
                             <div
                                 key={i}
                                 className="bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden"
@@ -103,7 +115,9 @@ export default function Produk() {
                                     </p>
 
                                     <div className="mt-4 flex space-x-3">
-                                        <button className="py-2 px-4 bg-amber-500 hover:bg-amber-600 hover:cursor-pointer text-white justify-center items-center rounded-lg transition">
+                                        <button
+                                            onClick={() => openCheckoutModal(product)}
+                                            className="py-2 px-4 bg-amber-500 hover:bg-amber-600 hover:cursor-pointer text-white justify-center items-center rounded-lg transition">
                                             <ShoppingCart className="w-5 h-5" />
                                         </button>
                                         <button
@@ -119,72 +133,71 @@ export default function Produk() {
                     </div>
                 )}
                 {/* Pagination */}
-                <div className="flex justify-center items-center mt-10 gap-2">
+                {totalPages > 1 && (
+                    <div className="flex justify-center items-center mt-10 gap-2">
 
-                    {/* Prev Button */}
-                    <button
-                        disabled={currentPage === 1}
-                        onClick={() => setCurrentPage(currentPage - 1)}
-                        className={`px-3 py-1 rounded border 
-            ${currentPage === 1 ? "bg-gray-200 text-gray-400" : "bg-white hover:bg-gray-100"}
-        `}
-                    >
-                        Prev
-                    </button>
+                        {/* Prev */}
+                        <button
+                            disabled={currentPage === 1}
+                            onClick={() => setCurrentPage(currentPage - 1)}
+                            className={`px-3 py-1 rounded border 
+                            ${currentPage === 1 ? "bg-gray-200 text-gray-400" : "bg-white hover:bg-gray-100"}
+                        `}
+                        >
+                            Prev
+                        </button>
 
-                    {/* --- Generate Dynamic Pages --- */}
-                    {(() => {
-                        const maxPages = 4; // Maksimal halaman tampil
-                        let startPage = 1;
-                        let endPage = totalPages;
+                        {/* Dynamic Pages */}
+                        {(() => {
+                            const maxPages = 4;
+                            let startPage = 1;
+                            let endPage = totalPages;
 
-                        if (totalPages > maxPages) {
-                            const half = Math.floor(maxPages / 2);
+                            if (totalPages > maxPages) {
+                                const half = Math.floor(maxPages / 2);
 
-                            if (currentPage <= half + 1) {
-                                // Fokus di awal
-                                startPage = 1;
-                                endPage = maxPages;
-                            } else if (currentPage >= totalPages - half) {
-                                // Fokus di akhir
-                                startPage = totalPages - maxPages + 1;
-                                endPage = totalPages;
-                            } else {
-                                // Fokus di tengah
-                                startPage = currentPage - half;
-                                endPage = currentPage + half - 1;
+                                if (currentPage <= half + 1) {
+                                    startPage = 1;
+                                    endPage = maxPages;
+                                } else if (currentPage >= totalPages - half) {
+                                    startPage = totalPages - maxPages + 1;
+                                    endPage = totalPages;
+                                } else {
+                                    startPage = currentPage - half;
+                                    endPage = currentPage + half - 1;
+                                }
                             }
-                        }
 
-                        const pages = [];
-                        for (let i = startPage; i <= endPage; i++) {
-                            pages.push(
-                                <button
-                                    key={i}
-                                    onClick={() => setCurrentPage(i)}
-                                    className={`px-3 py-1 rounded border 
-                        ${currentPage === i ? "bg-amber-500 text-white" : "bg-white hover:bg-gray-100"}
-                    `}
-                                >
-                                    {i}
-                                </button>
-                            );
-                        }
+                            const pages = [];
+                            for (let i = startPage; i <= endPage; i++) {
+                                pages.push(
+                                    <button
+                                        key={i}
+                                        onClick={() => setCurrentPage(i)}
+                                        className={`px-3 py-1 rounded border 
+                                        ${currentPage === i ? "bg-amber-500 text-white" : "bg-white hover:bg-gray-100"}
+                                    `}
+                                    >
+                                        {i}
+                                    </button>
+                                );
+                            }
 
-                        return pages;
-                    })()}
+                            return pages;
+                        })()}
 
-                    {/* Next Button */}
-                    <button
-                        disabled={currentPage === totalPages}
-                        onClick={() => setCurrentPage(currentPage + 1)}
-                        className={`px-3 py-1 rounded border 
-            ${currentPage === totalPages ? "bg-gray-200 text-gray-400" : "bg-white hover:bg-gray-100"}
-        `}
-                    >
-                        Next
-                    </button>
-                </div>
+                        {/* Next */}
+                        <button
+                            disabled={currentPage === totalPages}
+                            onClick={() => setCurrentPage(currentPage + 1)}
+                            className={`px-3 py-1 rounded border 
+                            ${currentPage === totalPages ? "bg-gray-200 text-gray-400" : "bg-white hover:bg-gray-100"}
+                        `}
+                        >
+                            Next
+                        </button>
+                    </div>
+                )}
             </section>
 
             {/* ===== MODAL DETAIL PRODUK ===== */}
@@ -269,6 +282,67 @@ export default function Produk() {
                         <button
                             onClick={closeModal}
                             className="absolute top-4 right-5 text-gray-700 hover:text-gray-900 text-3xl font-bold"
+                        >
+                            ×
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal Cart */}
+            {isCheckoutModalOpen && selectedProduct && (
+                <div
+                    className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50"
+                    onClick={closeCheckoutModal}
+                >
+                    <div
+                        className="bg-white w-[90%] max-w-md rounded-2xl shadow-lg p-6 animate-fadeIn relative"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <h3 className="text-xl font-semibold text-gray-800 mb-4 text-center">
+                            Pilih Metode Checkout
+                        </h3>
+
+                        <div className="space-y-3">
+                            {selectedProduct.marketplace_links &&
+                                selectedProduct.marketplace_links.length > 0 ? (
+                                selectedProduct.marketplace_links.map((link) => {
+                                    const platformName = link.platform_name.toLowerCase();
+                                    let buttonColor = "";
+
+                                    if (platformName.includes("shopee")) {
+                                        buttonColor = "bg-orange-500 hover:bg-orange-600";
+                                    } else if (platformName.includes("tokopedia")) {
+                                        buttonColor = "bg-green-500 hover:bg-green-600";
+                                    } else if (platformName.includes("lazada")) {
+                                        buttonColor = "bg-blue-500 hover:bg-blue-600";
+                                    } else {
+                                        buttonColor = "bg-gray-500 hover:bg-gray-600";
+                                    }
+
+                                    return (
+                                        <a
+                                            key={link.id}
+                                            href={link.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className={`${buttonColor} block text-white py-3 rounded-xl text-center font-medium transition`}
+                                        >
+                                            Checkout via {link.platform_name}
+                                        </a>
+                                    );
+                                })
+                            ) : (
+                                <p className="text-gray-400 text-center text-sm">
+                                    Tidak ada opsi checkout tersedia.
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Tombol Tutup */}
+                        <button
+                            onClick={closeCheckoutModal}
+                            className="absolute top-4 right-4 text-gray-700 hover:text-gray-900 text-2xl font-bold"
                         >
                             ×
                         </button>
