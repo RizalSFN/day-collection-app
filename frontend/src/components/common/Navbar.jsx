@@ -36,16 +36,6 @@ export default function Navbar() {
                     </Link>
 
                     <Link
-                        to="/tentang"
-                        className={`${isActive("/tentang")
-                            ? "text-amber-600 font-semibold"
-                            : "text-gray-600 hover:text-amber-600"
-                            } transition`}
-                    >
-                        Tentang
-                    </Link>
-
-                    <Link
                         to="/login"
                         className="ml-4 bg-amber-500 hover:bg-amber-600 text-white px-5 py-2 rounded-full transition"
                     >
