@@ -92,18 +92,6 @@ const DashboardContent = () => {
                     </div>
                 ))}
             </div>
-
-            <div className="mt-10 bg-white shadow-md rounded-xl p-6 border border-amber-50">
-                <h3 className="text-lg font-semibold mb-4 text-gray-800">
-                    Aktivitas Terbaru
-                </h3>
-
-                <ul className="text-gray-600 space-y-2">
-                    <li>• Banner baru berhasil dipublikasikan</li>
-                    <li>• Produk <b>"Sneakers Kuning"</b> berhasil ditambahkan</li>
-                    <li>• Marketplace <b>"Shopee"</b> diaktifkan</li>
-                </ul>
-            </div>
         </div>
     )
 }
