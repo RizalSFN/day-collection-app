@@ -6,7 +6,7 @@ dotenv.config()
 
 const PORT = process.env.PORT || 5000
 
-async function startServer() {
+async function startServer(retries = 5) {
     try {
         await prisma.$connect()
         console.log("Database connected succesfully");
@@ -15,8 +15,13 @@ async function startServer() {
             console.log(`Server running at http://localhost:${PORT}`);
         })
     } catch (error) {
-        console.log("Failed to connect to database", error);
-        process.exit(1)
+        if (retries > 0) {
+            console.log(`Retrying database connection... (${retries})`);
+            setTimeout(() => startServer(retries - 1), 5000);
+        } else {
+            console.error("Could not connect to database. Exiting.");
+            process.exit(1);
+        }
     }
 }
 
