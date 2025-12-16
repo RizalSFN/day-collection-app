@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import prisma from "../config/db.js";
+import prisma from "../src/config/db.js";
 
 export async function seedUsers() {
     const users = [
