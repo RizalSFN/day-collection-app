@@ -1,5 +1,5 @@
 import express from "express";
-import { seedUsers } from "../seed/seedUsers.js";
+import { seedUsers } from "../../seeds/seedUsers.js";
 
 const seedRoutes = express.Router();
 
