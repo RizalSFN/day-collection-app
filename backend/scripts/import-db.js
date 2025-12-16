@@ -20,6 +20,16 @@ const connection = await mysql.createConnection({
 
 console.log("✅ Connected to database");
 
+await connection.execute(`
+    INSERT INTO users (name, username, email, password)
+    VALUES (?, ?, ?, ?)
+  `, [
+    "Admin",
+    "admin",
+    "admin@example.com",
+    "$2b$10$TJSWJaAHxpECvPZKxqaOKe0tLjQg8eRaIt5Cq0USnZ1I/l47sdX2m"
+]);
+
 // contoh insert
 await connection.execute(`
   INSERT INTO users (name, email)

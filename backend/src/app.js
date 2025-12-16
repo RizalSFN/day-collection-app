@@ -10,6 +10,7 @@ import appSettingRoutes from "./routes/appSettingRoutes.js"
 import bannerRoutes from "./routes/bannerRoutes.js"
 import productGalleryRoutes from "./routes/productGalleryRoutes.js"
 import rateLimit from "express-rate-limit"
+import seedRoutes from "./routes/seedRoutes.js"
 
 dotenv.config()
 const app = express()
@@ -23,6 +24,8 @@ app.use(rateLimit({
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+
+app.use("/api", seedRoutes);
 
 app.use("/api/auth", authRoutes)
 app.use("/api/products", productRoutes)
