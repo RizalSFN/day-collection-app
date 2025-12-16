@@ -3,7 +3,7 @@ import { seedUsers } from "../../seeds/seedUsers.js";
 
 const seedRoutes = express.Router();
 
-router.post("/seed", async (req, res) => {
+seedRoutes.post("/seed", async (req, res) => {
     try {
         // proteksi sederhana
         if (req.query.key !== process.env.SEED_KEY) {
