@@ -4,6 +4,7 @@ import ModalUpdateMarketplacePLatform from "../../components/admin/ModalUpdateMa
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { getAppSetting } from "../../services/appSettingService";
 import ModalCreateAppSetting from "../../components/admin/ModalCreateAppSetting";
+import ModalUpdateAppSetting from "../../components/admin/ModalUpdateAppSetting";
 
 export const Setting = () => {
     const [setting, setSetting] = useState([])
@@ -102,7 +103,7 @@ export const Setting = () => {
                         onSuccess={fetchData}
                     />
 
-                    <
+                    <ModalUpdateAppSetting
                         open={openEditModal}
                         onClose={() => setOpenEditModal(false)}
                         onSuccess={fetchData}
