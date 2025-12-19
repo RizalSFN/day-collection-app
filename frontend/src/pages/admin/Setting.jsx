@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import DashboardLayout from "../../layouts/DashboardLayout";
-import ModalAddMarketplacePlatform from "../../components/admin/ModalAddMarketplacePlatform";
 import ModalUpdateMarketplacePLatform from "../../components/admin/ModalUpdateMarketplacePlatform";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { getAppSetting } from "../../services/appSettingService";
+import ModalCreateAppSetting from "../../components/admin/ModalCreateAppSetting";
 
 export const Setting = () => {
     const [setting, setSetting] = useState([])
@@ -96,7 +96,7 @@ export const Setting = () => {
                     </table>
 
                     {/* modal */}
-                    <ModalAddMarketplacePlatform
+                    <ModalCreateAppSetting
                         isOpen={openModal}
                         onClose={() => setOpenModal(false)}
                         onSuccess={fetchData}
