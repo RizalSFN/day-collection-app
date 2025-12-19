@@ -30,6 +30,39 @@ model products {
   marketplace_link marketplace_link[]
   product_gallery  product_gallery[]
   product_variant  product_variant[]
+  orders           order[]
+}
+
+enum orderStatus {
+  PENDING
+  WAITING_CONFIRMATION
+  PAID
+  REJECTED
+  CANCELLED
+}
+
+model order {
+  id         Int         @id @default(autoincrement())
+  order_code String      @unique
+  product_id Int
+  buyer_name String
+  phone      String
+  address    String      @db.Text
+  status     orderStatus @default(PENDING)
+
+  product      products       @relation(fields: [product_id], references: [id])
+  paymentProof payment_proof?
+
+  created_at DateTime @default(now())
+}
+
+model payment_proof {
+  id          Int      @id @default(autoincrement())
+  order_id    Int      @unique
+  image_url   String
+  uploaded_at DateTime @default(now())
+
+  order order @relation(fields: [order_id], references: [id])
 }
 
 model banner {
