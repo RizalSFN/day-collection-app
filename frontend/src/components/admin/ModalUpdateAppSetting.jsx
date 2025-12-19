@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from "react-toastify";
 import { updateAppSetting } from "../../services/appSettingService";
 
-const ModalUpdateMarketplacePLatform = ({ open, onClose, onSuccess, platform }) => {
+const ModalUpdateAppSetting = ({ open, onClose, onSuccess, platform }) => {
     const { register, handleSubmit, setValue, formState: { errors } } = useForm()
 
     React.useEffect(() => {
@@ -95,4 +95,4 @@ const ModalUpdateMarketplacePLatform = ({ open, onClose, onSuccess, platform }) 
     )
 }
 
-export default ModalUpdateMarketplacePLatform
+export default ModalUpdateAppSetting

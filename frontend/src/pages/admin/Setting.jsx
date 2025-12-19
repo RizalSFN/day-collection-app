@@ -102,7 +102,7 @@ export const Setting = () => {
                         onSuccess={fetchData}
                     />
 
-                    <ModalUpdateMarketplacePLatform
+                    <
                         open={openEditModal}
                         onClose={() => setOpenEditModal(false)}
                         onSuccess={fetchData}
