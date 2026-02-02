@@ -10,7 +10,7 @@ export const createProduct = async (data, filePath) => {
     fs.unlinkSync(filePath);
 
     // Cek nama model di schema.prisma, biasanya 'product' atau 'Product'
-    return await prisma.product.create({
+    return await prisma.products.create({
         data: {
             name: data.name,
             slug: data.slug,
