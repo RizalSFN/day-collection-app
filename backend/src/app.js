@@ -26,9 +26,6 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// PENTING: Tambahkan ini untuk menangani pre-flight request (OPTIONS)
-app.options("*", cors(corsOptions));
-
 app.use(rateLimit({
     windowMs: 1 * 60 * 1000,
     max: 1000,
