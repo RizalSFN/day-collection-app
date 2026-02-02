@@ -16,7 +16,16 @@ import productVariantRoutes from "./routes/productVariantRoutes.js"
 dotenv.config()
 const app = express()
 
-app.use(cors())
+app.use(cors({
+    origin: [
+        "http://localhost:5173", // Izinkan Localhost (untuk development)
+        "https://daycollection.vercel.app", // Izinkan Domain Frontend Vercel Anda
+        "https://day-collection-app-backend.vercel.app" // Opsional: Izinkan diri sendiri
+    ],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true
+}))
 
 app.use(rateLimit({
     windowMs: 1 * 60 * 1000,
