@@ -20,20 +20,12 @@ export const getAllMarketplaceLink = async () => {
         orderBy: { id: "asc" },
         include: {
             products: {
-                select: {
-                    id: true,
-                    name: true,
-                    slug: true,
-                    main_image: true,
-                    base_price: true,
-                    status: true,
-                    created_at: true
+                include: {
+                    product_variants: true
                 }
             },
-            marketplace_platform: {
-                select: { id: true, name: true }
-            }
-        }
+            marketplace_platform: true
+        },
     })
 }
 
@@ -42,7 +34,7 @@ export const getByIdMarketplaceLink = async (id) => {
         where: { id: Number(id) },
         include: {
             products: {
-                select: { id: true, name: true, slug: true, main_image: true, base_price: true, status: true }
+                product_variants: true
             },
             marketplace_platform: {
                 select: { id: true, name: true }
@@ -65,12 +57,8 @@ export const updateMarketplaceLink = async (id, data) => {
             is_active: Number(data.is_active) == 1 ? true : false
         },
         include: {
-            products: {
-                select: { id: true, name: true, slug: true, main_image: true, base_price: true, status: true }
-            },
-            marketplace_platform: {
-                select: { id: true, name: true }
-            }
+            products: true,
+            marketplace_platform: true
         }
     })
 }

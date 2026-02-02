@@ -25,12 +25,7 @@ export const getAllProducts = async () => {
     return await prisma.products.findMany({
         include: {
             product_gallery: true,
-            product_variant: {
-                include: {
-                    product_color: true,
-                    product_size: true
-                }
-            },
+            product_variants: true,
             marketplace_link: {
                 include: { marketplace_platform: true }
             }
@@ -44,12 +39,7 @@ export const getProductById = async (id) => {
         where: { id: Number(id) },
         include: {
             product_gallery: true,
-            product_variant: {
-                include: {
-                    product_color: true,
-                    product_size: true
-                }
-            },
+            product_variants: true,
             marketplace_link: {
                 include: { marketplace_platform: true }
             }

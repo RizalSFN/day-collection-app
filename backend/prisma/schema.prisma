@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -30,7 +29,6 @@ model products {
 
   marketplace_link marketplace_link[]
   product_gallery  product_gallery[]
-  product_variant  product_variant[]
   orders           order[]
   product_variants product_variants[]
   orderItems       order_items[]
@@ -78,9 +76,9 @@ model order_items {
   quantity   Int
   price      Int
 
-  order   order             @relation(fields: [order_id], references: [id])
-  product products          @relation(fields: [product_id], references: [id])
-  variant product_variants? @relation(fields: [variant_id], references: [id])
+  order            order             @relation(fields: [order_id], references: [id])
+  product          products          @relation(fields: [product_id], references: [id])
+  product_variants product_variants? @relation(fields: [variant_id], references: [id])
 }
 
 model payment_proof {
@@ -102,23 +100,11 @@ model product_variants {
   stock      Int
   is_active  Boolean @default(true)
 
-  product     products                  @relation(fields: [product_id], references: [id])
-  options     product_variant_options[]
+  product     products      @relation(fields: [product_id], references: [id])
   order_items order_items[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-}
-
-model product_variant_options {
-  id         Int    @id @default(autoincrement())
-  variant_id Int
-  name       String
-  value      String
-
-  variant            product_variant   @relation(fields: [variant_id], references: [id])
-  productVariants    product_variants? @relation(fields: [product_variantsId], references: [id])
-  product_variantsId Int?
 }
 
 model banner {
@@ -150,14 +136,6 @@ model marketplace_platform {
   marketplace_link marketplace_link[]
 }
 
-model product_color {
-  id              Int               @id @default(autoincrement())
-  name            String            @db.VarChar(50)
-  hex_code        String            @db.VarChar(7)
-  created_at      DateTime          @default(now()) @db.Timestamp(0)
-  product_variant product_variant[]
-}
-
 model product_gallery {
   id         Int      @id @default(autoincrement())
   product_id Int
@@ -168,32 +146,6 @@ model product_gallery {
   products   products @relation(fields: [product_id], references: [id], onUpdate: Restrict, onDelete: Cascade, map: "product_gallery_ibfk_1")
 
   @@index([product_id], map: "product_id")
-}
-
-model product_size {
-  id              Int               @id @default(autoincrement())
-  name            String            @db.VarChar(10)
-  created_at      DateTime          @default(now()) @db.Timestamp(0)
-  product_variant product_variant[]
-}
-
-model product_variant {
-  id                    Int                       @id @default(autoincrement())
-  product_id            Int
-  color_id              Int
-  size_id               Int
-  image_url             String                    @db.VarChar(255)
-  price                 Decimal                   @db.Decimal(10, 2)
-  is_available          Boolean                   @default(true)
-  created_at            DateTime                  @default(now()) @db.Timestamp(0)
-  products              products                  @relation(fields: [product_id], references: [id], onUpdate: Restrict, map: "product_variant_ibfk_1")
-  product_color         product_color             @relation(fields: [color_id], references: [id], onUpdate: Restrict, map: "product_variant_ibfk_2")
-  product_size          product_size              @relation(fields: [size_id], references: [id], onUpdate: Restrict, map: "product_variant_ibfk_3")
-  productVariantOptions product_variant_options[]
-
-  @@index([color_id], map: "color_id")
-  @@index([product_id], map: "product_id")
-  @@index([size_id], map: "size_id")
 }
 
 model settings {

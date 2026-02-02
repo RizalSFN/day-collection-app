@@ -1,11 +1,28 @@
-import { PrismaClient } from "../../generated/prisma/index.js"
+// import { PrismaClient } from "../../generated/prisma/index.js"
+
+// const globalForPrisma = globalThis
+
+// const prisma = globalForPrisma.prisma || new PrismaClient({
+//     log: process.env.NODE_ENV === "development"
+//         ? ['query', 'error', 'warn']
+//         : ['error']
+// })
+
+// if (process.env.NODE_ENV !== "production") {
+//     globalForPrisma.prisma = prisma
+// }
+
+// export default prisma
+
+import { PrismaClient } from "@prisma/client" // Gunakan import standar
 
 const globalForPrisma = globalThis
 
+// Pastikan penamaan variable global konsisten
 const prisma = globalForPrisma.prisma || new PrismaClient({
     log: process.env.NODE_ENV === "development"
         ? ['query', 'error', 'warn']
-        : ['error']
+        : ['error'],
 })
 
 if (process.env.NODE_ENV !== "production") {

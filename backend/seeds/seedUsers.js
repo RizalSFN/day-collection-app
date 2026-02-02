@@ -1,7 +1,8 @@
 import bcrypt from "bcrypt";
 import prisma from "../src/config/db.js";
 
-export async function seedUsers() {
+async function seedUsers() {
+    console.log("Proses seeding dimulai...");
     const users = [
         {
             name: "Admin",
@@ -18,8 +19,19 @@ export async function seedUsers() {
 
         if (!exists) {
             await prisma.users.create({ data: user });
+            console.log(`User ${user.email} berhasil dibuat.`);
+        } else {
+            console.log(`User ${user.email} sudah ada.`);
         }
     }
-
-    return "Users seeded";
 }
+
+// PEMANGGILAN UTAMA (Sangat Penting)
+seedUsers()
+    .catch((e) => {
+        console.error("Error saat seeding:", e);
+        process.exit(1);
+    })
+    .finally(async () => {
+        await prisma.$disconnect();
+    });
