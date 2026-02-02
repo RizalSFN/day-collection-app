@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Package, ShoppingCart, Image as ImageIcon, LayoutDashboard, ArrowRight } from "lucide-react";
+import { Package, ShoppingCart, Image as ImageIcon, LayoutDashboard, ArrowRight, NotebookText } from "lucide-react";
 import { getProducts } from "../../services/productService";
-import { getBanner } from "../../services/bannerService";
+import { getOrders } from "../../services/orderService";
 import { getMarketplacePlatform } from "../../services/marketplacePlatformService";
 import { Link } from "react-router-dom";
 
@@ -9,7 +9,7 @@ const DashboardContent = () => {
     const [dashboardStats, setDashboardStats] = useState({
         totalMarketplace: 0,
         totalProducts: 0,
-        totalBanner: 0,
+        totalOrder: 0,
     });
 
     const [loading, setLoading] = useState(true);
@@ -17,15 +17,15 @@ const DashboardContent = () => {
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
-                const [products, banner, marketplaces] = await Promise.all([
+                const [products, orders, marketplaces] = await Promise.all([
                     getProducts(),
-                    getBanner(),
+                    getOrders(),
                     getMarketplacePlatform(),
                 ]);
 
                 setDashboardStats({
                     totalProducts: products.length,
-                    totalBanner: banner.length,
+                    totalPesanan: orders.length,
                     totalMarketplace: marketplaces.length,
                 });
             } catch (error) {
@@ -58,13 +58,13 @@ const DashboardContent = () => {
             link: "/admin/products"
         },
         {
-            title: "Banner",
-            label: "Promosi Visual",
+            title: "Pesanan",
+            label: "Pesanan Produk",
             value: dashboardStats.totalBanner,
-            icon: <ImageIcon size={28} />,
+            icon: <NotebookText size={28} />,
             color: "text-emerald-500",
             bg: "bg-emerald-50",
-            link: "/admin/banner"
+            link: "/admin/orders"
         },
     ];
 
