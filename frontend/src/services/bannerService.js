@@ -16,7 +16,14 @@ export const getActiveBanner = async () => {
         const response = await api.get("/banner/active")
         console.log(response);
 
-        return response.data.data
+        const data = response.data.data
+
+        if (Array.isArray(data)) {
+            // Jika Array, ambil elemen pertama. Jika kosong, return null
+            return data.length > 0 ? data[0] : null;
+        }
+
+        return data
     } catch (error) {
         console.error("Gagal memuat data banner: ", error);
         return []

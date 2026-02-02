@@ -8,7 +8,7 @@ import { createOrder, uploadPaymentProof } from "../services/orderService.js";
 
 export default function Home() {
     const [products, setProducts] = useState([])
-    const [banner, setBanner] = useState([])
+    const [banner, setBanner] = useState(null)
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false)
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -21,10 +21,11 @@ export default function Home() {
 
     useEffect(() => {
         const fetchData = async () => {
-            const response = await getProducts();
             const dataBanner = await getActiveBanner()
-            setProducts(response)
             setBanner(dataBanner)
+
+            const response = await getProducts();
+            setProducts(response)
         }
         fetchData()
     }, [])
@@ -78,11 +79,18 @@ export default function Home() {
 
                 {/* Image Section */}
                 <div className="md:w-1/2 mb-10 md:mb-0 flex justify-center">
-                    <img
-                        src={banner.image_url ? banner.imge_url : "/frontend/public/logo.png"}
-                        alt={banner.title}
-                        className="w-80 md:w-96 rounded-2xl"
-                    />
+                    {banner ? (
+                        <img
+                            src={banner.image_url}
+                            alt={banner.title || "Banner Utama"}
+                            className="w-80 md:w-96 rounded-2xl shadow-2xl object-cover"
+                        />
+                    ) : (
+                        // UBAH 3: Tampilkan Skeleton Loading / Placeholder jika banner belum siap
+                        <div className="w-80 md:w-96 h-64 bg-gray-200 rounded-2xl animate-pulse flex items-center justify-center">
+                            <span className="text-gray-400 text-xs">Memuat Banner...</span>
+                        </div>
+                    )}
                 </div>
             </section>
 
