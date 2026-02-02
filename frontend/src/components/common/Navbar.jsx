@@ -36,6 +36,16 @@ export default function Navbar() {
                     </Link>
 
                     <Link
+                        to="/tracking-order"
+                        className={`${isActive("/tracking-order")
+                            ? "text-amber-600 font-semibold"
+                            : "text-gray-600 hover:text-amber-600"
+                            } transition`}
+                    >
+                        Tracking Order
+                    </Link>
+
+                    <Link
                         to="/login"
                         className="ml-4 bg-amber-500 hover:bg-amber-600 text-white px-5 py-2 rounded-full transition"
                     >
@@ -69,6 +79,7 @@ export default function Navbar() {
                 <div className="md:hidden bg-white shadow-md flex flex-col items-center py-4 gap-4 text-gray-700 font-medium">
                     <Link to="/" onClick={() => setIsOpen(false)} className="hover:text-amber-600">Beranda</Link>
                     <Link to="/produk" onClick={() => setIsOpen(false)} className="hover:text-amber-600">Produk</Link>
+                    <Link to="/tracking-order" onClick={() => setIsOpen(false)} className="hover:text-amber-600">Tracking Order</Link>
                     <Link
                         to="/login"
                         onClick={() => setIsOpen(false)}

@@ -1,187 +1,248 @@
 import React, { useEffect, useState } from "react";
-import { getProducts } from "../../services/productService";
+import { getProducts, createProduct, updateProduct, deleteProduct } from "../../services/productService";
 import DashboardLayout from "../../layouts/DashboardLayout";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Edit } from "lucide-react";
 import ModalCreateProduct from "../../components/admin/ModalCreateProduct";
 import ModalUpdateProduct from "../../components/admin/ModalUpdateProduct";
 import ModalDeleteProduct from "../../components/admin/ModalDeleteProduct";
 
 const Product = () => {
-    const [products, setProducts] = useState([])
-    const [currentPage, setCurrentPage] = useState(1)
-    const [itemsPerPage] = useState(10)
-    const [loading, setLoading] = useState(true)
-    const [openCreateModal, setOpenCreateModal] = useState(false);
-    const [openUpdateModal, setOpenUpdateModal] = useState(false);
-    const [openDeleteModal, setOpenDeleteModal] = useState(false);
-    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
 
-    const fetchProducts = async () => {
-        try {
-            const response = await getProducts()
-            setProducts(response)
-        } catch (error) {
-            console.log("Gagal memuat produk: ", error);
-        } finally {
-            setLoading(false)
-        }
-    }
+    // State untuk Modal
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingProduct, setEditingProduct] = useState(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [productIdToDelete, setProductIdToDelete] = useState(null);
+    const [formData, setFormData] = useState({
+        name: "",
+        slug: "",
+        description: "",
+        harga: "", // Sesuai parameter payload Anda
+        is_active: "active",
+        main_image: null
+    });
 
     useEffect(() => {
-        fetchProducts()
-    }, [])
+        fetchProducts();
+    }, []);
 
-    const onSuccess = () => {
-        fetchProducts()
+    const fetchProducts = async () => {
+        setLoading(true);
+        const data = await getProducts();
+        setProducts(data);
+        setLoading(false);
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value, files } = e.target;
+        setFormData({
+            ...formData,
+            [name]: files ? files[0] : value
+        });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        try {
+            if (editingProduct) {
+                await updateProduct(editingProduct.id, formData);
+            } else {
+                await createProduct(formData);
+            }
+            setIsModalOpen(false);
+            fetchProducts();
+            resetForm();
+        } catch (error) {
+            console.log(error);
+            alert("Terjadi kesalahan saat menyimpan produk");
+        }
+        setLoading(false);
+    };
+
+    const confirmDelete = (id) => {
+        setProductIdToDelete(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const handleExecuteDelete = async () => {
+        setLoading(true);
+        try {
+            await deleteProduct(productIdToDelete);
+            setIsDeleteModalOpen(false);
+            setProductIdToDelete(null);
+            fetchProducts(); // Refresh data
+        } catch (error) {
+            console.log(error);
+            alert("Gagal menghapus produk");
+        }
+        setLoading(false);
+    };
+
+    const resetForm = () => {
+        setFormData({ name: "", slug: "", description: "", harga: "", is_active: "active", main_image: null });
+        setEditingProduct(null);
     }
-
-    const indexOfLastItem = currentPage * itemsPerPage
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage
-    const currentProducts = products.slice(indexOfFirstItem, indexOfLastItem)
-    const totalPages = Math.ceil(products.length / itemsPerPage)
-
-    const handlePageChange = (pageNumber) => setCurrentPage(pageNumber)
 
     return (
         <DashboardLayout>
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-semibold text-gray-800">
-                    Manajemen Produk
-                </h2>
-                <button
-                    onClick={() => setOpenCreateModal(true)}
-                    className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg transition"
-                >
-                    <Plus size={18} />
-                    Tambah Produk
-                </button>
-            </div>
+            <div className="p-6 md:p-10 bg-white min-h-screen">
+                {/* Header Section */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-900">Manajemen <span className="text-amber-500">Produk</span></h1>
+                        <p className="text-gray-500 text-sm">Kelola katalog produk Day Collection Anda di sini.</p>
+                    </div>
+                    <button
+                        onClick={() => { resetForm(); setIsModalOpen(true); }}
+                        className="flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-2xl font-semibold transition shadow-lg shadow-amber-200"
+                    >
+                        <Plus size={20} /> Tambah Produk
+                    </button>
+                </div>
 
-            {loading ? (
-                <div className="text-center text-gray-500 py-10">Memuat data...</div>
-            ) : (
-                <div className="bg-white shadow-md rounded-lg overflow-hidden">
-                    <table className="w-full text-sm text-left text-gray-700">
-                        <thead className="bg-amber-500 text-white uppercase text-xs">
+                {/* Filter & Search */}
+                <div className="bg-amber-50/50 p-4 rounded-3xl mb-6 flex items-center gap-3 border border-amber-100">
+                    <Search className="text-amber-500" size={20} />
+                    <input
+                        type="text"
+                        placeholder="Cari nama produk..."
+                        className="bg-transparent outline-0 border-none focus:ring-0 w-full text-gray-700"
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+
+                {/* Product Table */}
+                <div className="overflow-x-auto bg-white rounded-3xl border border-gray-100 shadow-sm">
+                    <table className="w-full text-left">
+                        <thead className="bg-gray-50 text-gray-400 uppercase text-xs tracking-widest">
                             <tr>
-                                <th className="px-6 py-3">No</th>
-                                <th className="px-6 py-3">Nama Produk</th>
-                                <th className="px-6 py-3">Gambar</th>
-                                <th className="px-6 py-3">Deskripsi</th>
-                                <th className="px-6 py-3">Harga</th>
-                                <th className="px-6 py-3">Status</th>
-                                <th className="px-6 py-3">Aksi</th>
+                                <th className="px-6 py-4">Produk</th>
+                                <th className="px-6 py-4">Harga</th>
+                                <th className="px-6 py-4">Status</th>
+                                <th className="px-6 py-4 text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {currentProducts.length > 0 ? (
-                                currentProducts.map((item, index) => (
-                                    <tr
-                                        key={item.id}
-                                        className="border-b hover:bg-gray-50 transition"
-                                    >
-                                        <td className="px-6 py-3">
-                                            {(currentPage - 1) * itemsPerPage + index + 1}
-                                        </td>
-                                        <td className="px-6 py-3 font-medium">{item.name}</td>
-                                        <td className="px-6 py-3 font-medium">
-                                            <img
-                                                src={item.main_image}
-                                                alt={item.slug}
-                                                className="h-20 object-cover"
-                                            />
-                                        </td>
-                                        <td className="px-6 py-3 font-medium">{item.description}</td>
-                                        <td className="px-6 py-3 text-amber-600 font-semibold">
-                                            Rp {parseInt(item.base_price).toLocaleString("id-ID")}
-                                        </td>
-                                        <td className="px-6 py-3">
-                                            <span
-                                                className={`px-2 py-1 rounded text-xs font-medium ${item.status === "active"
-                                                    ? "bg-green-100 text-green-700"
-                                                    : "bg-red-100 text-red-700"
-                                                    }`}
-                                            >
-                                                {item.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-9 flex items-center gap-2">
+                        <tbody className="divide-y divide-gray-50">
+                            {products.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase())).map((product) => (
+                                <tr key={product.id} className="hover:bg-amber-50/20 transition">
+                                    <td className="px-6 py-4">
+                                        <div className="flex items-center gap-4">
+                                            <img src={product.main_image} alt={product.name} className="w-12 h-12 rounded-xl object-cover" />
+                                            <div>
+                                                <div className="font-bold text-gray-800">{product.name}</div>
+                                                <div className="text-xs text-gray-400">{product.slug}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4 font-medium text-gray-700">
+                                        Rp {parseInt(product.base_price).toLocaleString('id-ID')}
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${product.status === 'active' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-500'}`}>
+                                            {product.status}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex justify-center gap-2">
                                             <button
-                                                onClick={() => {
-                                                    setSelectedProduct(item)
-                                                    setOpenUpdateModal(true)
-                                                }}
-                                                className="p-2 bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-lg transition"
+                                                onClick={() => { setEditingProduct(product); setFormData({ ...product, harga: product.base_price }); setIsModalOpen(true); }}
+                                                className="p-2 text-amber-600 hover:bg-amber-100 rounded-lg transition"
                                             >
-                                                <Pencil size={16} />
+                                                <Edit size={18} />
                                             </button>
                                             <button
-                                                onClick={() => {
-                                                    setSelectedProduct(item)
-                                                    setOpenDeleteModal(true)
-                                                }}
-                                                className="p-2 bg-red-100 text-red-600 hover:bg-red-200 rounded-lg transition"
+                                                onClick={() => confirmDelete(product.id)} // Panggil modal konfirmasi
+                                                className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
                                             >
-                                                <Trash2 size={16} />
+                                                <Trash2 size={18} />
                                             </button>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td
-                                        colSpan="5"
-                                        className="text-center text-gray-500 py-6 italic"
-                                    >
-                                        Tidak ada produk yang ditemukan.
+                                        </div>
                                     </td>
                                 </tr>
-                            )}
+                            ))}
                         </tbody>
                     </table>
                 </div>
-            )}
-
-            {/* Pagination */}
-            <div className="flex justify-center items-center mt-6 gap-2">
-                {Array.from({ length: totalPages }, (_, i) => (
-                    <button
-                        key={i}
-                        onClick={() => handlePageChange(i + 1)}
-                        className={`px-3 py-1 rounded-md border ${currentPage === i + 1
-                            ? "bg-amber-500 text-white border-amber-500"
-                            : "border-gray-300 hover:bg-amber-100"
-                            }`}
-                    >
-                        {i + 1}
-                    </button>
-                ))}
             </div>
 
-            {/* Modal Create */}
-            {openCreateModal && (
-                <ModalCreateProduct
-                    onClose={() => setOpenCreateModal(false)}
-                    onSuccess={onSuccess}
-                />
+            {/* Modal Form Tambah/Edit */}
+            {isModalOpen && (
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl p-8 max-h-[90vh] overflow-y-auto scrollbar-hide">
+                        <h2 className="text-2xl font-bold mb-6">{editingProduct ? 'Edit Produk' : 'Tambah Produk Baru'}</h2>
+                        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="md:col-span-2">
+                                <label className="text-sm font-semibold text-gray-600 mb-1 block">Nama Produk</label>
+                                <input name="name" value={formData.name} onChange={handleInputChange} className="w-full p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-amber-500" required />
+                            </div>
+                            <div>
+                                <label className="text-sm font-semibold text-gray-600 mb-1 block">Slug</label>
+                                <input name="slug" value={formData.slug} onChange={handleInputChange} className="w-full p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-amber-500" required />
+                            </div>
+                            <div>
+                                <label className="text-sm font-semibold text-gray-600 mb-1 block">Harga (Base Price)</label>
+                                <input name="harga" type="number" value={formData.harga} onChange={handleInputChange} className="w-full p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-amber-500" required />
+                            </div>
+                            <div className="md:col-span-2">
+                                <label className="text-sm font-semibold text-gray-600 mb-1 block">Deskripsi</label>
+                                <textarea name="description" value={formData.description} onChange={handleInputChange} rows="3" className="w-full p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-amber-500" required></textarea>
+                            </div>
+                            <div>
+                                <label className="text-sm font-semibold text-gray-600 mb-1 block">Status</label>
+                                <select name="is_active" value={formData.is_active} onChange={handleInputChange} className="w-full p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-amber-500">
+                                    <option value="active">Aktif</option>
+                                    <option value="inactive">Nonaktif</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="text-sm font-semibold text-gray-600 mb-1 block">Foto Produk Utama</label>
+                                <input type="file" name="main_image" onChange={handleInputChange} className="text-xs file:bg-amber-50 file:text-amber-700 file:border-none file:rounded-lg file:px-4 file:py-2" />
+                            </div>
+                            <div className="md:col-span-2 flex justify-end gap-3 mt-6">
+                                <button type="button" onClick={() => setIsModalOpen(false)} className="px-6 py-3 text-gray-400 font-medium">Batal</button>
+                                <button type="submit" disabled={loading} className="bg-amber-500 hover:bg-amber-600 text-white px-8 py-3 rounded-2xl font-bold transition">
+                                    {loading ? 'Menyimpan...' : 'Simpan Produk'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             )}
 
-            {/* Modal Update */}
-            {openUpdateModal && (
-                <ModalUpdateProduct
-                    data={selectedProduct}
-                    onClose={() => setOpenUpdateModal(false)}
-                    onSuccess={onSuccess}
-                />
-            )}
+            {/* Modal Konfirmasi Hapus */}
+            {isDeleteModalOpen && (
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl animate-fadeIn text-center">
+                        <div className="w-20 h-20 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                            <Trash2 size={40} />
+                        </div>
 
-            {/* Modal Delete */}
-            {openDeleteModal && (
-                <ModalDeleteProduct
-                    data={selectedProduct}
-                    onClose={() => setOpenDeleteModal(false)}
-                    onSuccess={onSuccess}
-                />
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">Hapus Produk?</h3>
+                        <p className="text-gray-500 text-sm mb-8">
+                            Tindakan ini tidak dapat dibatalkan. Produk akan dihapus permanen dari katalog.
+                        </p>
+
+                        <div className="flex flex-col gap-3">
+                            <button
+                                onClick={handleExecuteDelete}
+                                disabled={loading}
+                                className="w-full bg-red-500 hover:bg-red-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-red-100 transition-all active:scale-95 disabled:opacity-50"
+                            >
+                                {loading ? "Menghapus..." : "Ya, Hapus Sekarang"}
+                            </button>
+                            <button
+                                onClick={() => setIsDeleteModalOpen(false)}
+                                className="w-full py-4 text-gray-400 font-semibold hover:text-gray-600 transition-colors"
+                            >
+                                Batalkan
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </DashboardLayout>
     )

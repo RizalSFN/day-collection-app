@@ -18,6 +18,7 @@ export const getMarketplaceLink = async () => {
                     main_image: item.products.main_image,
                     base_price: item.products.base_price,
                     status: item.products.status,
+                    variants: item.products.product_variants || [],
                     marketplace_links: []
                 };
             }

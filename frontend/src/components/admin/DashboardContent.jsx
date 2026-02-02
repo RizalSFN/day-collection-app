@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Package, ShoppingCart, Image } from "lucide-react";
+import { Package, ShoppingCart, Image as ImageIcon, LayoutDashboard, ArrowRight } from "lucide-react";
 import { getProducts } from "../../services/productService";
 import { getBanner } from "../../services/bannerService";
-import { getMarketplacePlatform } from "../../services/marketplacePlatformService"
+import { getMarketplacePlatform } from "../../services/marketplacePlatformService";
+import { Link } from "react-router-dom";
 
 const DashboardContent = () => {
     const [dashboardStats, setDashboardStats] = useState({
         totalMarketplace: 0,
         totalProducts: 0,
-        totalUsers: 0,
+        totalBanner: 0,
     });
 
     const [loading, setLoading] = useState(true);
@@ -16,11 +17,7 @@ const DashboardContent = () => {
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
-                const [
-                    products,
-                    banner,
-                    marketplaces,
-                ] = await Promise.all([
+                const [products, banner, marketplaces] = await Promise.all([
                     getProducts(),
                     getBanner(),
                     getMarketplacePlatform(),
@@ -43,57 +40,104 @@ const DashboardContent = () => {
 
     const stats = [
         {
-            title: "Marketplace Platform",
+            title: "Marketplace",
+            label: "Platform Aktif",
             value: dashboardStats.totalMarketplace,
-            icon: <ShoppingCart />,
-            color: "bg-amber-100 text-amber-700",
+            icon: <ShoppingCart size={28} />,
+            color: "text-amber-500",
+            bg: "bg-amber-50",
+            link: "/admin/marketplace-platform"
         },
         {
-            title: "Total Produk",
+            title: "Produk",
+            label: "Item Terdaftar",
             value: dashboardStats.totalProducts,
-            icon: <Package />,
-            color: "bg-amber-200 text-amber-800",
+            icon: <Package size={28} />,
+            color: "text-blue-500",
+            bg: "bg-blue-50",
+            link: "/admin/products"
         },
         {
-            title: "User Aktif",
+            title: "Banner",
+            label: "Promosi Visual",
             value: dashboardStats.totalBanner,
-            icon: <Image />,
-            color: "bg-amber-50 text-amber-700",
+            icon: <ImageIcon size={28} />,
+            color: "text-emerald-500",
+            bg: "bg-emerald-50",
+            link: "/admin/banner"
         },
     ];
 
     return (
-        <div className="p-6 bg-gray-50 min-h-screen">
-            <h2 className="text-xl font-semibold mb-6 text-gray-800">
-                Ringkasan Data
-            </h2>
+        <div className="p-8 bg-gray-50/50 min-h-screen">
+            {/* Header Dashboard */}
+            <div className="mb-10">
+                <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2 bg-white rounded-lg shadow-sm">
+                        <LayoutDashboard className="text-amber-500" size={24} />
+                    </div>
+                    <h2 className="text-3xl font-bold text-gray-900 tracking-tight">
+                        Ringkasan <span className="text-amber-500">Statistik</span>
+                    </h2>
+                </div>
+                <p className="text-gray-500 ml-12">Pantau performa konten katalog Anda hari ini.</p>
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {stats.map((item, index) => (
                     <div
                         key={index}
-                        className={`flex items-center justify-between p-6 rounded-xl shadow-md ${item.color}`}
+                        className="group bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-300 relative overflow-hidden"
                     >
-                        <div>
-                            <h3 className="text-lg font-medium">
-                                {item.title}
+                        {/* Decorative Circle */}
+                        <div className={`absolute -right-4 -top-4 w-24 h-24 ${item.bg} rounded-full opacity-20 group-hover:scale-150 transition-transform duration-500`}></div>
+
+                        <div className="relative z-10">
+                            <div className={`w-14 h-14 ${item.bg} ${item.color} rounded-2xl flex items-center justify-center mb-6 shadow-sm group-hover:scale-110 transition-transform`}>
+                                {item.icon}
+                            </div>
+
+                            <h3 className="text-gray-400 font-bold uppercase text-xs tracking-widest mb-1">
+                                {item.label}
                             </h3>
 
-                            {loading ? (
-                                <div className="h-8 w-16 bg-gray-300 animate-pulse rounded mt-2"></div>
-                            ) : (
-                                <p className="text-3xl font-bold mt-1">
-                                    {item.value}
-                                </p>
-                            )}
-                        </div>
+                            <div className="flex items-end justify-between">
+                                {loading ? (
+                                    <div className="h-10 w-20 bg-gray-100 animate-pulse rounded-xl"></div>
+                                ) : (
+                                    <p className="text-4xl font-black text-gray-900 leading-none">
+                                        {item.value}
+                                    </p>
+                                )}
+                                <span className="text-gray-900 font-bold text-lg">{item.title}</span>
+                            </div>
 
-                        <div className="opacity-70">{item.icon}</div>
+                            <Link to={item.link} className="mt-6 pt-6 border-t border-gray-50 flex items-center text-xs font-bold text-amber-600 cursor-pointer group/link">
+                                LIHAT DETAIL
+                                <ArrowRight size={14} className="ml-2 group-hover/link:translate-x-2 transition-transform" />
+                            </Link>
+                        </div>
                     </div>
                 ))}
             </div>
-        </div>
-    )
-}
 
-export default DashboardContent
+            {/* Welcome Banner / Info Additional */}
+            <div className="mt-10 bg-amber-500 rounded-[3rem] p-10 relative overflow-hidden shadow-lg shadow-amber-200">
+                <div className="relative z-10 max-w-lg text-white">
+                    <h3 className="text-2xl font-bold mb-2">Selamat Datang di Panel Admin</h3>
+                    <p className="opacity-90 leading-relaxed">
+                        Kelola tautan produk, platform marketplace, dan visual banner Anda dengan mudah dalam satu tempat yang terorganisir.
+                    </p>
+                </div>
+                {/* Background Decoration */}
+                <div className="absolute top-0 right-0 h-full w-1/3 bg-white/10 skew-x-12 translate-x-20"></div>
+                <div className="absolute bottom-0 right-10 opacity-20 transform translate-y-1/4">
+                    <LayoutDashboard size={200} />
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default DashboardContent;
