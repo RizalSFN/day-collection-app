@@ -48,7 +48,7 @@ const Product = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            if (editingProduct) {
+            if (editingProduct !== null) {
                 await updateProduct(editingProduct.id, formData);
             } else {
                 await createProduct(formData);
@@ -61,6 +61,7 @@ const Product = () => {
             alert("Terjadi kesalahan saat menyimpan produk");
         }
         setLoading(false);
+        setEditingProduct(null)
     };
 
     const confirmDelete = (id) => {
