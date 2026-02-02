@@ -5,20 +5,24 @@ import { v2 as cloudinary } from "cloudinary";
 export const createProduct = async (data, filePath) => {
     const uploadResult = await cloudinary.uploader.upload(filePath, {
         folder: "product_main_image"
-    })
+    });
 
-    fs.unlinkSync(filePath)
+    fs.unlinkSync(filePath);
 
-    return await prisma.products.create({
+    // Cek nama model di schema.prisma, biasanya 'product' atau 'Product'
+    return await prisma.product.create({
         data: {
             name: data.name,
             slug: data.slug,
             description: data.description,
             main_image: uploadResult.secure_url,
-            base_price: data.base_price,
+
+            // KONVERSI TIPE DATA PENTING!
+            base_price: parseInt(data.base_price),
+
             status: data.status
         }
-    })
+    });
 }
 
 export const getAllProducts = async () => {

@@ -3,11 +3,20 @@ import { errorResponse, successResponse } from "../utils/responseHelper.js";
 
 export const createProduct = async (req, res) => {
     try {
-        const product = await productService.createProduct(req.body, req.file.path)
-        return successResponse(res, product, "Berhasil menambahkan data product", 201)
+        // Cek apakah file berhasil diupload oleh Multer
+        if (!req.file) {
+            return res.status(400).json({ msg: "Image harus diupload" });
+        }
+
+        const filePath = req.file.path; // Ini yang tadinya error
+        const productData = req.body;
+
+        // Panggil service
+        const product = await productService.createProduct(productData, filePath);
+
+        res.status(201).json(product);
     } catch (error) {
-        console.log(error);
-        return errorResponse(res, "Gagal menambahkan data product", 500)
+        res.status(500).json({ msg: error.message });
     }
 }
 
