@@ -60,7 +60,7 @@ const DashboardContent = () => {
         {
             title: "Pesanan",
             label: "Pesanan Produk",
-            value: dashboardStats.totalBanner,
+            value: dashboardStats.totalOrders,
             icon: <NotebookText size={28} />,
             color: "text-emerald-500",
             bg: "bg-emerald-50",
