@@ -40,6 +40,7 @@ const Product = () => {
         const { name, value, files } = e.target;
         setFormData({
             ...formData,
+            // Jika input file, ambil file pertamanya saja.
             [name]: files ? files[0] : value
         });
     };

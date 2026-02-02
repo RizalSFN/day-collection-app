@@ -14,28 +14,32 @@ export const getProducts = async () => {
 export const createProduct = async (payload) => {
     try {
         const formData = new FormData();
-        const token = getToken()
+        // const token = getToken(); // Pastikan ini ada
 
         formData.append("name", payload.name);
         formData.append("slug", payload.slug);
         formData.append("description", payload.description);
-        formData.append("base_price", payload.harga);
+        formData.append("base_price", payload.harga); // Pastikan backend terima 'base_price'
         formData.append("status", payload.is_active);
-        formData.append("main_image", payload.main_image[0]);
+
+        // PERBAIKAN: Langsung append payload.main_image (karena sudah file object)
+        if (payload.main_image) {
+            formData.append("main_image", payload.main_image);
+        }
 
         const response = await api.post("/products", formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
-                Authorization: `Bearer ${token}`
+                // Authorization: `Bearer ${token}` 
             }
         });
 
-        return response.data
+        return response.data;
     } catch (error) {
         console.error("Gagal menambah data produk: ", error);
-        return []
+        throw error; // Throw error agar UI tau kalau gagal
     }
-}
+};
 
 export const updateProduct = async (id, data) => {
     try {
