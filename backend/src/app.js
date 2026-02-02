@@ -16,7 +16,9 @@ import productVariantRoutes from "./routes/productVariantRoutes.js"
 dotenv.config()
 const app = express()
 
-app.use(cors())
+app.use(cors({
+    origin: "*"
+}))
 
 app.use(rateLimit({
     windowMs: 1 * 60 * 1000,
