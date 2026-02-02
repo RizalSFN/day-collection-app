@@ -1,7 +1,7 @@
 import axios from "axios"
 
 const api = axios.create({
-    baseURL: import.meta.env.API_URL || "https://day-collection-app-backend.vercel.app/api",
+    baseURL: import.meta.env.API_URL || "https://day-collection-app-backend.vercel.app",
     headers: {
         "Content-Type": "application/json"
     }
