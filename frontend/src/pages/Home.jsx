@@ -79,7 +79,7 @@ export default function Home() {
                 {/* Image Section */}
                 <div className="md:w-1/2 mb-10 md:mb-0 flex justify-center">
                     <img
-                        src={banner.image_url}
+                        src={banner.image_url ? banner.imge_url : "/frontend/public/logo.png"}
                         alt={banner.title}
                         className="w-80 md:w-96 rounded-2xl"
                     />
