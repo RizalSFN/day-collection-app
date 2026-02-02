@@ -14,7 +14,7 @@ export const getProducts = async () => {
 export const createProduct = async (payload) => {
     try {
         const formData = new FormData();
-        // const token = getToken(); // Pastikan ini ada
+        const token = getToken(); // Pastikan ini ada
 
         formData.append("name", payload.name);
         formData.append("slug", payload.slug);
@@ -30,7 +30,7 @@ export const createProduct = async (payload) => {
         const response = await api.post("/products", formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
-                // Authorization: `Bearer ${token}` 
+                Authorization: `Bearer ${token}`
             }
         });
 
