@@ -7,7 +7,9 @@ export const createProduct = async (data, filePath) => {
         folder: "product_main_image"
     });
 
-    fs.unlinkSync(filePath);
+    if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+    }
 
     // Cek nama model di schema.prisma, biasanya 'product' atau 'Product'
     return await prisma.products.create({

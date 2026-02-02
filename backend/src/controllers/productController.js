@@ -16,7 +16,7 @@ export const createProduct = async (req, res) => {
 
         res.status(201).json(product);
     } catch (error) {
-        res.status(500).json({ msg: error.message });
+        res.status(500).json({ msg: error });
     }
 }
 
