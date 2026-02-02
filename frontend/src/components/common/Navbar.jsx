@@ -42,7 +42,7 @@ export default function Navbar() {
                             : "text-gray-600 hover:text-amber-600"
                             } transition`}
                     >
-                        Tracking Order
+                        Lacak Pesanan
                     </Link>
 
                     <Link

@@ -65,6 +65,7 @@ export default function Footer() {
                     <ul className="space-y-2 text-gray-600">
                         <li><a href="/" className="hover:text-amber-600">Beranda</a></li>
                         <li><a href="/produk" className="hover:text-amber-600">Produk</a></li>
+                        <li><a href="/tracking-order" className="hover:text-amber-600">Lacak Pesanan</a></li>
                     </ul>
                 </div>
 
