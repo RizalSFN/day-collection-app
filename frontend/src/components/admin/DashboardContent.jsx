@@ -9,7 +9,7 @@ const DashboardContent = () => {
     const [dashboardStats, setDashboardStats] = useState({
         totalMarketplace: 0,
         totalProducts: 0,
-        totalOrder: 0,
+        totalOrders: 0,
     });
 
     const [loading, setLoading] = useState(true);
@@ -25,7 +25,7 @@ const DashboardContent = () => {
 
                 setDashboardStats({
                     totalProducts: products.length,
-                    totalPesanan: orders.length,
+                    totalOrders: orders.length,
                     totalMarketplace: marketplaces.length,
                 });
             } catch (error) {
