@@ -144,7 +144,8 @@ export default function Product() {
             const response = await uploadPaymentProof(newOrderId, file);
             const orderData = response.data
             setFinalOrderCode(orderData.order_code);
-            showSuccess(true)
+            handleCloseModal(true)
+            setShowSuccess(true)
         } catch (error) {
             setErrorMessage(error.response?.data?.msg || "Gagal mengunggah bukti pembayaran. Silakan periksa koneksi internet Anda.");
             handleCloseModal()
