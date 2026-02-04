@@ -96,7 +96,7 @@ const TrackingOrder = () => {
                                 Lacak <span className="text-amber-500">Pesanan</span>
                             </h1>
                             <p className="text-[10px] text-gray-400 mt-2 uppercase font-black tracking-[0.3em]">
-                                Input kode order atau nama penerima
+                                Input nomor telepon penerima atau nama penerima
                             </p>
                         </div>
                     )}
@@ -106,7 +106,7 @@ const TrackingOrder = () => {
                         <form onSubmit={handleSearch} className="relative mb-12 group">
                             <input
                                 type="text"
-                                placeholder="Contoh: INV-2026... atau Budi"
+                                placeholder="Temukan Pesananmu..."
                                 className="w-full bg-white border-2 border-transparent rounded-4xl py-5 pl-8 pr-20 shadow-xl shadow-gray-200 focus:border-amber-500 focus:ring-0 font-bold text-gray-700 outline-none transition-all"
                                 value={keyword}
                                 onChange={(e) => setKeyword(e.target.value)}
