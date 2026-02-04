@@ -135,12 +135,12 @@ export const updateOrderStatusService = (id, status) => {
 export const trackingOrderService = async (keyword) => {
     const cleanKeyword = keyword.trim();
 
-    return await prisma.order.findFirst({
+    return await prisma.order.findMany({
         where: {
             OR: [
                 {
-                    order_code: {
-                        equals: cleanKeyword, // Kode order harus sama persis
+                    buyer_phone: {
+                        equals: cleanKeyword, // nomor telepon harus sama persis
                     }
                 },
                 {
