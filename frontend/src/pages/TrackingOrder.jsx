@@ -96,7 +96,7 @@ const TrackingOrder = () => {
                                 Lacak <span className="text-amber-500">Pesanan</span>
                             </h1>
                             <p className="text-[10px] text-gray-400 mt-2 uppercase font-black tracking-[0.3em]">
-                                Input nomor telepon penerima atau nama penerima
+                                Input kode order, nomor telepon penerima atau nama penerima
                             </p>
                         </div>
                     )}
