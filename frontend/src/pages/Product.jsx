@@ -143,10 +143,13 @@ export default function Product() {
             // Menggunakan newOrderId yang didapat dari handleCreateOrder
             const response = await uploadPaymentProof(newOrderId, file);
             const orderData = response.data
-            setFinalOrderCode(orderData.order_code);
-            showSuccess(true)
+            console.log(response);
+
+            // setFinalOrderCode(orderData.order_code);
+            // showSuccess(true)
         } catch (error) {
             setErrorMessage(error.response?.data?.msg || "Gagal mengunggah bukti pembayaran. Silakan periksa koneksi internet Anda.");
+            handleCloseModal()
             setShowError(true);
         } finally {
             setIsProcessing(false);
