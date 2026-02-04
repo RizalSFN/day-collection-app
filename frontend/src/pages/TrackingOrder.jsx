@@ -27,18 +27,16 @@ const TrackingOrder = () => {
 
         try {
             const response = await trackOrderApi(cleanKeyword);
-            const data = response.data; // Asumsi backend return array di dalam data
+            const data = response.data;
 
             if (!data || data.length === 0) {
                 setError("Pesanan tidak ditemukan. Periksa kembali kode order atau nama Anda.");
             } else if (data.length === 1) {
-                // Jika cuma 1, langsung tampilkan detail
                 setSelectedOrder(data[0]);
             } else {
-                // Jika banyak, simpan di list untuk dipilih user
                 setOrderList(data);
             }
-        } catch (error) {
+        } catch (err) {
             setError("Terjadi kesalahan saat mencari pesanan.");
         } finally {
             setLoading(false);
@@ -62,7 +60,7 @@ const TrackingOrder = () => {
         }
     };
 
-    // --- KOMPONEN KECIL: LIST ITEM ---
+    // --- KOMPONEN KECIL: LIST ITEM (Untuk hasil pencarian banyak) ---
     const OrderListItem = ({ order }) => (
         <div
             onClick={() => setSelectedOrder(order)}
@@ -91,14 +89,14 @@ const TrackingOrder = () => {
             <div className="bg-gray-50 min-h-screen pt-32 pb-20 px-6">
                 <div className="max-w-3xl mx-auto">
 
-                    {/* Header: Sembunyikan jika sedang melihat detail agar bersih */}
+                    {/* Header: Sembunyikan jika sedang melihat detail */}
                     {!selectedOrder && (
                         <div className="text-center mb-12">
                             <h1 className="text-3xl font-black italic uppercase tracking-tighter text-gray-900">
                                 Lacak <span className="text-amber-500">Pesanan</span>
                             </h1>
                             <p className="text-[10px] text-gray-400 mt-2 uppercase font-black tracking-[0.3em]">
-                                Input nomor telepon atau nama penerima
+                                Input kode order atau nama penerima
                             </p>
                         </div>
                     )}
@@ -108,7 +106,7 @@ const TrackingOrder = () => {
                         <form onSubmit={handleSearch} className="relative mb-12 group">
                             <input
                                 type="text"
-                                placeholder="Temukan Pesananmu..."
+                                placeholder="Contoh: INV-2026... atau Budi"
                                 className="w-full bg-white border-2 border-transparent rounded-4xl py-5 pl-8 pr-20 shadow-xl shadow-gray-200 focus:border-amber-500 focus:ring-0 font-bold text-gray-700 outline-none transition-all"
                                 value={keyword}
                                 onChange={(e) => setKeyword(e.target.value)}
@@ -142,7 +140,7 @@ const TrackingOrder = () => {
                         </div>
                     )}
 
-                    {/* KONDISI 2: Menampilkan Detail Pesanan */}
+                    {/* KONDISI 2: Menampilkan Detail Pesanan (DESAIN BARU ANDA) */}
                     {selectedOrder && (
                         <div className="animate-slideUp">
                             {/* Tombol Back */}
@@ -153,8 +151,9 @@ const TrackingOrder = () => {
                                 <ArrowLeft size={16} /> Kembali ke pencarian
                             </button>
 
-                            {/* ... Bagian Detail Order sama persis seperti kode Anda sebelumnya ... */}
-                            <div className="bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-gray-100">
+                            {/* --- DISINI CARD DETAIL PESANAN YANG ANDA INGINKAN --- */}
+                            <div className="bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-gray-100 animate-slideUp">
+                                {/* Status Header */}
                                 <div className={`p-8 flex items-center justify-between ${getStatusInfo(selectedOrder.status).bg}`}>
                                     <div>
                                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Status Pesanan</p>
@@ -170,32 +169,67 @@ const TrackingOrder = () => {
                                 <div className="p-8 space-y-8">
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Kode Order</p>
-                                            <p className="font-mono font-bold text-gray-800">#{selectedOrder.order_code}</p>
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">ID Transaksi</p>
+                                            <p className="font-mono font-bold text-gray-800 tracking-tighter">#{selectedOrder.order_code}</p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Bayar</p>
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Pembayaran</p>
                                             <p className="font-black text-amber-600 italic text-lg">Rp {parseInt(selectedOrder.total_amount).toLocaleString()}</p>
                                         </div>
                                     </div>
 
-                                    {/* ... Lanjutkan sisa detail order (alamat, items, dll) ... */}
+                                    <hr className="border-gray-50" />
+
                                     <div className="space-y-4">
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">Item Pesanan</p>
+                                        <div className="flex gap-4">
+                                            <div className="w-10 h-10 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500 shrink-0">
+                                                <MapPin size={20} />
+                                            </div>
+                                            <div>
+                                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Informasi Penerima</p>
+                                                <p className="text-sm font-bold text-gray-700">{selectedOrder.buyer_name} ({selectedOrder.buyer_phone})</p>
+                                                <p className="text-[11px] text-gray-500 mt-1 leading-relaxed uppercase">{selectedOrder.buyer_address}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">Rincian Item</p>
                                         {selectedOrder.items?.map((item, idx) => (
-                                            <div key={idx} className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100">
-                                                <img src={item.product.main_image} className="w-12 h-12 rounded-lg object-cover" alt="item" />
+                                            <div key={idx} className="flex items-center gap-4 bg-gray-50 p-4 rounded-3xl border border-gray-100">
+                                                <div className="w-14 h-14 rounded-xl bg-white overflow-hidden shrink-0 border border-gray-100">
+                                                    <img
+                                                        src={item.product.main_image}
+                                                        className="w-full h-full object-cover"
+                                                        alt={item.product.name}
+                                                    />
+                                                </div>
                                                 <div className="grow">
-                                                    <p className="text-[11px] font-black uppercase italic text-gray-800">{item.product.name}</p>
-                                                    <p className="text-[9px] font-bold text-gray-400 uppercase">
-                                                        {item.product_variants?.color || '-'} / {item.product_variants?.size || '-'}
+                                                    <p className="text-[11px] font-black uppercase italic text-gray-800">
+                                                        {item.product.name}
+                                                    </p>
+                                                    <p className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">
+                                                        {item.product_variants?.color} / {item.product_variants?.size}
+                                                    </p>
+                                                    <p className="text-[9px] font-black text-amber-500 mt-1">
+                                                        Rp {parseInt(item.price).toLocaleString("id-ID")}
                                                     </p>
                                                 </div>
-                                                <p className="text-sm font-black text-amber-600">x{item.quantity || item.quality}</p>
+                                                <div className="text-right">
+                                                    <p className="text-sm font-black text-amber-600">x{item.quantity || item.quality}</p>
+                                                </div>
                                             </div>
                                         ))}
                                     </div>
 
+                                    <div className="bg-gray-900 text-white p-6 rounded-4xl flex items-center gap-4 shadow-xl shadow-gray-200">
+                                        <div className="p-3 bg-amber-500 rounded-2xl text-black">
+                                            <Clock size={20} strokeWidth={3} />
+                                        </div>
+                                        <p className="text-[9px] font-bold leading-relaxed italic text-gray-300 uppercase tracking-tight">
+                                            Status pesanan diperbarui oleh Admin. Silakan hubungi CS via WhatsApp jika status tidak berubah dalam 1x24 jam.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
