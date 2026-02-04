@@ -143,11 +143,8 @@ export default function Product() {
             // Menggunakan newOrderId yang didapat dari handleCreateOrder
             const response = await uploadPaymentProof(newOrderId, file);
             const orderData = response.data
-            console.log("1. " + response);
-            console.log(orderData);
-
-            // setFinalOrderCode(orderData.order_code);
-            // showSuccess(true)
+            setFinalOrderCode(orderData.order_code);
+            showSuccess(true)
         } catch (error) {
             setErrorMessage(error.response?.data?.msg || "Gagal mengunggah bukti pembayaran. Silakan periksa koneksi internet Anda.");
             handleCloseModal()
@@ -275,7 +272,7 @@ export default function Product() {
 
                 {/* --- CUSTOM SUCCESS POPUP --- */}
                 {showSuccess && (
-                    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 flex items-center justify-center p-6 animate-fadeIn">
+                    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-fadeIn">
                         <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 text-center shadow-2xl transform transition-all scale-100 relative overflow-hidden">
 
                             {/* Dekorasi Background */}

@@ -75,7 +75,7 @@ const TrackingOrder = () => {
                         {new Date(order.created_at).toLocaleDateString("id-ID")}
                     </span>
                 </div>
-                <p className="font-mono font-bold text-gray-800 text-sm">#{order.order_code}</p>
+                <p className="font-mono font-bold text-gray-800 text-sm">#{order.order_code} ({order.buyer_name})</p>
                 <p className="text-xs text-gray-500 mt-1 line-clamp-1">
                     {order.items?.map(i => i.product.name).join(", ")}
                 </p>
