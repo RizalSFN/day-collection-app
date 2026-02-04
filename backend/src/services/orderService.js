@@ -1,6 +1,7 @@
 import prisma from "../config/db.js";
 import cloudinary from "../config/cloudinary.js";
 import fs from "fs"
+import { equal } from "assert";
 
 export const createOrderService = async (payload) => {
     // 1. Generate Order Code
@@ -141,6 +142,11 @@ export const trackingOrderService = async (keyword) => {
                 {
                     buyer_phone: {
                         equals: cleanKeyword, // nomor telepon harus sama persis
+                    }
+                },
+                {
+                    order_code: {
+                        equals: cleanKeyword
                     }
                 },
                 {
