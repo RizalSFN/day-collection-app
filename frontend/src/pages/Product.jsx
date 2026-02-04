@@ -143,7 +143,8 @@ export default function Product() {
             // Menggunakan newOrderId yang didapat dari handleCreateOrder
             const response = await uploadPaymentProof(newOrderId, file);
             const orderData = response.data
-            console.log(response);
+            console.log("1. " + response);
+            console.log(orderData);
 
             // setFinalOrderCode(orderData.order_code);
             // showSuccess(true)
