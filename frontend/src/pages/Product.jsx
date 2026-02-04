@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Search, Package, ChevronLeft, ChevronRight } from "lucide-react";
+import { Package, ChevronLeft, ChevronRight, XCircle, CheckCircle2 } from "lucide-react";
 import MainLayout from "../layouts/MainLayout";
 import ProductDetailModal from "../components/admin/ProductDetailModal.jsx"; // Pastikan path benar
 import { getMarketplaceLink } from "../services/marketplaceLinkService";
@@ -28,12 +28,12 @@ export default function Product() {
         buyer_phone: "",
         buyer_address: ""
     });
-    const [paymentCredentials, setPaymentCredentials] = useState({
-        bank_name: "",
-        bank_number: ""
-    })
     const [quantity, setQuantity] = useState(1);
     const [appSettings, setAppSettings] = useState([]);
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [showError, setShowError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+    const [finalOrderCode, setFinalOrderCode] = useState("");
 
     // Load Produk
     useEffect(() => {
@@ -43,7 +43,8 @@ export default function Product() {
                 const response = await getMarketplaceLink();
                 setProducts(response || []);
             } catch (error) {
-                console.error("Error fetching products:", error);
+                setErrorMessage(error.response?.data?.msg || "Gagal memuat data produk.");
+                setShowError(true);
             } finally {
                 setLoading(false);
             }
@@ -74,7 +75,8 @@ export default function Product() {
             setVariants(data);
             if (data.length > 0) setSelectedVariant(data[0]);
         } catch (error) {
-            console.error("Gagal load varian:", error);
+            setErrorMessage(error.response?.data?.msg || "Gagal memuat data varian.");
+            setShowError(true);
         }
     };
 
@@ -89,7 +91,9 @@ export default function Product() {
     // Handler Create Order (Step 2)
     const handleCreateOrder = async () => {
         if (!buyerData.buyer_name || !buyerData.buyer_phone || !buyerData.buyer_address) {
-            return alert("Mohon lengkapi data diri Anda");
+            setErrorMessage("Mohon lengkapi data diri Anda");
+            setShowError(true);
+            return
         }
 
         setIsProcessing(true);
@@ -119,8 +123,8 @@ export default function Product() {
             setNewOrderId(response.data.id);
             setCheckoutStep(3);
         } catch (error) {
-            console.error(error);
-            alert("Gagal membuat pesanan. Periksa console backend.");
+            setErrorMessage(error.response?.data?.msg || "Gagal membuat pesanan.");
+            setShowError(true);
         } finally {
             setIsProcessing(false);
         }
@@ -128,20 +132,31 @@ export default function Product() {
 
     // Handler Confirm Payment (Step 3)
     const handleConfirmPayment = async () => {
-        if (!file) return alert("Pilih foto bukti transfer");
+        if (!file) {
+            setErrorMessage("Mohon pilih foto bukti transfer terlebih dahulu.");
+            setShowError(true);
+            return;
+        }
 
         setIsProcessing(true);
         try {
             // Menggunakan newOrderId yang didapat dari handleCreateOrder
-            await uploadPaymentProof(newOrderId, file);
-            alert("Bukti terkirim! Pesanan Anda akan diverifikasi.");
-            handleCloseModal();
+            const response = await uploadPaymentProof(newOrderId, file);
+            const orderData = response.data
+            setFinalOrderCode(orderData.order_code);
+            showSuccess(true)
         } catch (error) {
-            console.log(error);
-            alert("Gagal mengunggah bukti.");
+            setErrorMessage(error.response?.data?.msg || "Gagal mengunggah bukti pembayaran. Silakan periksa koneksi internet Anda.");
+            setShowError(true);
         } finally {
             setIsProcessing(false);
         }
+    };
+
+    const handleFinish = () => {
+        setShowSuccess(false);
+        handleCloseModal(); // Ini akan menutup modal utama (ProductDetailModal/Checkout)
+        // Reset state lain jika perlu
     };
 
     // Pagination Logic
@@ -253,6 +268,92 @@ export default function Product() {
                         </>
                     )}
                 </section>
+
+                {/* --- CUSTOM SUCCESS POPUP --- */}
+                {showSuccess && (
+                    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 flex items-center justify-center p-6 animate-fadeIn">
+                        <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 text-center shadow-2xl transform transition-all scale-100 relative overflow-hidden">
+
+                            {/* Dekorasi Background */}
+                            <div className="absolute top-0 left-0 w-full h-24 bg-linear-to-b from-green-50 to-transparent z-0"></div>
+
+                            <div className="relative z-10">
+                                {/* Icon Sukses */}
+                                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-100">
+                                    <CheckCircle2 size={40} className="text-green-600" strokeWidth={3} />
+                                </div>
+
+                                <h3 className="text-2xl font-black text-gray-900 uppercase italic mb-2">
+                                    Pembayaran <span className="text-green-600">Berhasil!</span>
+                                </h3>
+
+                                <p className="text-xs text-gray-500 font-medium mb-6 leading-relaxed">
+                                    Bukti transfer Anda telah kami terima. Admin kami akan segera memverifikasi pesanan Anda.
+                                </p>
+
+                                {/* Box Kode Order (Penting buat User) */}
+                                <div className="bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl p-4 mb-8">
+                                    <p className="text-[10px] uppercase font-black text-gray-400 tracking-widest mb-1">
+                                        Kode Order Anda
+                                    </p>
+                                    <div className="flex items-center justify-center gap-2">
+                                        {/* Pastikan Anda punya variable orderCode atau ambil dari newOrderCode */}
+                                        <p className="text-xl font-black text-gray-900 font-mono tracking-tighter">
+                                            {/* Ganti ini dengan variabel state kode order Anda */}
+                                            #{finalOrderCode || "Loading..."}
+                                        </p>
+                                    </div>
+                                    <p className="text-[9px] text-amber-500 italic mt-2">
+                                        *Simpan kode ini untuk melacak pesanan
+                                    </p>
+                                </div>
+
+                                {/* Tombol Tutup */}
+                                <button
+                                    onClick={handleFinish}
+                                    className="w-full py-4 bg-gray-900 text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-black transition-all active:scale-95 shadow-xl"
+                                >
+                                    Selesai & Tutup
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* --- CUSTOM ERROR POPUP --- */}
+                {showError && (
+                    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-fadeIn">
+                        <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 text-center shadow-2xl transform transition-all scale-100 relative overflow-hidden">
+
+                            {/* Dekorasi Background Merah Pudar */}
+                            <div className="absolute top-0 left-0 w-full h-24 bg-linear-to-b from-red-50 to-transparent z-0"></div>
+
+                            <div className="relative z-10">
+                                {/* Icon Error (Silang Merah) */}
+                                <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-red-100">
+                                    <XCircle size={40} className="text-red-500" strokeWidth={3} />
+                                </div>
+
+                                <h3 className="text-2xl font-black text-gray-900 uppercase italic mb-2">
+                                    Terjadi <span className="text-red-500">Kesalahan</span>
+                                </h3>
+
+                                {/* Pesan Error Dinamis */}
+                                <p className="text-xs text-gray-500 font-medium mb-8 leading-relaxed px-4">
+                                    {errorMessage}
+                                </p>
+
+                                {/* Tombol Coba Lagi / Tutup */}
+                                <button
+                                    onClick={() => setShowError(false)}
+                                    className="w-full py-4 bg-red-500 text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-red-600 transition-all active:scale-95 shadow-xl shadow-red-200"
+                                >
+                                    Tutup & Coba Lagi
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* MODAL KOMPONEN */}
                 <ProductDetailModal
