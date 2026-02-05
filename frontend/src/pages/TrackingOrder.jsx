@@ -30,13 +30,14 @@ const TrackingOrder = () => {
             const data = response.data;
 
             if (!data || data.length === 0) {
-                setError("Pesanan tidak ditemukan. Periksa kembali kode order atau nama Anda.");
+                setError("Pesanan tidak ditemukan. Periksa kembali kata kunci pencarian anda.");
             } else if (data.length === 1) {
                 setSelectedOrder(data[0]);
             } else {
                 setOrderList(data);
             }
         } catch (err) {
+            console.log("Terjadi kesalahan saat mencari pesanan: ", err);
             setError("Terjadi kesalahan saat mencari pesanan.");
         } finally {
             setLoading(false);
