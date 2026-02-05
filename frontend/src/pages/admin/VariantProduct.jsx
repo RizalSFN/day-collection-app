@@ -8,6 +8,7 @@ import {
     updateVariant,
     deleteVariant
 } from "../../services/variantService";
+import { toast } from "react-toastify";
 
 const VariantProduct = () => {
     const [products, setProducts] = useState([]);
@@ -44,7 +45,8 @@ const VariantProduct = () => {
             const data = await getVariantsByProduct(productId);
             setVariants(data);
         } catch (error) {
-            console.error("Gagal memuat varian", error);
+            console.error("Gagal memuat data varian", error);
+            toast.error("Gagal memuat data varian")
         }
         setLoading(false);
     };
@@ -81,15 +83,18 @@ const VariantProduct = () => {
 
             if (editingVariant) {
                 await updateVariant(editingVariant.id, payload);
+                toast.success("Berhasil memperbarui data varian")
             } else {
                 await createVariant(payload);
+                toast.success("Berhasil menambah data varian")
             }
 
             setIsModalOpen(false);
             loadVariants(selectedProduct.id);
         } catch (error) {
             console.log(error);
-            alert("Terjadi kesalahan saat menyimpan varian");
+            alert("Terjadi kesalahan saat menyimpan data varian");
+            toast.error("Terjadi kesalahan saat menyimpan data varian")
         }
     };
 
@@ -97,10 +102,11 @@ const VariantProduct = () => {
         if (window.confirm("Apakah Anda yakin ingin menonaktifkan varian ini?")) {
             try {
                 await deleteVariant(id);
+                toast.success("Berhasil menghapus data varian")
                 loadVariants(selectedProduct.id);
             } catch (error) {
                 console.log(error);
-                alert("Gagal menghapus varian");
+                toast.error("Gagal menghapus data varian")
             }
         }
     };

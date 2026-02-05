@@ -4,6 +4,7 @@ import { ImageIcon, Pencil, Plus, Search, Trash2 } from "lucide-react";
 import { getBanner } from "../../services/bannerService";
 import ModalCreateBanner from "../../components/admin/ModalCreateBanner";
 import ModalUpdateBanner from "../../components/admin/ModalUpdateBanner";
+import { toast } from "react-toastify";
 
 export const Banner = () => {
     const [banner, setBanner] = useState([]);
@@ -20,6 +21,7 @@ export const Banner = () => {
             setBanner(response);
         } catch (error) {
             console.log("Gagal memuat data banner: ", error);
+            toast.error("Gagal memuat data banner")
         } finally {
             setLoading(false);
         }

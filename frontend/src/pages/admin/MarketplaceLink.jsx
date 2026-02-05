@@ -6,6 +6,7 @@ import ModalUpdateMarketplaceLink from "../../components/admin/ModalUpdateMarket
 import ModalDeleteMarketplaceLink from "../../components/admin/ModalDeleteMarketplaceLink";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import { ChevronLeft, ChevronRight, ExternalLink, LinkIcon, Pencil, Plus, Search, Trash2 } from "lucide-react";
+import { toast } from "react-toastify";
 
 export default function MarketplaceLink() {
     const [links, setLinks] = useState([]);
@@ -26,6 +27,7 @@ export default function MarketplaceLink() {
             setLinks(response);
         } catch (error) {
             console.log("Gagal memuat data marketplace link:", error);
+            toast.error("Gagal memuat data marketplace link")
         } finally {
             setLoading(false);
         }

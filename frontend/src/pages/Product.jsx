@@ -192,84 +192,93 @@ export default function Product() {
                 </section>
 
                 {/* Product Grid */}
-                <section className="max-w-7xl mx-auto px-4 py-8">
-                    {paginatedProducts.length === 0 ? (
+                {loading ? (
+                    <section className="max-w-7xl mx-auto px-4 py-8">
                         <div className="flex flex-col items-center justify-center py-20 bg-white rounded-[2.5rem] border-2 border-dashed border-gray-100 animate-fadeIn">
-                            <div className="bg-amber-100 p-4 rounded-full mb-4 text-amber-600">
-                                <Package size={40} />
-                            </div>
-                            <h3 className="text-lg font-black uppercase italic tracking-tighter text-gray-800">
-                                Produk Tidak Ditemukan
-                            </h3>
-                            <p className="text-xs font-bold text-gray-400 mt-1 uppercase tracking-widest">
-                                Coba gunakan kata kunci pencarian lain
-                            </p>
+                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-500 mb-4"></div>
+                            <p>Memuat data produk...</p>
                         </div>
-                    ) : (
-                        <>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                                {paginatedProducts.map((product) => {
-                                    const totalStock = product.variants?.reduce((acc, v) => acc + v.stock, 0) || 0;
-                                    const isOutOfStock = totalStock === 0;
+                    </section>
+                ) : (
+                    <section className="max-w-7xl mx-auto px-4 py-8">
+                        {paginatedProducts.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center py-20 bg-white rounded-[2.5rem] border-2 border-dashed border-gray-100 animate-fadeIn">
+                                <div className="bg-amber-100 p-4 rounded-full mb-4 text-amber-600">
+                                    <Package size={40} />
+                                </div>
+                                <h3 className="text-lg font-black uppercase italic tracking-tighter text-gray-800">
+                                    Produk Tidak Ditemukan
+                                </h3>
+                                <p className="text-xs font-bold text-gray-400 mt-1 uppercase tracking-widest">
+                                    Coba gunakan kata kunci pencarian lain
+                                </p>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                                    {paginatedProducts.map((product) => {
+                                        const totalStock = product.variants?.reduce((acc, v) => acc + v.stock, 0) || 0;
+                                        const isOutOfStock = totalStock === 0;
 
-                                    return (
-                                        <div
-                                            key={product.id}
-                                            onClick={() => handleOpenModal(product)}
-                                            className="group bg-white rounded-4xl shadow-sm hover:shadow-2xl border border-gray-100 transition-all duration-300 cursor-pointer overflow-hidden flex flex-col h-full relative"
-                                        >
-                                            <div className={`absolute top-3 left-3 z-10 px-2 py-1 rounded-lg text-[8px] font-black uppercase tracking-tighter shadow-sm ${isOutOfStock ? 'bg-red-500 text-white' : 'bg-amber-500 text-black'}`}>
-                                                {isOutOfStock ? 'Sold Out' : 'Ready Stock'}
-                                            </div>
+                                        return (
+                                            <div
+                                                key={product.id}
+                                                onClick={() => handleOpenModal(product)}
+                                                className="group bg-white rounded-4xl shadow-sm hover:shadow-2xl border border-gray-100 transition-all duration-300 cursor-pointer overflow-hidden flex flex-col h-full relative"
+                                            >
+                                                <div className={`absolute top-3 left-3 z-10 px-2 py-1 rounded-lg text-[8px] font-black uppercase tracking-tighter shadow-sm ${isOutOfStock ? 'bg-red-500 text-white' : 'bg-amber-500 text-black'}`}>
+                                                    {isOutOfStock ? 'Sold Out' : 'Ready Stock'}
+                                                </div>
 
-                                            <div className="aspect-square overflow-hidden bg-gray-50">
-                                                <img
-                                                    src={product.main_image}
-                                                    alt={product.name}
-                                                    className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ${isOutOfStock ? 'grayscale opacity-50' : ''}`}
-                                                />
-                                            </div>
+                                                <div className="aspect-square overflow-hidden bg-gray-50">
+                                                    <img
+                                                        src={product.main_image}
+                                                        alt={product.name}
+                                                        className={`w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ${isOutOfStock ? 'grayscale opacity-50' : ''}`}
+                                                    />
+                                                </div>
 
-                                            <div className="p-4 flex flex-col grow bg-white">
-                                                <h3 className="text-[11px] font-bold text-gray-800 line-clamp-2 mb-2 uppercase italic leading-tight group-hover:text-amber-600 transition-colors">
-                                                    {product.name}
-                                                </h3>
-                                                <div className="mt-auto flex flex-col">
-                                                    <p className="text-amber-600 font-black text-sm italic tracking-tighter">
-                                                        Rp {parseInt(product.base_price).toLocaleString("id-ID")}
-                                                    </p>
-                                                    <p className="text-[8px] font-bold text-gray-400 uppercase mt-1">
-                                                        Lihat Detail & Varian
-                                                    </p>
+                                                <div className="p-4 flex flex-col grow bg-white">
+                                                    <h3 className="text-[11px] font-bold text-gray-800 line-clamp-2 mb-2 uppercase italic leading-tight group-hover:text-amber-600 transition-colors">
+                                                        {product.name}
+                                                    </h3>
+                                                    <div className="mt-auto flex flex-col">
+                                                        <p className="text-amber-600 font-black text-sm italic tracking-tighter">
+                                                            Rp {parseInt(product.base_price).toLocaleString("id-ID")}
+                                                        </p>
+                                                        <p className="text-[8px] font-bold text-gray-400 uppercase mt-1">
+                                                            Lihat Detail & Varian
+                                                        </p>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-
-                            {totalPages > 1 && (
-                                <div className="flex justify-center items-center mt-12 gap-4">
-                                    <button
-                                        disabled={currentPage === 1}
-                                        onClick={() => setCurrentPage(currentPage - 1)}
-                                        className="p-2 border rounded-lg disabled:opacity-50 hover:bg-amber-500 hover:text-black transition-colors"
-                                    >
-                                        <ChevronLeft size={20} />
-                                    </button>
-                                    <span className="text-sm font-black italic">{currentPage} / {totalPages}</span>
-                                    <button
-                                        disabled={currentPage === totalPages}
-                                        onClick={() => setCurrentPage(currentPage + 1)}
-                                        className="p-2 border rounded-lg disabled:opacity-50 hover:bg-amber-500 hover:text-black transition-colors"
-                                    >
-                                        <ChevronRight size={20} />
-                                    </button>
+                                        );
+                                    })}
                                 </div>
-                            )}
-                        </>
-                    )}
-                </section>
+
+                                {totalPages > 1 && (
+                                    <div className="flex justify-center items-center mt-12 gap-4">
+                                        <button
+                                            disabled={currentPage === 1}
+                                            onClick={() => setCurrentPage(currentPage - 1)}
+                                            className="p-2 border rounded-lg disabled:opacity-50 hover:bg-amber-500 hover:text-black transition-colors"
+                                        >
+                                            <ChevronLeft size={20} />
+                                        </button>
+                                        <span className="text-sm font-black italic">{currentPage} / {totalPages}</span>
+                                        <button
+                                            disabled={currentPage === totalPages}
+                                            onClick={() => setCurrentPage(currentPage + 1)}
+                                            className="p-2 border rounded-lg disabled:opacity-50 hover:bg-amber-500 hover:text-black transition-colors"
+                                        >
+                                            <ChevronRight size={20} />
+                                        </button>
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </section>
+                )}
 
                 {/* --- CUSTOM SUCCESS POPUP --- */}
                 {showSuccess && (

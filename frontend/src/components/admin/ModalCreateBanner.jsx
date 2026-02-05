@@ -24,7 +24,7 @@ export default function ModalCreateBanner({ onClose, onSuccess }) {
 
     return (
         <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-xl shadow-2xl w-[600px]">
+            <div className="bg-white p-6 rounded-xl shadow-2xl w-150">
                 <h2 className="text-xl font-semibold mb-4">
                     Tambah Banner
                 </h2>

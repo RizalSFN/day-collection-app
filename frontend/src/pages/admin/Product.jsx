@@ -5,6 +5,7 @@ import { Plus, Pencil, Trash2, Search, Edit } from "lucide-react";
 import ModalCreateProduct from "../../components/admin/ModalCreateProduct";
 import ModalUpdateProduct from "../../components/admin/ModalUpdateProduct";
 import ModalDeleteProduct from "../../components/admin/ModalDeleteProduct";
+import { toast } from "react-toastify";
 
 const Product = () => {
     const [products, setProducts] = useState([]);
@@ -51,15 +52,17 @@ const Product = () => {
         try {
             if (editingProduct !== null) {
                 await updateProduct(editingProduct.id, formData);
+                toast.success("Berhasil memeperbarui data produk")
             } else {
                 await createProduct(formData);
+                toast.success("Berhasil menambah data produk")
             }
             setIsModalOpen(false);
             fetchProducts();
             resetForm();
         } catch (error) {
             console.log(error);
-            alert("Terjadi kesalahan saat menyimpan produk");
+            toast.error("Terjadi kesalahan saat menyimpan produk")
         }
         setLoading(false);
         setEditingProduct(null)
@@ -76,10 +79,11 @@ const Product = () => {
             await deleteProduct(productIdToDelete);
             setIsDeleteModalOpen(false);
             setProductIdToDelete(null);
+            toast.success("Berhasil menghapus data produk")
             fetchProducts(); // Refresh data
         } catch (error) {
             console.log(error);
-            alert("Gagal menghapus produk");
+            toast.error("Gagal menghapus data produk")
         }
         setLoading(false);
     };

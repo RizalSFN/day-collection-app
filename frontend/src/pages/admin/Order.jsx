@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import { getOrders, updateOrderStatus } from "../../services/orderService";
 import { Search, Eye, CheckCircle, XCircle, Clock, CreditCard, User, MapPin, Phone } from "lucide-react";
+import { toast } from "react-toastify";
 
 const Order = () => {
     const [orders, setOrders] = useState([]);
@@ -20,7 +21,8 @@ const Order = () => {
             const data = await getOrders();
             setOrders(data);
         } catch (error) {
-            console.error("Gagal memuat order:", error);
+            console.error("Gagal memuat data pesanan:", error);
+            toast.error("Gagal memuat data pesanan")
         }
         setLoading(false);
     };
@@ -32,10 +34,11 @@ const Order = () => {
         try {
             await updateOrderStatus(id, status);
             setIsDetailModalOpen(false);
+            toast.success("Berhasil memperbarui status pesanan")
             fetchOrders();
         } catch (error) {
             console.log(error);
-            alert("Gagal memperbarui status");
+            toast.error("Gagal memperbarui status pesanan")
         }
         setLoading(false);
     };

@@ -30,7 +30,7 @@ export default function ModalUpdateBanner({ data, onClose, onSuccess }) {
 
     return (
         <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-xl w-[600px]">
+            <div className="bg-white p-6 rounded-xl w-150">
                 <h2 className="text-xl font-semibold mb-4">
                     Update Banner
                 </h2>

@@ -4,6 +4,7 @@ import { Pencil, Plus, SettingsIcon, Trash2 } from "lucide-react";
 import { getAppSetting } from "../../services/appSettingService";
 import ModalCreateAppSetting from "../../components/admin/ModalCreateAppSetting";
 import ModalUpdateAppSetting from "../../components/admin/ModalUpdateAppSetting";
+import { toast } from "react-toastify";
 
 export const Setting = () => {
     const [setting, setSetting] = useState([]);
@@ -18,6 +19,7 @@ export const Setting = () => {
             setSetting(response);
         } catch (error) {
             console.log("Gagal memuat data setting: ", error);
+            toast.error("Gagal memuat data setting")
         } finally {
             setLoading(false);
         }
