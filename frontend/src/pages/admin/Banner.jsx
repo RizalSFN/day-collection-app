@@ -42,7 +42,6 @@ export const Banner = () => {
                     <div>
                         <h1 className="text-2xl font-black text-gray-900 uppercase italic">
                             Manajemen <span className="text-amber-500">Banner</span>
-                            <ImageIcon className="text-amber-500" size={28} />
                         </h1>
                         <p className="text-gray-500 text-sm font-medium">Kelola banner promosi untuk halaman utama toko Anda.</p>
                     </div>

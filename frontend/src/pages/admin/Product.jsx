@@ -93,16 +93,18 @@ const Product = () => {
         <DashboardLayout>
             <div className="p-6 md:p-10 bg-white min-h-screen">
                 {/* Header Section */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">Manajemen <span className="text-amber-500">Produk</span></h1>
-                        <p className="text-gray-500 text-sm">Kelola katalog produk Day Collection Anda di sini.</p>
+                        <h1 className="text-2xl font-black text-gray-900 uppercase italic">
+                            Manajemen <span className="text-amber-500">Produk</span>
+                        </h1>
+                        <p className="text-gray-500 text-sm font-medium">Kelola katalog produk Day Collection Anda di sini.</p>
                     </div>
                     <button
                         onClick={() => { resetForm(); setIsModalOpen(true); }}
-                        className="flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-2xl font-semibold transition shadow-lg shadow-amber-200"
+                        className="bg-amber-500 text-white px-6 py-3 rounded-xl font-bold text-xs flex items-center gap-2 hover:bg-amber-600 transition-all shadow-lg"
                     >
-                        <Plus size={20} /> Tambah Produk
+                        <Plus size={16} /> Tambah Produk
                     </button>
                 </div>
 
