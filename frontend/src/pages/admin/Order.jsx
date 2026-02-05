@@ -56,7 +56,7 @@ const Order = () => {
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">Manajemen <span className="text-amber-500">Pesanan</span></h1>
+                        <h1 className="text-3xl font-bold text-gray-900 uppercase italic">Manajemen <span className="text-amber-500">Pesanan</span></h1>
                         <p className="text-gray-500 text-sm">Pantau pesanan masuk dan verifikasi pembayaran pelanggan.</p>
                     </div>
                 </div>
@@ -126,7 +126,7 @@ const Order = () => {
                                 ) : (
                                     <tr>
                                         <td colSpan="5" className="text-center py-20">
-                                            <div className="flex flex-col items-center opacity-30">
+                                            <div className="flex flex-col items-center opacity-60">
                                                 <p className="italic">Belum ada data pesanan.</p>
                                             </div>
                                         </td>

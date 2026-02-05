@@ -99,32 +99,42 @@ const MarketplacePlatform = () => {
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-50">
-                                        {currentItems.map((item, index) => (
-                                            <tr key={item.id} className="hover:bg-amber-50/30 transition-colors group">
-                                                <td className="px-8 py-5 text-gray-400 font-medium text-center">
-                                                    {String(indexOfFirstItem + index + 1).padStart(2, '0')}
-                                                </td>
-                                                <td className="px-8 py-5 font-bold text-gray-800 tracking-wide uppercase italic">
-                                                    {item.name}
-                                                </td>
-                                                <td className="px-8 py-5">
-                                                    <div className="flex justify-center gap-2">
-                                                        <button
-                                                            onClick={() => { setSelectedPlatform(item); setOpenEditModal(true); }}
-                                                            className="p-3 bg-gray-50 text-blue-500 hover:bg-blue-500 hover:text-white rounded-2xl transition-all"
-                                                        >
-                                                            <Pencil size={18} />
-                                                        </button>
-                                                        <button
-                                                            onClick={() => { setSelectedPlatform(item); setOpenDeleteModal(true); }}
-                                                            className="p-3 bg-gray-50 text-red-500 hover:bg-red-500 hover:text-white rounded-2xl transition-all"
-                                                        >
-                                                            <Trash2 size={18} />
-                                                        </button>
+                                        {marketplacePlatform.length > 0 ? (
+                                            currentItems.map((item, index) => (
+                                                <tr key={item.id} className="hover:bg-amber-50/30 transition-colors group">
+                                                    <td className="px-8 py-5 text-gray-400 font-medium text-center">
+                                                        {String(indexOfFirstItem + index + 1).padStart(2, '0')}
+                                                    </td>
+                                                    <td className="px-8 py-5 font-bold text-gray-800 tracking-wide uppercase italic">
+                                                        {item.name}
+                                                    </td>
+                                                    <td className="px-8 py-5">
+                                                        <div className="flex justify-center gap-2">
+                                                            <button
+                                                                onClick={() => { setSelectedPlatform(item); setOpenEditModal(true); }}
+                                                                className="p-3 bg-gray-50 text-blue-500 hover:bg-blue-500 hover:text-white rounded-2xl transition-all"
+                                                            >
+                                                                <Pencil size={18} />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => { setSelectedPlatform(item); setOpenDeleteModal(true); }}
+                                                                className="p-3 bg-gray-50 text-red-500 hover:bg-red-500 hover:text-white rounded-2xl transition-all"
+                                                            >
+                                                                <Trash2 size={18} />
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                        ) : (
+                                            <tr>
+                                                <td colSpan="3" className="text-center py-20">
+                                                    <div className="flex flex-col items-center opacity-60">
+                                                        <p className="italic">Belum ada data platform.</p>
                                                     </div>
                                                 </td>
                                             </tr>
-                                        ))}
+                                        )}
                                     </tbody>
                                 </table>
                             </div>

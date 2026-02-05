@@ -131,7 +131,7 @@ export const Banner = () => {
                                     ) : (
                                         <tr>
                                             <td colSpan="4" className="text-center py-20 text-gray-400 italic">
-                                                <div className="flex flex-col items-center opacity-30">
+                                                <div className="flex flex-col items-center opacity-60">
                                                     <ImageIcon size={48} className="mb-2" />
                                                     <p>Belum ada banner yang ditambahkan.</p>
                                                 </div>

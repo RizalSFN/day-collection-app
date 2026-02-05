@@ -178,7 +178,7 @@ const Product = () => {
                                 ) : (
                                     <tr>
                                         <td colSpan="4" className="text-center py-20">
-                                            <div className="flex flex-col items-center opacity-30">
+                                            <div className="flex flex-col items-center opacity-60">
                                                 <p className="italic">Belum ada data produk.</p>
                                             </div>
                                         </td>

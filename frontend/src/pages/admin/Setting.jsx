@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import DashboardLayout from "../../layouts/DashboardLayout";
-import ModalUpdateMarketplacePLatform from "../../components/admin/ModalUpdateMarketplacePlatform";
-import { Pencil, Plus, Search, SettingsIcon, Trash2 } from "lucide-react";
+import { Pencil, Plus, SettingsIcon, Trash2 } from "lucide-react";
 import { getAppSetting } from "../../services/appSettingService";
 import ModalCreateAppSetting from "../../components/admin/ModalCreateAppSetting";
 import ModalUpdateAppSetting from "../../components/admin/ModalUpdateAppSetting";
@@ -12,7 +11,6 @@ export const Setting = () => {
     const [openModal, setOpenModal] = useState(false);
     const [selectedSetting, setSelectedSetting] = useState(null);
     const [openEditModal, setOpenEditModal] = useState(false);
-    const [searchTerm, setSearchTerm] = useState("");
 
     const fetchData = async () => {
         try {
@@ -71,7 +69,6 @@ export const Setting = () => {
                                 <tbody className="divide-y divide-gray-50">
                                     {setting.length > 0 ? (
                                         setting
-                                            .filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()))
                                             .map((item, index) => (
                                                 <tr
                                                     key={item.id}
@@ -105,7 +102,7 @@ export const Setting = () => {
                                     ) : (
                                         <tr>
                                             <td colSpan="4" className="text-center py-20">
-                                                <div className="flex flex-col items-center opacity-30">
+                                                <div className="flex flex-col items-center opacity-60">
                                                     <SettingsIcon size={48} className="mb-2" />
                                                     <p className="italic">Belum ada pengaturan aplikasi.</p>
                                                 </div>
