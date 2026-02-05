@@ -138,49 +138,57 @@ const VariantProduct = () => {
                     </div>
 
                     {/* Tabel Varian (Kanan) */}
-                    <div className="lg:col-span-3 bg-white rounded-4xl shadow-sm border border-gray-100 overflow-hidden">
-                        <table className="w-full text-left">
-                            <thead className="bg-gray-800 text-white text-[10px] font-bold uppercase tracking-widest">
-                                <tr>
-                                    <th className="px-6 py-5">Color</th>
-                                    <th className="px-6 py-5">Size</th>
-                                    <th className="px-6 py-5">Stock</th>
-                                    <th className="px-6 py-5">Price</th>
-                                    <th className="px-6 py-5 text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-50">
-                                {loading ? (
-                                    <tr><td colSpan="5" className="p-20 text-center text-gray-400 font-bold animate-pulse">MEMUAT VARIAN...</td></tr>
-                                ) : variants.length === 0 ? (
+                    <div className="lg:col-span-3 bg-white rounded-4xl shadow-sm border border-gray-100 flex flex-col h-125">
+
+                        {/* 2. Wrapper khusus untuk scroll area */}
+                        <div className="overflow-y-auto flex-1 w-full rounded-4xl scrollbar-hide">
+                            <table className="w-full text-left">
+
+                                {/* 3. Jadikan Header Sticky (Menempel di atas) */}
+                                <thead className="bg-gray-800 text-white text-[10px] font-bold uppercase tracking-widest sticky top-0 z-10">
                                     <tr>
-                                        <td colSpan="5" className="p-20 text-center">
-                                            <Layers className="mx-auto text-gray-200 mb-2" size={48} />
-                                            <p className="text-gray-400 italic">Belum ada varian untuk produk ini.</p>
-                                        </td>
+                                        <th className="px-6 py-5">Color</th>
+                                        <th className="px-6 py-5">Size</th>
+                                        <th className="px-6 py-5">Stock</th>
+                                        <th className="px-6 py-5">Price</th>
+                                        <th className="px-6 py-5 text-right">Actions</th>
                                     </tr>
-                                ) : (
-                                    variants.map((v) => (
-                                        <tr key={v.id} className="hover:bg-amber-50/10 transition-colors">
-                                            <td className="px-6 py-4 font-bold text-gray-700">{v.color}</td>
-                                            <td className="px-6 py-4"><span className="px-3 py-1 bg-gray-100 rounded-lg text-xs font-mono">{v.size}</span></td>
-                                            <td className="px-6 py-4">
-                                                <span className={`font-bold ${v.stock < 5 ? 'text-red-500' : 'text-gray-600'}`}>
-                                                    {v.stock} <span className="text-[9px] uppercase tracking-tighter">pcs</span>
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 text-amber-600 font-black italic">Rp {v.price.toLocaleString()}</td>
-                                            <td className="px-6 py-4 text-right">
-                                                <div className="flex justify-end gap-2">
-                                                    <button onClick={() => openModal(v)} className="p-2 text-gray-400 hover:text-amber-500 hover:bg-amber-50 rounded-lg transition-all"><Pencil size={16} /></button>
-                                                    <button onClick={() => handleDelete(v.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"><Trash2 size={16} /></button>
-                                                </div>
+                                </thead>
+
+                                <tbody className="divide-y divide-gray-50">
+                                    {loading ? (
+                                        <tr><td colSpan="5" className="p-20 text-center text-gray-400 font-bold animate-pulse">MEMUAT VARIAN...</td></tr>
+                                    ) : variants.length === 0 ? (
+                                        <tr>
+                                            <td colSpan="5" className="p-20 text-center">
+                                                {/* Pastikan import Layers sudah ada */}
+                                                <Layers className="mx-auto text-gray-200 mb-2" size={48} />
+                                                <p className="text-gray-400 italic">Belum ada varian untuk produk ini.</p>
                                             </td>
                                         </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
+                                    ) : (
+                                        variants.map((v) => (
+                                            <tr key={v.id} className="hover:bg-amber-50/10 transition-colors">
+                                                <td className="px-6 py-4 font-bold text-gray-700">{v.color}</td>
+                                                <td className="px-6 py-4"><span className="px-3 py-1 bg-gray-100 rounded-lg text-xs font-mono">{v.size}</span></td>
+                                                <td className="px-6 py-4">
+                                                    <span className={`font-bold ${v.stock < 5 ? 'text-red-500' : 'text-gray-600'}`}>
+                                                        {v.stock} <span className="text-[9px] uppercase tracking-tighter">pcs</span>
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 text-amber-600 font-black italic">Rp {v.price.toLocaleString()}</td>
+                                                <td className="px-6 py-4 text-right">
+                                                    <div className="flex justify-end gap-2">
+                                                        <button onClick={() => openModal(v)} className="p-2 text-gray-400 hover:text-amber-500 hover:bg-amber-50 rounded-lg transition-all"><Pencil size={16} /></button>
+                                                        <button onClick={() => handleDelete(v.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"><Trash2 size={16} /></button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
