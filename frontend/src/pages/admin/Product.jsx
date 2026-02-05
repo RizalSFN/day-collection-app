@@ -120,22 +120,22 @@ const Product = () => {
                 </div>
 
                 {/* Product Table */}
-                <div className="overflow-x-auto bg-white rounded-3xl border border-gray-100 shadow-sm">
-                    <table className="w-full text-left">
-                        <thead className="bg-gray-50 text-gray-400 uppercase text-xs tracking-widest">
-                            <tr>
-                                <th className="px-6 py-4">Produk</th>
-                                <th className="px-6 py-4">Harga</th>
-                                <th className="px-6 py-4">Status</th>
-                                <th className="px-6 py-4 text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        {loading ? (
-                            <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-                                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-500 mb-4"></div>
-                                <p>Memuat data produk...</p>
-                            </div>
-                        ) : (
+                {loading ? (
+                    <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-500 mb-4"></div>
+                        <p>Memuat data banner...</p>
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto bg-white rounded-3xl border border-gray-100 shadow-sm">
+                        <table className="w-full text-left">
+                            <thead className="bg-gray-50 text-gray-400 uppercase text-xs tracking-widest">
+                                <tr>
+                                    <th className="px-6 py-4">Produk</th>
+                                    <th className="px-6 py-4">Harga</th>
+                                    <th className="px-6 py-4">Status</th>
+                                    <th className="px-6 py-4 text-center">Aksi</th>
+                                </tr>
+                            </thead>
                             <tbody className="divide-y divide-gray-50">
                                 {products.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase())).map((product) => (
                                     <tr key={product.id} className="hover:bg-amber-50/20 transition">
@@ -175,9 +175,9 @@ const Product = () => {
                                     </tr>
                                 ))}
                             </tbody>
-                        )}
-                    </table>
-                </div>
+                        </table>
+                    </div>
+                )}
             </div>
 
             {/* Modal Form Tambah/Edit */}
