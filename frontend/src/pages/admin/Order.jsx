@@ -73,52 +73,69 @@ const Order = () => {
                 </div>
 
                 {/* Order Table */}
-                <div className="overflow-x-auto bg-white rounded-3xl border border-gray-100 shadow-sm">
-                    <table className="w-full text-left">
-                        <thead className="bg-gray-50 text-gray-400 uppercase text-xs tracking-widest">
-                            <tr>
-                                <th className="px-6 py-4">Order Code</th>
-                                <th className="px-6 py-4">Pelanggan</th>
-                                <th className="px-6 py-4">Total</th>
-                                <th className="px-6 py-4">Status</th>
-                                <th className="px-6 py-4 text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-50">
-                            {orders
-                                .filter(o => o.buyer_name.toLowerCase().includes(searchTerm.toLowerCase()) || o.order_code.toLowerCase().includes(searchTerm.toLowerCase()))
-                                .map((order) => (
-                                    <tr key={order.id} className="hover:bg-amber-50/20 transition">
-                                        <td className="px-6 py-4 font-mono text-sm font-bold text-gray-600">
-                                            #{order.order_code}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="font-bold text-gray-800">{order.buyer_name}</div>
-                                            <div className="text-xs text-gray-400">{order.buyer_phone}</div>
-                                        </td>
-                                        <td className="px-6 py-4 font-medium text-gray-700">
-                                            Rp {parseInt(order.total_amount).toLocaleString('id-ID')}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${getStatusStyle(order.status)}`}>
-                                                {order.status.replace('_', ' ')}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex justify-center gap-2">
-                                                <button
-                                                    onClick={() => { setSelectedOrder(order); setIsDetailModalOpen(true); }}
-                                                    className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition shadow-md shadow-amber-100"
-                                                >
-                                                    <Eye size={14} /> Detail & Verifikasi
-                                                </button>
+                {loading ? (
+                    <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-500 mb-4"></div>
+                        <p>Memuat data pesanan...</p>
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto bg-white rounded-3xl border border-gray-100 shadow-sm">
+                        <table className="w-full text-left">
+                            <thead className="bg-gray-50 text-gray-400 uppercase text-xs tracking-widest">
+                                <tr>
+                                    <th className="px-6 py-4">Order Code</th>
+                                    <th className="px-6 py-4">Pelanggan</th>
+                                    <th className="px-6 py-4">Total</th>
+                                    <th className="px-6 py-4">Status</th>
+                                    <th className="px-6 py-4 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-50">
+                                {orders.length > 0 ? (
+                                    orders
+                                        .filter(o => o.buyer_name.toLowerCase().includes(searchTerm.toLowerCase()) || o.order_code.toLowerCase().includes(searchTerm.toLowerCase()))
+                                        .map((order) => (
+                                            <tr key={order.id} className="hover:bg-amber-50/20 transition">
+                                                <td className="px-6 py-4 font-mono text-sm font-bold text-gray-600">
+                                                    #{order.order_code}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="font-bold text-gray-800">{order.buyer_name}</div>
+                                                    <div className="text-xs text-gray-400">{order.buyer_phone}</div>
+                                                </td>
+                                                <td className="px-6 py-4 font-medium text-gray-700">
+                                                    Rp {parseInt(order.total_amount).toLocaleString('id-ID')}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${getStatusStyle(order.status)}`}>
+                                                        {order.status.replace('_', ' ')}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex justify-center gap-2">
+                                                        <button
+                                                            onClick={() => { setSelectedOrder(order); setIsDetailModalOpen(true); }}
+                                                            className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition shadow-md shadow-amber-100"
+                                                        >
+                                                            <Eye size={14} /> Detail & Verifikasi
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="5" className="text-center py-20">
+                                            <div className="flex flex-col items-center opacity-30">
+                                                <p className="italic">Belum ada data pesanan.</p>
                                             </div>
                                         </td>
                                     </tr>
-                                ))}
-                        </tbody>
-                    </table>
-                </div>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
             </div>
 
             {/* Modal Detail & Verifikasi Pembayaran */}

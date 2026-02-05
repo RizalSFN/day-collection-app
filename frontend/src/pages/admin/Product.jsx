@@ -123,7 +123,7 @@ const Product = () => {
                 {loading ? (
                     <div className="flex flex-col items-center justify-center py-20 text-gray-400">
                         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-500 mb-4"></div>
-                        <p>Memuat data banner...</p>
+                        <p>Memuat data produk...</p>
                     </div>
                 ) : (
                     <div className="overflow-x-auto bg-white rounded-3xl border border-gray-100 shadow-sm">
@@ -137,43 +137,53 @@ const Product = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
-                                {products.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase())).map((product) => (
-                                    <tr key={product.id} className="hover:bg-amber-50/20 transition">
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-4">
-                                                <img src={product.main_image} alt={product.name} className="w-12 h-12 rounded-xl object-cover" />
-                                                <div>
-                                                    <div className="font-bold text-gray-800">{product.name}</div>
-                                                    <div className="text-xs text-gray-400">{product.slug}</div>
+                                {products.length > 0 ? (
+                                    products.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase())).map((product) => (
+                                        <tr key={product.id} className="hover:bg-amber-50/20 transition">
+                                            <td className="px-6 py-4">
+                                                <div className="flex items-center gap-4">
+                                                    <img src={product.main_image} alt={product.name} className="w-12 h-12 rounded-xl object-cover" />
+                                                    <div>
+                                                        <div className="font-bold text-gray-800">{product.name}</div>
+                                                        <div className="text-xs text-gray-400">{product.slug}</div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td className="px-6 py-4 font-medium text-gray-700">
-                                            Rp {parseInt(product.base_price).toLocaleString('id-ID')}
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${product.status === 'active' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-500'}`}>
-                                                {product.status}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex justify-center gap-2">
-                                                <button
-                                                    onClick={() => { setEditingProduct(product); setFormData({ ...product, harga: product.base_price }); setIsModalOpen(true); }}
-                                                    className="p-2 text-amber-600 hover:bg-amber-100 rounded-lg transition"
-                                                >
-                                                    <Edit size={18} />
-                                                </button>
-                                                <button
-                                                    onClick={() => confirmDelete(product.id)} // Panggil modal konfirmasi
-                                                    className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
-                                                >
-                                                    <Trash2 size={18} />
-                                                </button>
+                                            </td>
+                                            <td className="px-6 py-4 font-medium text-gray-700">
+                                                Rp {parseInt(product.base_price).toLocaleString('id-ID')}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className={`px-3 py-1 rounded-full text-xs font-bold ${product.status === 'active' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-500'}`}>
+                                                    {product.status}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex justify-center gap-2">
+                                                    <button
+                                                        onClick={() => { setEditingProduct(product); setFormData({ ...product, harga: product.base_price }); setIsModalOpen(true); }}
+                                                        className="p-2 text-amber-600 hover:bg-amber-100 rounded-lg transition"
+                                                    >
+                                                        <Edit size={18} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => confirmDelete(product.id)} // Panggil modal konfirmasi
+                                                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition"
+                                                    >
+                                                        <Trash2 size={18} />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan="4" className="text-center py-20">
+                                            <div className="flex flex-col items-center opacity-30">
+                                                <p className="italic">Belum ada data produk.</p>
                                             </div>
                                         </td>
                                     </tr>
-                                ))}
+                                )}
                             </tbody>
                         </table>
                     </div>
