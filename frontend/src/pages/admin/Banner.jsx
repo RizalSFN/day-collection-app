@@ -38,20 +38,19 @@ export const Banner = () => {
         <DashboardLayout>
             <div className="p-4 md:p-8">
                 {/* Header Section */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
                     <div>
-                        <h2 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+                        <h1 className="text-2xl font-black text-gray-900 uppercase italic">
                             Manajemen <span className="text-amber-500">Banner</span>
                             <ImageIcon className="text-amber-500" size={28} />
-                        </h2>
-                        <p className="text-gray-500 text-sm mt-1">Kelola banner promosi untuk halaman utama toko Anda.</p>
+                        </h1>
+                        <p className="text-gray-500 text-sm font-medium">Kelola banner promosi untuk halaman utama toko Anda.</p>
                     </div>
                     <button
                         onClick={() => setOpenCreateModal(true)}
-                        className="flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-2xl font-bold transition shadow-lg shadow-amber-200"
+                        className="bg-amber-500 text-white px-6 py-3 rounded-xl font-bold text-xs flex items-center gap-2 hover:bg-amber-600 transition-all shadow-lg"
                     >
-                        <Plus size={20} />
-                        Tambah Banner
+                        <Plus size={16} /> Tambah Banner
                     </button>
                 </div>
 
