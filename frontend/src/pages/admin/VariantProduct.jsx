@@ -242,7 +242,8 @@ const VariantProduct = () => {
 
                             <div className="pt-4">
                                 <button type="submit" className="w-full py-4 bg-gray-900 hover:bg-amber-500 text-white rounded-2xl font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2">
-                                    <Save size={18} /> {editingVariant ? 'Update Variant' : 'Create Variant'}
+                                    {/* <Save size={18} /> {editingVariant ? 'Update Variant' : 'Create Variant'} */}
+                                    <Save size={18} /> {loading ? editingVariant ? 'Update Variant' : 'Create Variant' : 'Memproses...'}
                                 </button>
                             </div>
                         </form>
