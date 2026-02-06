@@ -10,6 +10,8 @@ const Order = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
+    const [pendingAction, setPendingAction] = useState({ id: null, status: null })
 
     useEffect(() => {
         fetchOrders();
@@ -27,20 +29,32 @@ const Order = () => {
         setLoading(false);
     };
 
-    const handleUpdateStatus = async (id, status) => {
-        if (!window.confirm(`Ubah status pesanan menjadi ${status}?`)) return;
+    const handleInitiateStatusUpdate = (id, status) => {
+        setPendingAction({ id, status });
+        setIsConfirmModalOpen(true);
+    };
+
+    const handleExecuteUpdate = async () => {
+        if (!pendingAction.id || !pendingAction.status) return;
 
         setLoading(true);
         try {
-            await updateOrderStatus(id, status);
+            await updateOrderStatus(pendingAction.id, pendingAction.status);
+
+            // Tutup semua modal terkait
+            setIsConfirmModalOpen(false);
             setIsDetailModalOpen(false);
-            toast.success("Berhasil memperbarui status pesanan")
+
+            toast.success("Berhasil memperbarui status pesanan");
             fetchOrders();
         } catch (error) {
             console.log(error);
-            toast.error("Gagal memperbarui status pesanan")
+            toast.error("Gagal memperbarui status pesanan");
+        } finally {
+            setLoading(false);
+            // Reset pending action (opsional, tapi good practice)
+            setPendingAction({ id: null, status: null });
         }
-        setLoading(false);
     };
 
     const getStatusStyle = (status) => {
@@ -143,7 +157,7 @@ const Order = () => {
 
             {/* Modal Detail & Verifikasi Pembayaran */}
             {isDetailModalOpen && selectedOrder && (
-                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 flex items-center justify-center p-4">
                     <div className="bg-white w-full max-w-4xl rounded-[2.5rem] shadow-2xl p-8 max-h-[90vh] overflow-y-auto scrollbar-hide">
                         <div className="flex justify-between items-start mb-8">
                             <div>
@@ -223,19 +237,70 @@ const Order = () => {
                                 {/* Action Buttons */}
                                 <div className="grid grid-cols-2 gap-3 pt-6">
                                     <button
-                                        onClick={() => handleUpdateStatus(selectedOrder.id, 'CANCELLED')}
+                                        onClick={() => handleInitiateStatusUpdate(selectedOrder.id, 'CANCELLED')}
                                         className="flex items-center justify-center gap-2 py-4 rounded-2xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white font-bold transition-all"
                                     >
                                         <XCircle size={18} /> Batalkan
                                     </button>
                                     <button
-                                        onClick={() => handleUpdateStatus(selectedOrder.id, 'PAID')}
+                                        onClick={() => handleInitiateStatusUpdate(selectedOrder.id, 'PAID')}
                                         className="flex items-center justify-center gap-2 py-4 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold shadow-lg shadow-amber-200 transition-all active:scale-95"
                                     >
                                         <CheckCircle size={18} /> Verifikasi Lunas
                                     </button>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal Konfirmasi Update Status */}
+            {isConfirmModalOpen && (
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl animate-fadeIn text-center">
+
+                        {/* Ikon & Warna Dinamis berdasarkan Status */}
+                        <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 
+                ${pendingAction.status === 'CANCELLED' ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-500'}`}>
+
+                            {pendingAction.status === 'CANCELLED' ? (
+                                <XCircle size={40} />
+                            ) : (
+                                <CheckCircle2 size={40} />
+                            )}
+                        </div>
+
+                        {/* Judul & Deskripsi Dinamis */}
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">
+                            {pendingAction.status === 'CANCELLED' ? 'Batalkan Pesanan?' : 'Verifikasi Pembayaran?'}
+                        </h3>
+
+                        <p className="text-gray-500 text-sm mb-8 px-4 leading-relaxed">
+                            {pendingAction.status === 'CANCELLED'
+                                ? "Tindakan ini akan membatalkan pesanan secara permanen dan stok akan dikembalikan."
+                                : "Pastikan bukti pembayaran valid. Status pesanan akan diubah menjadi Lunas/Dikemas."}
+                        </p>
+
+                        {/* Tombol Aksi */}
+                        <div className="flex flex-col gap-3">
+                            <button
+                                onClick={handleExecuteUpdate}
+                                disabled={loading}
+                                className={`w-full py-4 rounded-2xl font-bold text-white shadow-lg transition-all active:scale-95 disabled:opacity-50
+                        ${pendingAction.status === 'CANCELLED'
+                                        ? 'bg-red-500 hover:bg-red-600 shadow-red-100'
+                                        : 'bg-green-500 hover:bg-green-600 shadow-green-100'}`}
+                            >
+                                {loading ? "Memproses..." : "Ya, Lanjutkan"}
+                            </button>
+
+                            <button
+                                onClick={() => setIsConfirmModalOpen(false)}
+                                className="w-full py-4 text-gray-400 font-semibold hover:text-gray-600 transition-colors"
+                            >
+                                Batalkan
+                            </button>
                         </div>
                     </div>
                 </div>
