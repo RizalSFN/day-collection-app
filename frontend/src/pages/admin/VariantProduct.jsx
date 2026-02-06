@@ -75,6 +75,7 @@ const VariantProduct = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true)
         try {
             const payload = {
                 ...formData,
@@ -97,6 +98,8 @@ const VariantProduct = () => {
             console.log(error);
             alert("Terjadi kesalahan saat menyimpan data varian");
             toast.error("Terjadi kesalahan saat menyimpan data varian")
+        } finally {
+            setLoading(false)
         }
     };
 
