@@ -25,6 +25,8 @@ const VariantProduct = () => {
         stock: "",
         price: "",
     });
+    const [variantIdToDelete, setVariantIdToDelete] = useState(null)
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 
     useEffect(() => {
         const fetchInitialData = async () => {
@@ -98,17 +100,24 @@ const VariantProduct = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm("Apakah Anda yakin ingin menonaktifkan varian ini?")) {
-            try {
-                await deleteVariant(id);
-                toast.success("Berhasil menghapus data varian")
-                loadVariants(selectedProduct.id);
-            } catch (error) {
-                console.log(error);
-                toast.error("Gagal menghapus data varian")
-            }
+    const confirmDelete = (id) => {
+        setVariantIdToDelete(id);
+        setIsDeleteModalOpen(true);
+    };
+
+    const handleExecuteDelete = async () => {
+        setLoading(true);
+        try {
+            await deleteVariant(variantIdToDelete);
+            setIsDeleteModalOpen(false);
+            setVariantIdToDelete(null);
+            toast.success("Berhasil menghapus data varian")
+            loadVariants(selectedProduct.id)
+        } catch (error) {
+            console.log(error);
+            toast.error("Gagal menghapus data varian")
         }
+        setLoading(false);
     };
 
     return (
@@ -186,7 +195,7 @@ const VariantProduct = () => {
                                                 <td className="px-6 py-4 text-right">
                                                     <div className="flex justify-end gap-2">
                                                         <button onClick={() => openModal(v)} className="p-2 text-gray-400 hover:text-amber-500 hover:bg-amber-50 rounded-lg transition-all"><Pencil size={16} /></button>
-                                                        <button onClick={() => handleDelete(v.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"><Trash2 size={16} /></button>
+                                                        <button onClick={() => confirmDelete(v.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"><Trash2 size={16} /></button>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -237,6 +246,38 @@ const VariantProduct = () => {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Modal Konfirmasi Hapus */}
+            {isDeleteModalOpen && (
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl animate-fadeIn text-center">
+                        <div className="w-20 h-20 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                            <Trash2 size={40} />
+                        </div>
+
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">Hapus Varian?</h3>
+                        <p className="text-gray-500 text-sm mb-8">
+                            Tindakan ini tidak dapat dibatalkan. Varian akan dihapus permanen.
+                        </p>
+
+                        <div className="flex flex-col gap-3">
+                            <button
+                                onClick={handleExecuteDelete}
+                                disabled={loading}
+                                className="w-full bg-red-500 hover:bg-red-600 text-white py-4 rounded-2xl font-bold shadow-lg shadow-red-100 transition-all active:scale-95 disabled:opacity-50"
+                            >
+                                {loading ? "Menghapus..." : "Ya, Hapus Sekarang"}
+                            </button>
+                            <button
+                                onClick={() => setIsDeleteModalOpen(false)}
+                                className="w-full py-4 text-gray-400 font-semibold hover:text-gray-600 transition-colors"
+                            >
+                                Batalkan
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
