@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import { getOrders, updateOrderStatus } from "../../services/orderService";
-import { Search, Eye, CheckCircle, XCircle, Clock, CreditCard, User, MapPin, Phone } from "lucide-react";
+import { Search, Eye, CheckCircle, XCircle, Clock, CreditCard, User, MapPin, Phone, CheckCircle2 } from "lucide-react";
 import { toast } from "react-toastify";
 
 const Order = () => {
