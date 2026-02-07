@@ -12,6 +12,7 @@ import productGalleryRoutes from "./routes/productGalleryRoutes.js"
 import rateLimit from "express-rate-limit"
 import orderRoutes from "./routes/orderRoutes.js"
 import productVariantRoutes from "./routes/productVariantRoutes.js"
+import shippingRoutes from "./routes/shippingRoutes.js"
 
 dotenv.config()
 const app = express()
@@ -45,6 +46,7 @@ app.use("/api/banner", bannerRoutes)
 app.use("/api/product-gallery", productGalleryRoutes)
 app.use("/api/order", orderRoutes)
 app.use("/api/product-variant", productVariantRoutes)
+app.use("/api/shipping", shippingRoutes)
 
 app.get("/health", (req, res) => {
     res.json({ status: "OK", time: new Date() });
