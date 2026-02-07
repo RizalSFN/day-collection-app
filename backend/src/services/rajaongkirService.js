@@ -5,7 +5,6 @@ dotenv.config()
 
 const API_KEY = process.env.RAJAONGKIR_API_KEY
 const BASE_URL = process.env.RAJAONGKIR_BASE_URL
-const STORE_ID = process.env.STORE_CITY_ID
 
 const rajaOngkirClient = axios.create({
     baseURL: BASE_URL,
@@ -33,10 +32,10 @@ export const searchDestinationService = async (query) => {
     }
 };
 
-export const calculateCostService = async (destination, weight, courier) => {
+export const calculateCostService = async (origin, destination, weight, courier) => {
     try {
         const payload = {
-            origin: parseInt(STORE_ID),        // Pastikan Integer
+            origin: parseInt(origin),        // Pastikan Integer
             destination: parseInt(destination), // Pastikan Integer
             weight: parseInt(weight),        // Pastikan Integer (Gram)
             courier: courier.toLowerCase()   // jne, pos, tiki, sicepat
