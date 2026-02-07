@@ -16,6 +16,7 @@ import shippingRoutes from "./routes/shippingRoutes.js"
 
 dotenv.config()
 const app = express()
+app.set('trust proxy', 1);
 
 // Konfigurasi CORS
 const corsOptions = {
