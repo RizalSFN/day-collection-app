@@ -16,6 +16,11 @@ const rajaOngkirClient = axios.create({
     timeout: 15000 // Timeout 15 detik (jaga-jaga server sana lambat)
 });
 
+rajaOngkirClient.interceptors.request.use((config) => {
+    config.headers.key = process.env.RAJAONGKIR_API_KEY;
+    return config;
+});
+
 export const searchDestinationService = async (query) => {
     try {
         const response = await rajaOngkirClient.get("/destination/domestic-destination", {
@@ -34,16 +39,39 @@ export const searchDestinationService = async (query) => {
 
 export const calculateCostService = async (origin, destination, weight, courier) => {
     try {
+        // --- LOGGING DATA YANG DITERIMA DARI CONTROLLER ---
+        console.log("=== DEBUG SERVICE INPUT ===");
+        console.log("Origin:", origin, typeof origin);
+        console.log("Dest:", destination, typeof destination);
+        console.log("Weight:", weight, typeof weight);
+        console.log("Courier:", courier);
+
+        // --- PERBAIKAN: HANDLING DATA ---
+        // Kita paksa konversi ke Integer dan pastikan tidak NaN
+        const cleanOrigin = parseInt(origin);
+        const cleanDest = parseInt(destination);
+        const cleanWeight = parseInt(weight);
+
+        // Validasi Terakhir sebelum kirim
+        if (isNaN(cleanOrigin) || isNaN(cleanDest) || isNaN(cleanWeight)) {
+            throw new Error(`Data Invalid: Origin=${cleanOrigin}, Dest=${cleanDest}, Weight=${cleanWeight}`);
+        }
+
         const payload = {
-            origin: parseInt(origin),        // Pastikan Integer
-            destination: parseInt(destination), // Pastikan Integer
-            weight: parseInt(weight),        // Pastikan Integer (Gram)
-            courier: courier.toLowerCase()   // jne, pos, tiki, sicepat
+            origin: cleanOrigin,
+            destination: cleanDest,
+            weight: cleanWeight,
+            courier: courier.toLowerCase()
         };
+
+        console.log("=== PAYLOAD FINAL KE KOMERCE ===", JSON.stringify(payload));
 
         const response = await rajaOngkirClient.post("/calculate/domestic-cost", payload);
         return response.data.data;
+
     } catch (error) {
+        // Biar errornya kelihatan jelas di log Vercel
+        console.error("SERVICE ERROR:", error.response?.data || error.message);
         throw error;
     }
 };
