@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { X, CreditCard, Landmark, Upload, ArrowLeft, ExternalLink, Truck, CheckCircle } from "lucide-react";
-// Import komponen Search yang baru kita buat
 import LocationSearch from "../LocationSearch";
-// Import service untuk cek ongkir
 import { checkOngkirApi } from "../../services/shippingService";
 
 const ProductDetailModal = ({
@@ -18,7 +16,7 @@ const ProductDetailModal = ({
     setBuyerData,
     quantity,
     setQuantity,
-    handleCreateOrder, // Ini fungsi dari Parent (Product.jsx)
+    handleCreateOrder,
     handleConfirmPayment,
     file,
     setFile,
@@ -29,13 +27,12 @@ const ProductDetailModal = ({
 }) => {
     const [copied, setCopied] = useState(false);
 
-    // --- STATE BARU: ONGKIR & LOKASI ---
-    const [destinationId, setDestinationId] = useState(null); // ID Kota/Kecamatan
-    const [fullLocationLabel, setFullLocationLabel] = useState(""); // Nama Lokasi Lengkap
-    const [shippingOptions, setShippingOptions] = useState([]); // List Ongkir
-    const [selectedShipping, setSelectedShipping] = useState(null); // Ongkir yang dipilih
+    // --- STATE BARU ---
+    const [destinationId, setDestinationId] = useState(null);
+    const [fullLocationLabel, setFullLocationLabel] = useState("");
+    const [shippingOptions, setShippingOptions] = useState([]);
+    const [selectedShipping, setSelectedShipping] = useState(null);
     const [loadingShipping, setLoadingShipping] = useState(false);
-
 
     // Reset state saat modal ditutup/dibuka
     useEffect(() => {
@@ -49,13 +46,14 @@ const ProductDetailModal = ({
 
     if (!isOpen || !product) return null;
 
-    // 1. Hitung Total Harga Dasar
+    // --- HITUNG HARGA ---
     const totalStock = variants.reduce((acc, v) => acc + (v.stock || 0), 0);
     const productPrice = parseInt(selectedVariant?.price || product.base_price);
     const subTotal = productPrice * quantity;
 
-    // 2. Hitung Grand Total (Produk + Ongkir)
-    const grandTotal = subTotal + (selectedShipping ? selectedShipping.cost[0].value : 0);
+    // --- PERBAIKAN 1: Cara ambil harga ongkir (Langsung .cost) ---
+    const shippingCost = selectedShipping ? parseInt(selectedShipping.cost) : 0;
+    const grandTotal = subTotal + shippingCost;
 
     const handleCopy = (text) => {
         navigator.clipboard.writeText(text);
@@ -63,7 +61,6 @@ const ProductDetailModal = ({
         setTimeout(() => setCopied(false), 2000);
     };
 
-    // --- LOGIKA CEK ONGKIR ---
     const handleCheckOngkir = async () => {
         if (!destinationId) return;
 
@@ -75,15 +72,15 @@ const ProductDetailModal = ({
             const baseWeight = product.weight ? parseInt(product.weight) : 1000;
             const totalWeight = baseWeight * (quantity || 1);
 
-            // Panggil API
             const costs = await checkOngkirApi(destinationId, totalWeight, "jne");
 
-            console.log("DATA ONGKIR DITERIMA MODAL:", costs); // Cek di Console
+            // Debugging
+            console.log("DATA ONGKIR DITERIMA MODAL:", costs);
 
             if (costs && costs.length > 0) {
                 setShippingOptions(costs);
             } else {
-                alert("Ongkir tidak ditemukan untuk lokasi ini. Coba pilih kota lain atau kurir lain.");
+                alert("Ongkir tidak ditemukan untuk lokasi ini.");
             }
         } catch (error) {
             console.error(error);
@@ -93,9 +90,7 @@ const ProductDetailModal = ({
         }
     };
 
-    // --- LOGIKA PROSES ORDER (STEP 2 -> 3) ---
     const onProcessOrder = () => {
-        // Validasi Input
         if (!buyerData.buyer_name || !buyerData.buyer_phone || !buyerData.buyer_address) {
             alert("Mohon lengkapi Nama, WA, dan Alamat Detail.");
             return;
@@ -105,27 +100,20 @@ const ProductDetailModal = ({
             return;
         }
 
-        // Susun Data Lengkap untuk dikirim ke Parent (Product.jsx)
+        // --- PERBAIKAN 2: Cara ambil data ongkir untuk payload ---
         const orderPayload = {
             product_id: product.id,
             variant_id: selectedVariant?.id || null,
             quantity: quantity,
-            total_price: grandTotal, // PENTING: Total sudah termasuk ongkir
-
-            // Data Customer
+            total_price: grandTotal,
             customer_name: buyerData.buyer_name,
             customer_phone: buyerData.buyer_phone,
-
-            // Gabungkan Alamat Detail + Kota/Kecamatan
             shipping_address: `${buyerData.buyer_address}, ${fullLocationLabel}`,
 
-            // Simpan Info Kurir untuk referensi admin
-            shipping_courier: `JNE ${selectedShipping.service} (Est. ${selectedShipping.cost[0].etd} hari)`,
-
-            status: "WAITING_PAYMENT"
+            // Perhatikan ini: Langsung akses .service, .etd, dan .cost
+            shipping_courier: `JNE ${selectedShipping.service} (${selectedShipping.etd || '-'} hari) - Rp ${selectedShipping.cost}`
         };
 
-        // Panggil fungsi milik Parent
         handleCreateOrder(orderPayload);
     };
 
@@ -150,7 +138,7 @@ const ProductDetailModal = ({
                     <X size={20} strokeWidth={3} />
                 </button>
 
-                {/* Sisi Kiri: Gambar Produk (Sama seperti sebelumnya) */}
+                {/* Sisi Kiri: Gambar */}
                 <div className="md:w-1/2 h-48 md:h-auto bg-gray-100 overflow-hidden relative">
                     <img
                         src={product.main_image}
@@ -163,13 +151,14 @@ const ProductDetailModal = ({
                     </div>
                 </div>
 
-                {/* Sisi Kanan: Konten Modal */}
+                {/* Sisi Kanan: Konten */}
                 <div className="md:w-1/2 flex flex-col h-[60vh] md:h-auto overflow-hidden bg-white">
                     <div className="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar">
 
-                        {/* ================= STEP 1: PILIH VARIAN ================= */}
+                        {/* STEP 1: PILIH VARIAN */}
                         {step === 1 && (
                             <div className="animate-fadeIn">
+                                {/* ... Bagian Step 1 ini SAMA PERSIS dengan sebelumnya ... */}
                                 <div className="mb-2">
                                     <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${totalStock > 0 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-600'}`}>
                                         {totalStock > 0 ? `STOK TERSEDIA: ${totalStock}` : 'STOK HABIS'}
@@ -179,7 +168,6 @@ const ProductDetailModal = ({
                                     Rp {productPrice.toLocaleString("id-ID")}
                                 </p>
 
-                                {/* Pilihan Varian */}
                                 <div className="mb-8">
                                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Pilih Varian</p>
                                     <div className="flex flex-wrap gap-2">
@@ -197,7 +185,6 @@ const ProductDetailModal = ({
                                     </div>
                                 </div>
 
-                                {/* Jumlah Beli */}
                                 <div className="mb-8">
                                     <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Jumlah Beli</p>
                                     <div className="flex items-center gap-4">
@@ -212,7 +199,6 @@ const ProductDetailModal = ({
                                     </div>
                                 </div>
 
-                                {/* Tombol Marketplace */}
                                 <div className="space-y-3 pt-6 border-t border-gray-100">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                         {product.marketplace_links?.map((link) => (
@@ -223,7 +209,6 @@ const ProductDetailModal = ({
                                     </div>
                                 </div>
 
-                                {/* Tombol Lanjut ke Step 2 */}
                                 <button
                                     disabled={totalStock === 0}
                                     onClick={() => setStep(2)}
@@ -234,7 +219,7 @@ const ProductDetailModal = ({
                             </div>
                         )}
 
-                        {/* ================= STEP 2: DATA & ONGKIR (INI BAGIAN UTAMA YANG BARU) ================= */}
+                        {/* STEP 2: DATA & ONGKIR */}
                         {step === 2 && (
                             <div className="animate-fadeIn flex flex-col h-full">
                                 <button
@@ -246,7 +231,6 @@ const ProductDetailModal = ({
                                 <h3 className="text-xl font-black italic uppercase mb-6 text-gray-900">Data <span className="text-amber-500">Penerima</span></h3>
 
                                 <div className="space-y-4 grow">
-                                    {/* Input Nama & WA */}
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         <input
                                             type="text"
@@ -264,13 +248,11 @@ const ProductDetailModal = ({
                                         />
                                     </div>
 
-                                    {/* --- AUTOCOMPLETE LOKASI (BARU) --- */}
                                     <LocationSearch
                                         onSelectLocation={(item) => {
                                             if (item) {
                                                 setDestinationId(item.id);
                                                 setFullLocationLabel(item.label);
-                                                // Reset ongkir jika lokasi berubah agar user cek ulang
                                                 setShippingOptions([]);
                                                 setSelectedShipping(null);
                                             } else {
@@ -279,7 +261,6 @@ const ProductDetailModal = ({
                                         }}
                                     />
 
-                                    {/* Input Detail Alamat */}
                                     <textarea
                                         placeholder="ALAMAT DETAIL (Nama Jalan, No. Rumah, RT/RW, Patokan)"
                                         rows="2"
@@ -288,15 +269,14 @@ const ProductDetailModal = ({
                                         onChange={(e) => setBuyerData({ ...buyerData, buyer_address: e.target.value })}
                                     ></textarea>
 
-                                    {/* --- AREA PILIH ONGKIR (BARU) --- */}
+                                    {/* LIST ONGKIR */}
                                     <div className={`p-4 rounded-3xl border-2 transition-all ${destinationId ? 'bg-amber-50/50 border-amber-100' : 'bg-gray-50 border-dashed border-gray-200'}`}>
                                         <div className="flex justify-between items-center mb-3">
                                             <div className="flex items-center gap-2 text-gray-500">
                                                 <Truck size={16} />
                                                 <p className="text-[10px] font-black uppercase tracking-widest">Pengiriman</p>
                                             </div>
-                                            {/* Cek shippingOptions dengan aman */}
-                                            {destinationId && (!shippingOptions || shippingOptions.length === 0) && (
+                                            {destinationId && shippingOptions.length === 0 && (
                                                 <button
                                                     onClick={handleCheckOngkir}
                                                     disabled={loadingShipping}
@@ -307,8 +287,8 @@ const ProductDetailModal = ({
                                             )}
                                         </div>
 
-                                        {/* List Pilihan Ongkir dengan PENGAMAN (?. dan &&) */}
-                                        {shippingOptions && shippingOptions.length > 0 ? (
+                                        {/* --- PERBAIKAN 3: RENDER LIST ONGKIR --- */}
+                                        {shippingOptions.length > 0 ? (
                                             <div className="space-y-2 max-h-40 overflow-y-auto custom-scrollbar pr-1">
                                                 {shippingOptions.map((opt, idx) => (
                                                     <div
@@ -318,21 +298,21 @@ const ProductDetailModal = ({
                                                     >
                                                         <div>
                                                             <div className="flex items-center gap-2">
-                                                                <p className="text-xs font-black text-gray-800">JNE {opt.service}</p>
+                                                                {/* Ambil properti langsung, bukan array */}
+                                                                <p className="text-xs font-black text-gray-800">{opt.service}</p>
                                                                 {selectedShipping === opt && <CheckCircle size={12} className="text-amber-500" />}
                                                             </div>
-                                                            <p className="text-[10px] text-gray-400 font-bold">Est. {opt.cost[0].etd} Hari</p>
+                                                            {/* Render ETD langsung */}
+                                                            <p className="text-[10px] text-gray-400 font-bold">Est. {opt.etd || '-'} Hari</p>
                                                         </div>
-                                                        <p className="text-sm font-black text-amber-600">Rp {opt.cost[0].value.toLocaleString("id-ID")}</p>
+                                                        {/* Render Cost langsung */}
+                                                        <p className="text-sm font-black text-amber-600">Rp {parseInt(opt.cost).toLocaleString("id-ID")}</p>
                                                     </div>
                                                 ))}
                                             </div>
                                         ) : (
                                             !loadingShipping && destinationId && (
-                                                <p className="text-[10px] text-gray-400 italic text-center py-2">
-                                                    {/* Pesan jika ongkir kosong */}
-                                                    Klik tombol Cek Ongkir atau coba lokasi lain.
-                                                </p>
+                                                <p className="text-[10px] text-gray-400 italic text-center py-2">Klik tombol Cek Ongkir di atas.</p>
                                             )
                                         )}
                                         {!destinationId && (
@@ -341,7 +321,7 @@ const ProductDetailModal = ({
                                     </div>
                                 </div>
 
-                                {/* Ringkasan Biaya */}
+                                {/* RINGKASAN BIAYA */}
                                 <div className="mt-4 pt-4 border-t border-gray-100">
                                     <div className="flex justify-between text-xs mb-1 text-gray-500 font-bold">
                                         <span>Harga ({quantity} Item)</span>
@@ -349,7 +329,8 @@ const ProductDetailModal = ({
                                     </div>
                                     <div className="flex justify-between text-xs mb-3 text-gray-500 font-bold">
                                         <span>Ongkos Kirim</span>
-                                        <span>{selectedShipping ? `Rp ${selectedShipping.cost[0].value.toLocaleString("id-ID")}` : "-"}</span>
+                                        {/* Tampilkan cost langsung */}
+                                        <span>{selectedShipping ? `Rp ${parseInt(selectedShipping.cost).toLocaleString("id-ID")}` : "-"}</span>
                                     </div>
                                     <div className="flex justify-between text-lg font-black italic text-gray-900 bg-gray-50 p-3 rounded-xl border border-gray-100">
                                         <span>Total Bayar</span>
@@ -358,7 +339,7 @@ const ProductDetailModal = ({
                                 </div>
 
                                 <button
-                                    onClick={onProcessOrder} // Memanggil fungsi wrapper di atas
+                                    onClick={onProcessOrder}
                                     disabled={isProcessing || !selectedShipping}
                                     className="w-full py-4 bg-gray-900 text-amber-500 rounded-2xl font-black uppercase text-xs tracking-widest mt-4 hover:bg-black transition-all disabled:bg-gray-200 disabled:text-gray-400 shadow-xl"
                                 >
@@ -367,7 +348,7 @@ const ProductDetailModal = ({
                             </div>
                         )}
 
-                        {/* ================= STEP 3: PEMBAYARAN (MENAMPILKAN TOTAL AKHIR) ================= */}
+                        {/* STEP 3: PEMBAYARAN */}
                         {step === 3 && (
                             <div className="animate-fadeIn flex flex-col h-full text-center">
                                 <h3 className="text-xl font-black italic uppercase mb-8 text-gray-900">Selesaikan <span className="text-amber-500">Pembayaran</span></h3>
@@ -396,7 +377,6 @@ const ProductDetailModal = ({
                                     </p>
                                 </div>
 
-                                {/* Upload Bukti */}
                                 <div className="relative border-2 border-dashed border-amber-300 rounded-4xl p-8 bg-amber-50/30 mb-8 hover:bg-amber-50 transition-all cursor-pointer group">
                                     <input
                                         type="file"
