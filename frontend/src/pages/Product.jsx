@@ -131,7 +131,9 @@ export default function Product() {
                 }],
 
                 // Opsional: Jika backend punya kolom khusus untuk nyatat kurir
-                shipping_courier: payloadReceived.shipping_courier
+                shipping_courier: payloadReceived.shipping_courier,
+                shipping_service: payloadReceived.shipping_service,
+                shipping_cost: payloadReceived.shipping_cost
             };
 
             const response = await createOrder(finalPayload);

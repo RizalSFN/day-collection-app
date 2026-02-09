@@ -111,7 +111,9 @@ const ProductDetailModal = ({
             shipping_address: `${buyerData.buyer_address}, ${fullLocationLabel}`,
 
             // Perhatikan ini: Langsung akses .service, .etd, dan .cost
-            shipping_courier: `JNE ${selectedShipping.service} (${selectedShipping.etd || '-'} hari) - Rp ${selectedShipping.cost}`
+            shipping_service: `${selectedShipping.service} (${selectedShipping.etd || '-'} hari)`,
+            shipping_courier: "JNE",
+            shipping_cost: selectedShipping.cost
         };
 
         handleCreateOrder(orderPayload);

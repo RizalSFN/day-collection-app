@@ -21,7 +21,7 @@ const Order = () => {
         setLoading(true);
         try {
             const data = await getOrders();
-            // Sorting order terbaru di atas
+            // Sort order terbaru di atas
             const sortedData = data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
             setOrders(sortedData);
         } catch (error) {
@@ -70,14 +70,6 @@ const Order = () => {
         return new Date(dateString).toLocaleDateString("id-ID", {
             day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
         });
-    };
-
-    // --- LOGIKA HITUNG ONGKIR DINAMIS ---
-    // Total Order dikurangi Total Harga Produk = Ongkir
-    const calculateBreakdown = (order) => {
-        const subtotal = order.items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-        const shippingCost = Math.max(0, parseInt(order.total_amount) - subtotal);
-        return { subtotal, shippingCost };
     };
 
     return (
@@ -240,10 +232,17 @@ const Order = () => {
                                             <p className="text-xs text-gray-700 leading-relaxed font-medium">{selectedOrder.buyer_address}</p>
                                         </div>
                                     </div>
+                                    {/* Tampilkan Info Kurir dari Database */}
                                     {selectedOrder.shipping_courier && (
-                                        <div className="mt-3 pt-3 border-t border-amber-100/50">
-                                            <p className="text-[10px] text-gray-400 uppercase font-bold mb-1 flex items-center gap-1"><Truck size={10} /> Kurir</p>
-                                            <p className="text-xs font-bold text-gray-800">{selectedOrder.shipping_courier}</p>
+                                        <div className="mt-3 pt-3 border-t border-amber-100/50 flex justify-between items-center">
+                                            <div>
+                                                <p className="text-[10px] text-gray-400 uppercase font-bold mb-1 flex items-center gap-1">
+                                                    <Truck size={10} /> Kurir & Layanan
+                                                </p>
+                                                <p className="text-xs font-bold text-gray-800 uppercase">
+                                                    {selectedOrder.shipping_courier} {selectedOrder.shipping_service ? `- ${selectedOrder.shipping_service}` : ''}
+                                                </p>
+                                            </div>
                                         </div>
                                     )}
                                 </div>
@@ -273,30 +272,31 @@ const Order = () => {
                                         ))}
                                     </div>
 
-                                    {/* --- INFORMASI ONGKIR & TOTAL (BARU) --- */}
+                                    {/* --- INFORMASI ONGKIR & TOTAL (LANGSUNG DARI DB) --- */}
                                     <div className="mt-6 pt-4 border-t-2 border-dashed border-gray-100 space-y-2">
-                                        {/* Hitung Subtotal & Ongkir */}
-                                        {(() => {
-                                            const { subtotal, shippingCost } = calculateBreakdown(selectedOrder);
-                                            return (
-                                                <>
-                                                    <div className="flex justify-between text-xs font-medium text-gray-500">
-                                                        <span>Subtotal Produk</span>
-                                                        <span>Rp {subtotal.toLocaleString('id-ID')}</span>
-                                                    </div>
-                                                    <div className="flex justify-between text-xs font-medium text-gray-500">
-                                                        <span>Ongkos Kirim</span>
-                                                        <span>Rp {shippingCost.toLocaleString('id-ID')}</span>
-                                                    </div>
-                                                    <div className="flex justify-between items-end pt-2 border-t border-gray-50 mt-2">
-                                                        <p className="text-xs text-gray-900 font-black uppercase">Total Tagihan</p>
-                                                        <p className="text-2xl font-black text-amber-500 tracking-tighter">
-                                                            Rp {parseInt(selectedOrder.total_amount).toLocaleString('id-ID')}
-                                                        </p>
-                                                    </div>
-                                                </>
-                                            );
-                                        })()}
+                                        {/* Subtotal Item (Hitung manual dari items karena biasanya DB cuma simpan total) */}
+                                        <div className="flex justify-between text-xs font-medium text-gray-500">
+                                            <span>Subtotal Produk</span>
+                                            <span>
+                                                Rp {selectedOrder.items.reduce((acc, item) => acc + (item.price * item.quantity), 0).toLocaleString('id-ID')}
+                                            </span>
+                                        </div>
+
+                                        {/* Ongkos Kirim (Dari Kolom Database) */}
+                                        <div className="flex justify-between text-xs font-medium text-gray-500">
+                                            <span>Ongkos Kirim ({selectedOrder.shipping_courier || 'Ekspedisi'})</span>
+                                            <span className="font-bold text-gray-700">
+                                                Rp {parseInt(selectedOrder.shipping_cost || 0).toLocaleString('id-ID')}
+                                            </span>
+                                        </div>
+
+                                        {/* Total Akhir */}
+                                        <div className="flex justify-between items-end pt-2 border-t border-gray-50 mt-2">
+                                            <p className="text-xs text-gray-900 font-black uppercase">Total Tagihan</p>
+                                            <p className="text-2xl font-black text-amber-500 tracking-tighter">
+                                                Rp {parseInt(selectedOrder.total_amount).toLocaleString('id-ID')}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
