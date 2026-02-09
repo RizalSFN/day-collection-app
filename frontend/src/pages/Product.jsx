@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Package, ChevronLeft, ChevronRight, XCircle, CheckCircle2 } from "lucide-react";
 import MainLayout from "../layouts/MainLayout";
-import ProductDetailModal from "../components/admin/ProductDetailModal.jsx"; // Pastikan path benar
+// Pastikan path ke komponen Modal sudah benar
+import ProductDetailModal from "../components/admin/ProductDetailModal.jsx";
 import { getMarketplaceLink } from "../services/marketplaceLinkService";
 import { getVariantsByProduct } from "../services/variantService.js";
 import { createOrder, uploadPaymentProof } from "../services/orderService.js";
@@ -14,28 +15,33 @@ export default function Product() {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 12;
 
-    // States khusus Modal & Order
+    // --- STATES MODAL & ORDER ---
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [checkoutStep, setCheckoutStep] = useState(1);
     const [selectedVariant, setSelectedVariant] = useState(null);
     const [variants, setVariants] = useState([]);
-    const [newOrderId, setNewOrderId] = useState(null); // Penting untuk Step 3
+    const [newOrderId, setNewOrderId] = useState(null);
     const [file, setFile] = useState(null);
     const [isProcessing, setIsProcessing] = useState(false);
+
+    // State Pembeli (Nama, HP, Alamat Detail)
     const [buyerData, setBuyerData] = useState({
         buyer_name: "",
         buyer_phone: "",
         buyer_address: ""
     });
+
     const [quantity, setQuantity] = useState(1);
     const [appSettings, setAppSettings] = useState([]);
+
+    // --- STATES FEEDBACK (SUCCESS/ERROR) ---
     const [showSuccess, setShowSuccess] = useState(false);
     const [showError, setShowError] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [finalOrderCode, setFinalOrderCode] = useState("");
 
-    // Load Produk
+    // 1. Load Produk & Settings saat awal
     useEffect(() => {
         const fetchProducts = async () => {
             setLoading(true);
@@ -51,31 +57,39 @@ export default function Product() {
         };
 
         const fetchSettings = async () => {
-            const data = await getAppSetting();
-            setAppSettings(data);
+            try {
+                const data = await getAppSetting();
+                setAppSettings(data);
+            } catch (error) {
+                console.error("Gagal load settings:", error);
+            }
         };
 
         fetchSettings();
         fetchProducts();
     }, []);
 
-    // Cari data spesifik dari array settings
+    // Ambil Data Bank dari Settings
     const bankName = appSettings.find(s => s.name === "Bank")?.value || "BCA";
     const bankAccount = appSettings.find(s => s.name === "Nomor Rekening")?.value || "123 456 7890";
     const accountOwner = appSettings.find(s => s.name === "Pemilik Rekening")?.value || "ADMIN";
 
-    // Handlers Modal
+    // --- HANDLERS MODAL ---
     const handleOpenModal = async (product) => {
         setSelectedProduct(product);
-        setQuantity(1); // Reset ke 1
+        setQuantity(1);
         setIsModalOpen(true);
         setCheckoutStep(1);
+        setBuyerData({ buyer_name: "", buyer_phone: "", buyer_address: "" }); // Reset form
+
         try {
             const data = await getVariantsByProduct(product.id);
             setVariants(data);
             if (data.length > 0) setSelectedVariant(data[0]);
+            else setSelectedVariant(null);
         } catch (error) {
-            setErrorMessage(error.response?.data?.msg || "Gagal memuat data varian.");
+            console.error(error);
+            setErrorMessage("Gagal memuat varian produk.");
             setShowError(true);
         }
     };
@@ -85,44 +99,51 @@ export default function Product() {
         setCheckoutStep(1);
         setFile(null);
         setNewOrderId(null);
-        setBuyerData({ buyer_name: "", buyer_phone: "", buyer_address: "" });
     };
 
-    // Handler Create Order (Step 2)
-    const handleCreateOrder = async () => {
-        if (!buyerData.buyer_name || !buyerData.buyer_phone || !buyerData.buyer_address) {
-            setErrorMessage("Mohon lengkapi data diri Anda");
-            setShowError(true);
-            return
-        }
-
+    // --- HANDLER CREATE ORDER (Dipanggil dari Modal) ---
+    // payloadReceived adalah object lengkap yang dikirim dari Modal (sudah ada ongkir dll)
+    const handleCreateOrder = async (payloadReceived) => {
         setIsProcessing(true);
 
-        // Hitung total harga berdasarkan varian * quantity
-        const unitPrice = parseInt(selectedVariant?.price || selectedProduct.base_price);
-        const totalPrice = unitPrice * quantity;
-
-        const payload = {
-            product_id: parseInt(selectedProduct.id),
-            buyer_name: buyerData.buyer_name,
-            buyer_phone: buyerData.buyer_phone,
-            buyer_address: buyerData.buyer_address,
-            total_amount: totalPrice, // Total yang sudah dikali quantity
-            checkout_method: "BANK_TRANSFER",
-            status: "WAITING_PAYMENT",
-            items: [{
-                product_id: parseInt(selectedProduct.id),
-                variant_id: selectedVariant ? parseInt(selectedVariant.id) : null,
-                quantity: quantity, // Gunakan state quantity di sini
-                price: unitPrice
-            }]
-        };
-
         try {
-            const response = await createOrder(payload);
+            // Sesuaikan struktur payload Modal dengan struktur yang diminta Backend Anda
+            // Backend butuh: product_id, buyer_name, total_amount, items[], dll.
+
+            const finalPayload = {
+                product_id: parseInt(payloadReceived.product_id),
+                buyer_name: payloadReceived.customer_name,
+                buyer_phone: payloadReceived.customer_phone,
+                // Alamat sudah digabung di modal (Jalan + Kecamatan + Kota)
+                buyer_address: payloadReceived.shipping_address,
+
+                total_amount: payloadReceived.total_price, // Total Harga + Ongkir
+                checkout_method: "BANK_TRANSFER",
+                status: "WAITING_PAYMENT",
+
+                // Array items (sesuai struktur backend orderItems)
+                items: [{
+                    product_id: parseInt(payloadReceived.product_id),
+                    variant_id: payloadReceived.variant_id ? parseInt(payloadReceived.variant_id) : null,
+                    quantity: payloadReceived.quantity,
+                    // Harga satuan disimpan untuk referensi history
+                    price: payloadReceived.total_price / payloadReceived.quantity // Estimasi harga per unit rata-rata (termasuk ongkir)
+                }],
+
+                // Opsional: Jika backend punya kolom khusus untuk nyatat kurir
+                shipping_courier: payloadReceived.shipping_courier
+            };
+
+            const response = await createOrder(finalPayload);
+
+            // Simpan ID Order baru untuk proses upload bukti bayar
             setNewOrderId(response.data.id);
+
+            // Pindah ke Step 3 (Upload Bukti) di Modal
             setCheckoutStep(3);
+
         } catch (error) {
+            console.error(error);
             setErrorMessage(error.response?.data?.msg || "Gagal membuat pesanan.");
             setShowError(true);
         } finally {
@@ -130,7 +151,7 @@ export default function Product() {
         }
     };
 
-    // Handler Confirm Payment (Step 3)
+    // --- HANDLER CONFIRM PAYMENT (Upload Bukti) ---
     const handleConfirmPayment = async () => {
         if (!file) {
             setErrorMessage("Mohon pilih foto bukti transfer terlebih dahulu.");
@@ -140,28 +161,30 @@ export default function Product() {
 
         setIsProcessing(true);
         try {
-            // Menggunakan newOrderId yang didapat dari handleCreateOrder
             const response = await uploadPaymentProof(newOrderId, file);
-            const orderData = response.data
+            const orderData = response.data;
+
             setFinalOrderCode(orderData.order_code);
-            handleCloseModal(true)
-            setShowSuccess(true)
+            setIsModalOpen(false); // Tutup modal checkout
+            setShowSuccess(true); // Tampilkan popup sukses
         } catch (error) {
-            setErrorMessage(error.response?.data?.msg || "Gagal mengunggah bukti pembayaran. Silakan periksa koneksi internet Anda.");
-            handleCloseModal()
+            console.error(error);
+            setErrorMessage("Gagal mengunggah bukti pembayaran.");
             setShowError(true);
+            setIsModalOpen(false); // Tutup modal biar user bisa baca error
         } finally {
             setIsProcessing(false);
         }
     };
 
-    const handleFinish = () => {
+    const handleFinishSuccess = () => {
         setShowSuccess(false);
-        handleCloseModal(); // Ini akan menutup modal utama (ProductDetailModal/Checkout)
-        // Reset state lain jika perlu
+        handleCloseModal();
+        // Refresh data produk jika perlu (misal stok berkurang)
+        // fetchProducts(); 
     };
 
-    // Pagination Logic
+    // --- PAGINATION LOGIC ---
     const filteredProducts = products.filter((p) => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
     const indexOfLast = currentPage * itemsPerPage;
     const indexOfFirst = indexOfLast - itemsPerPage;
@@ -280,49 +303,28 @@ export default function Product() {
                     </section>
                 )}
 
-                {/* --- CUSTOM SUCCESS POPUP --- */}
+                {/* --- POPUP SUCCESS --- */}
                 {showSuccess && (
                     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-fadeIn">
-                        <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 text-center shadow-2xl transform transition-all scale-100 relative overflow-hidden">
-
-                            {/* Dekorasi Background */}
+                        <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 text-center shadow-2xl relative overflow-hidden">
                             <div className="absolute top-0 left-0 w-full h-24 bg-linear-to-b from-green-50 to-transparent z-0"></div>
-
                             <div className="relative z-10">
-                                {/* Icon Sukses */}
                                 <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-100">
                                     <CheckCircle2 size={40} className="text-green-600" strokeWidth={3} />
                                 </div>
-
                                 <h3 className="text-2xl font-black text-gray-900 uppercase italic mb-2">
                                     Pembayaran <span className="text-green-600">Berhasil!</span>
                                 </h3>
-
                                 <p className="text-xs text-gray-500 font-medium mb-6 leading-relaxed">
-                                    Bukti transfer Anda telah kami terima. Admin kami akan segera memverifikasi pesanan Anda.
+                                    Bukti transfer diterima. Pesanan Anda akan segera diproses.
                                 </p>
-
-                                {/* Box Kode Order (Penting buat User) */}
                                 <div className="bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl p-4 mb-8">
-                                    <p className="text-[10px] uppercase font-black text-gray-400 tracking-widest mb-1">
-                                        Kode Order Anda
-                                    </p>
-                                    <div className="flex items-center justify-center gap-2">
-                                        {/* Pastikan Anda punya variable orderCode atau ambil dari newOrderCode */}
-                                        <p className="text-xl font-black text-gray-900 font-mono tracking-tighter">
-                                            {/* Ganti ini dengan variabel state kode order Anda */}
-                                            #{finalOrderCode || "Loading..."}
-                                        </p>
-                                    </div>
-                                    <p className="text-[9px] text-amber-500 italic mt-2">
-                                        *Simpan kode ini untuk melacak pesanan
-                                    </p>
+                                    <p className="text-[10px] uppercase font-black text-gray-400 tracking-widest mb-1">Kode Order</p>
+                                    <p className="text-xl font-black text-gray-900 font-mono tracking-tighter">#{finalOrderCode}</p>
                                 </div>
-
-                                {/* Tombol Tutup */}
                                 <button
-                                    onClick={handleFinish}
-                                    className="w-full py-4 bg-gray-900 text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-black transition-all active:scale-95 shadow-xl"
+                                    onClick={handleFinishSuccess}
+                                    className="w-full py-4 bg-gray-900 text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-black transition-all shadow-xl"
                                 >
                                     Selesai & Tutup
                                 </button>
@@ -331,33 +333,24 @@ export default function Product() {
                     </div>
                 )}
 
-                {/* --- CUSTOM ERROR POPUP --- */}
+                {/* --- POPUP ERROR --- */}
                 {showError && (
                     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-6 animate-fadeIn">
-                        <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 text-center shadow-2xl transform transition-all scale-100 relative overflow-hidden">
-
-                            {/* Dekorasi Background Merah Pudar */}
+                        <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 text-center shadow-2xl relative overflow-hidden">
                             <div className="absolute top-0 left-0 w-full h-24 bg-linear-to-b from-red-50 to-transparent z-0"></div>
-
                             <div className="relative z-10">
-                                {/* Icon Error (Silang Merah) */}
                                 <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-red-100">
                                     <XCircle size={40} className="text-red-500" strokeWidth={3} />
                                 </div>
-
                                 <h3 className="text-2xl font-black text-gray-900 uppercase italic mb-2">
                                     Terjadi <span className="text-red-500">Kesalahan</span>
                                 </h3>
-
-                                {/* Pesan Error Dinamis */}
                                 <p className="text-xs text-gray-500 font-medium mb-8 leading-relaxed px-4">
                                     {errorMessage}
                                 </p>
-
-                                {/* Tombol Coba Lagi / Tutup */}
                                 <button
                                     onClick={() => setShowError(false)}
-                                    className="w-full py-4 bg-red-500 text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-red-600 transition-all active:scale-95 shadow-xl shadow-red-200"
+                                    className="w-full py-4 bg-red-500 text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-red-600 transition-all shadow-xl"
                                 >
                                     Tutup & Coba Lagi
                                 </button>
@@ -366,7 +359,7 @@ export default function Product() {
                     </div>
                 )}
 
-                {/* MODAL KOMPONEN */}
+                {/* --- MODAL CHECKOUT --- */}
                 <ProductDetailModal
                     isOpen={isModalOpen}
                     onClose={handleCloseModal}
@@ -380,8 +373,11 @@ export default function Product() {
                     setBuyerData={setBuyerData}
                     quantity={quantity}
                     setQuantity={setQuantity}
+
+                    // PASS HANDLER YANG BARU
                     handleCreateOrder={handleCreateOrder}
                     handleConfirmPayment={handleConfirmPayment}
+
                     file={file}
                     setFile={setFile}
                     isProcessing={isProcessing}

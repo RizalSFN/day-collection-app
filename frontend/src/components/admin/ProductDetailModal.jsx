@@ -1,5 +1,9 @@
-import React, { useState } from "react";
-import { X, CreditCard, Landmark, Copy, Upload, ArrowLeft, ExternalLink } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { X, CreditCard, Landmark, Upload, ArrowLeft, ExternalLink, Truck, CheckCircle } from "lucide-react";
+// Import komponen Search yang baru kita buat
+import LocationSearch from "../LocationSearch";
+// Import service untuk cek ongkir
+import { checkOngkirApi } from "../../services/shippingService";
 
 const ProductDetailModal = ({
     isOpen,
@@ -14,7 +18,7 @@ const ProductDetailModal = ({
     setBuyerData,
     quantity,
     setQuantity,
-    handleCreateOrder,
+    handleCreateOrder, // Ini fungsi dari Parent (Product.jsx)
     handleConfirmPayment,
     file,
     setFile,
@@ -25,10 +29,32 @@ const ProductDetailModal = ({
 }) => {
     const [copied, setCopied] = useState(false);
 
-    if (!isOpen || !product) return null;
+    // --- STATE BARU: ONGKIR & LOKASI ---
+    const [destinationId, setDestinationId] = useState(null); // ID Kota/Kecamatan
+    const [fullLocationLabel, setFullLocationLabel] = useState(""); // Nama Lokasi Lengkap
+    const [shippingOptions, setShippingOptions] = useState([]); // List Ongkir
+    const [selectedShipping, setSelectedShipping] = useState(null); // Ongkir yang dipilih
+    const [loadingShipping, setLoadingShipping] = useState(false);
 
-    // Menghitung total stok dari semua varian produk
+    // 1. Hitung Total Harga Dasar
     const totalStock = variants.reduce((acc, v) => acc + (v.stock || 0), 0);
+    const productPrice = parseInt(selectedVariant?.price || product.base_price);
+    const subTotal = productPrice * quantity;
+
+    // 2. Hitung Grand Total (Produk + Ongkir)
+    const grandTotal = subTotal + (selectedShipping ? selectedShipping.cost[0].value : 0);
+
+    // Reset state saat modal ditutup/dibuka
+    useEffect(() => {
+        if (!isOpen) {
+            setShippingOptions([]);
+            setSelectedShipping(null);
+            setDestinationId(null);
+            setFullLocationLabel("");
+        }
+    }, [isOpen]);
+
+    if (!isOpen || !product) return null;
 
     const handleCopy = (text) => {
         navigator.clipboard.writeText(text);
@@ -36,7 +62,64 @@ const ProductDetailModal = ({
         setTimeout(() => setCopied(false), 2000);
     };
 
-    // Helper warna platform marketplace
+    // --- LOGIKA CEK ONGKIR ---
+    const handleCheckOngkir = async () => {
+        if (!destinationId) return;
+
+        setLoadingShipping(true);
+        setShippingOptions([]); // Reset pilihan sebelumnya
+        setSelectedShipping(null);
+
+        try {
+            // Asumsi berat default 1kg (1000g) per item. 
+            // Jika di database ada field weight, ganti 1000 dengan product.weight
+            const totalWeight = 1000 * quantity;
+
+            // Panggil API (Default kurir JNE)
+            const costs = await checkOngkirApi(destinationId, totalWeight, "jne");
+            setShippingOptions(costs);
+        } catch (error) {
+            console.error(error);
+            alert("Gagal mengecek ongkir. Pastikan koneksi internet lancar.");
+        } finally {
+            setLoadingShipping(false);
+        }
+    };
+
+    // --- LOGIKA PROSES ORDER (STEP 2 -> 3) ---
+    const onProcessOrder = () => {
+        // Validasi Input
+        if (!buyerData.buyer_name || !buyerData.buyer_phone || !buyerData.buyer_address) {
+            alert("Mohon lengkapi Nama, WA, dan Alamat Detail.");
+            return;
+        }
+        if (!destinationId || !selectedShipping) {
+            alert("Mohon pilih Lokasi dan Layanan Pengiriman (Cek Ongkir).");
+            return;
+        }
+
+        // Susun Data Lengkap untuk dikirim ke Parent (Product.jsx)
+        const orderPayload = {
+            product_id: product.id,
+            variant_id: selectedVariant?.id || null,
+            quantity: quantity,
+            total_price: grandTotal, // PENTING: Total sudah termasuk ongkir
+
+            // Data Customer
+            customer_name: buyerData.buyer_name,
+            customer_phone: buyerData.buyer_phone,
+
+            // Gabungkan Alamat Detail + Kota/Kecamatan
+            shipping_address: `${buyerData.buyer_address}, ${fullLocationLabel}`,
+
+            // Simpan Info Kurir untuk referensi admin
+            shipping_courier: `JNE ${selectedShipping.service} (Est. ${selectedShipping.cost[0].etd} hari)`
+        };
+
+        // Panggil fungsi milik Parent
+        handleCreateOrder(orderPayload);
+    };
+
     const getPlatformColor = (name) => {
         const n = name.toLowerCase();
         if (n.includes("shopee")) return "#EE4D2D";
@@ -58,23 +141,24 @@ const ProductDetailModal = ({
                     <X size={20} strokeWidth={3} />
                 </button>
 
-                {/* Sisi Kiri: Gambar Produk */}
-                <div className="md:w-1/2 h-64 md:h-auto bg-gray-100 overflow-hidden relative">
+                {/* Sisi Kiri: Gambar Produk (Sama seperti sebelumnya) */}
+                <div className="md:w-1/2 h-48 md:h-auto bg-gray-100 overflow-hidden relative">
                     <img
                         src={product.main_image}
                         alt={product.name}
                         className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-linear-to-t from-black/50 to-transparent flex flex-col justify-end p-8">
+                    <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent flex flex-col justify-end p-8">
                         <span className="text-amber-400 text-[10px] font-black uppercase tracking-widest mb-2">Checkout Item</span>
                         <h3 className="text-white text-2xl font-black italic uppercase leading-tight">{product.name}</h3>
                     </div>
                 </div>
 
                 {/* Sisi Kanan: Konten Modal */}
-                <div className="md:w-1/2 flex flex-col h-[50vh] md:h-auto overflow-hidden bg-white">
-                    <div className="flex-1 overflow-y-auto p-8 md:p-10 custom-scrollbar">
-                        {/* STEP 1: DETAIL & PILIH VARIAN */}
+                <div className="md:w-1/2 flex flex-col h-[60vh] md:h-auto overflow-hidden bg-white">
+                    <div className="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar">
+
+                        {/* ================= STEP 1: PILIH VARIAN ================= */}
                         {step === 1 && (
                             <div className="animate-fadeIn">
                                 <div className="mb-2">
@@ -83,11 +167,12 @@ const ProductDetailModal = ({
                                     </span>
                                 </div>
                                 <p className="text-3xl font-black text-amber-500 mb-6 tracking-tighter italic">
-                                    Rp {parseInt(selectedVariant?.price || product.base_price).toLocaleString("id-ID")}
+                                    Rp {productPrice.toLocaleString("id-ID")}
                                 </p>
 
+                                {/* Pilihan Varian */}
                                 <div className="mb-8">
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Pilih Varian & Ukuran</p>
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Pilih Varian</p>
                                     <div className="flex flex-wrap gap-2">
                                         {variants.map((v) => (
                                             <button
@@ -103,117 +188,174 @@ const ProductDetailModal = ({
                                     </div>
                                 </div>
 
+                                {/* Jumlah Beli */}
                                 <div className="mb-8">
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3 text-center md:text-left">
-                                        Jumlah Beli
-                                    </p>
-                                    <div className="flex items-center justify-center md:justify-start gap-4">
-                                        <button
-                                            onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                            className="w-10 h-10 rounded-xl border-2 border-gray-100 flex items-center justify-center font-black hover:border-amber-500 hover:text-amber-500 transition-all"
-                                        >
-                                            -
-                                        </button>
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">Jumlah Beli</p>
+                                    <div className="flex items-center gap-4">
+                                        <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="w-10 h-10 rounded-xl border-2 border-gray-100 flex items-center justify-center font-black hover:border-amber-500 hover:text-amber-500 transition-all">-</button>
                                         <span className="text-lg font-black italic w-8 text-center">{quantity}</span>
                                         <button
                                             onClick={() => setQuantity(Math.min(selectedVariant?.stock || 1, quantity + 1))}
-                                            // Tombol plus berubah warna/opacity jika sudah mencapai batas stok
-                                            className={`w-10 h-10 rounded-xl border-2 flex items-center justify-center font-black transition-all 
-                                        ${quantity >= (selectedVariant?.stock || 0)
-                                                    ? 'border-red-200 text-red-300 cursor-not-allowed'
-                                                    : 'border-gray-100 hover:border-amber-500 hover:text-amber-500'}`}
+                                            className={`w-10 h-10 rounded-xl border-2 flex items-center justify-center font-black transition-all ${quantity >= (selectedVariant?.stock || 0) ? 'border-red-200 text-red-300' : 'border-gray-100 hover:border-amber-500 hover:text-amber-500'}`}
                                         >
                                             +
                                         </button>
-                                        <p className="text-[10px] font-bold text-gray-400 italic ml-2">
-                                            Max: {selectedVariant?.stock || 0}
-                                        </p>
                                     </div>
                                 </div>
 
+                                {/* Tombol Marketplace */}
                                 <div className="space-y-3 pt-6 border-t border-gray-100">
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest text-center mb-4 italic">Beli Sekarang Melalui:</p>
-
-                                    {/* Tombol Marketplace */}
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                         {product.marketplace_links?.map((link) => (
-                                            <a
-                                                key={link.id}
-                                                href={link.url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="flex items-center justify-center gap-2 py-3.5 rounded-2xl text-white font-black uppercase text-[10px] tracking-widest transition-transform active:scale-95 shadow-md"
-                                                style={{ backgroundColor: getPlatformColor(link.platform_name) }}
-                                            >
+                                            <a key={link.id} href={link.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 py-3.5 rounded-2xl text-white font-black uppercase text-[10px] tracking-widest transition-transform active:scale-95 shadow-md" style={{ backgroundColor: getPlatformColor(link.platform_name) }}>
                                                 <ExternalLink size={14} /> {link.platform_name}
                                             </a>
                                         ))}
                                     </div>
-
-                                    <div className="flex items-center py-2 opacity-30">
-                                        <div className="grow border-t border-gray-400"></div>
-                                        <span className="px-4 text-[9px] font-black text-gray-500 uppercase">Atau</span>
-                                        <div className="grow border-t border-gray-400"></div>
-                                    </div>
-
-                                    {/* Tombol Step 2 */}
-                                    <button
-                                        disabled={totalStock === 0}
-                                        onClick={() => setStep(2)}
-                                        className={`w-full py-4 border-2 border-gray-900 text-gray-900 rounded-2xl font-black uppercase text-xs tracking-widest flex items-center justify-center gap-3 transition-all ${totalStock === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-900 hover:text-white active:scale-95'}`}
-                                    >
-                                        <CreditCard size={18} /> Transfer Bank Manual
-                                    </button>
                                 </div>
+
+                                {/* Tombol Lanjut ke Step 2 */}
+                                <button
+                                    disabled={totalStock === 0}
+                                    onClick={() => setStep(2)}
+                                    className={`w-full py-4 mt-4 border-2 border-gray-900 text-gray-900 rounded-2xl font-black uppercase text-xs tracking-widest flex items-center justify-center gap-3 transition-all ${totalStock === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-900 hover:text-white active:scale-95'}`}
+                                >
+                                    <CreditCard size={18} /> Isi Data Pengiriman
+                                </button>
                             </div>
                         )}
 
-                        {/* STEP 2: FORM DATA PENERIMA */}
+                        {/* ================= STEP 2: DATA & ONGKIR (INI BAGIAN UTAMA YANG BARU) ================= */}
                         {step === 2 && (
                             <div className="animate-fadeIn flex flex-col h-full">
                                 <button
                                     onClick={() => setStep(1)}
-                                    className="flex items-center gap-2 text-[10px] font-black text-amber-600 uppercase mb-8 hover:text-amber-700 transition-colors"
+                                    className="flex items-center gap-2 text-[10px] font-black text-amber-600 uppercase mb-6 hover:text-amber-700 transition-colors"
                                 >
-                                    <ArrowLeft size={14} /> Kembali ke detail
+                                    <ArrowLeft size={14} /> Kembali
                                 </button>
-                                <h3 className="text-xl font-black italic uppercase mb-8 text-gray-900">Data <span className="text-amber-500">Penerima</span></h3>
+                                <h3 className="text-xl font-black italic uppercase mb-6 text-gray-900">Data <span className="text-amber-500">Penerima</span></h3>
 
                                 <div className="space-y-4 grow">
-                                    <input
-                                        type="text"
-                                        placeholder="NAMA LENGKAP"
-                                        className="w-full bg-gray-50 border-2 border-transparent rounded-2xl p-4 text-xs font-bold focus:border-amber-500 focus:bg-white outline-none transition-all"
-                                        value={buyerData.buyer_name}
-                                        onChange={(e) => setBuyerData({ ...buyerData, buyer_name: e.target.value })}
+                                    {/* Input Nama & WA */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <input
+                                            type="text"
+                                            placeholder="NAMA LENGKAP"
+                                            className="w-full bg-gray-50 border-2 border-transparent rounded-2xl p-4 text-xs font-bold focus:border-amber-500 focus:bg-white outline-none transition-all uppercase"
+                                            value={buyerData.buyer_name}
+                                            onChange={(e) => setBuyerData({ ...buyerData, buyer_name: e.target.value })}
+                                        />
+                                        <input
+                                            type="number"
+                                            placeholder="NO. WHATSAPP"
+                                            className="w-full bg-gray-50 border-2 border-transparent rounded-2xl p-4 text-xs font-bold focus:border-amber-500 focus:bg-white outline-none transition-all"
+                                            value={buyerData.buyer_phone}
+                                            onChange={(e) => setBuyerData({ ...buyerData, buyer_phone: e.target.value })}
+                                        />
+                                    </div>
+
+                                    {/* --- AUTOCOMPLETE LOKASI (BARU) --- */}
+                                    <LocationSearch
+                                        onSelectLocation={(item) => {
+                                            if (item) {
+                                                setDestinationId(item.id);
+                                                setFullLocationLabel(item.label);
+                                                // Reset ongkir jika lokasi berubah agar user cek ulang
+                                                setShippingOptions([]);
+                                                setSelectedShipping(null);
+                                            } else {
+                                                setDestinationId(null);
+                                            }
+                                        }}
                                     />
-                                    <input
-                                        type="number"
-                                        placeholder="NOMOR WHATSAPP (CONTOH: 0812...)"
-                                        className="w-full bg-gray-50 border-2 border-transparent rounded-2xl p-4 text-xs font-bold focus:border-amber-500 focus:bg-white outline-none transition-all"
-                                        value={buyerData.buyer_phone}
-                                        onChange={(e) => setBuyerData({ ...buyerData, buyer_phone: e.target.value })}
-                                    />
+
+                                    {/* Input Detail Alamat */}
                                     <textarea
-                                        placeholder="ALAMAT PENGIRIMAN LENGKAP"
-                                        rows="4"
-                                        className="w-full bg-gray-50 border-2 border-transparent rounded-2xl p-4 text-xs font-bold focus:border-amber-500 focus:bg-white outline-none resize-none transition-all"
+                                        placeholder="ALAMAT DETAIL (Nama Jalan, No. Rumah, RT/RW, Patokan)"
+                                        rows="2"
+                                        className="w-full bg-gray-50 border-2 border-transparent rounded-2xl p-4 text-xs font-bold focus:border-amber-500 focus:bg-white outline-none resize-none transition-all uppercase"
                                         value={buyerData.buyer_address}
                                         onChange={(e) => setBuyerData({ ...buyerData, buyer_address: e.target.value })}
                                     ></textarea>
+
+                                    {/* --- AREA PILIH ONGKIR (BARU) --- */}
+                                    <div className={`p-4 rounded-3xl border-2 transition-all ${destinationId ? 'bg-amber-50/50 border-amber-100' : 'bg-gray-50 border-dashed border-gray-200'}`}>
+                                        <div className="flex justify-between items-center mb-3">
+                                            <div className="flex items-center gap-2 text-gray-500">
+                                                <Truck size={16} />
+                                                <p className="text-[10px] font-black uppercase tracking-widest">Pengiriman</p>
+                                            </div>
+                                            {/* Tombol Cek Ongkir */}
+                                            {destinationId && shippingOptions.length === 0 && (
+                                                <button
+                                                    onClick={handleCheckOngkir}
+                                                    disabled={loadingShipping}
+                                                    className="px-4 py-1.5 bg-gray-900 text-white text-[10px] font-bold rounded-xl uppercase hover:bg-black transition-all disabled:opacity-50"
+                                                >
+                                                    {loadingShipping ? "Memuat..." : "Cek Ongkir"}
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        {/* List Pilihan Ongkir */}
+                                        {shippingOptions.length > 0 ? (
+                                            <div className="space-y-2 max-h-40 overflow-y-auto custom-scrollbar pr-1">
+                                                {shippingOptions.map((opt, idx) => (
+                                                    <div
+                                                        key={idx}
+                                                        onClick={() => setSelectedShipping(opt)}
+                                                        className={`p-3 rounded-xl border-2 cursor-pointer transition-all flex justify-between items-center ${selectedShipping === opt ? 'border-amber-500 bg-white shadow-md' : 'border-gray-200 hover:border-amber-300 bg-white/60'}`}
+                                                    >
+                                                        <div>
+                                                            <div className="flex items-center gap-2">
+                                                                <p className="text-xs font-black text-gray-800">JNE {opt.service}</p>
+                                                                {selectedShipping === opt && <CheckCircle size={12} className="text-amber-500" />}
+                                                            </div>
+                                                            <p className="text-[10px] text-gray-400 font-bold">Est. {opt.cost[0].etd} Hari</p>
+                                                        </div>
+                                                        <p className="text-sm font-black text-amber-600">Rp {opt.cost[0].value.toLocaleString("id-ID")}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            !loadingShipping && destinationId && (
+                                                <p className="text-[10px] text-gray-400 italic text-center py-2">Klik tombol Cek Ongkir di atas.</p>
+                                            )
+                                        )}
+                                        {!destinationId && (
+                                            <p className="text-[10px] text-gray-400 italic text-center py-2">Pilih Kecamatan/Kota terlebih dahulu.</p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Ringkasan Biaya */}
+                                <div className="mt-4 pt-4 border-t border-gray-100">
+                                    <div className="flex justify-between text-xs mb-1 text-gray-500 font-bold">
+                                        <span>Harga ({quantity} Item)</span>
+                                        <span>Rp {subTotal.toLocaleString("id-ID")}</span>
+                                    </div>
+                                    <div className="flex justify-between text-xs mb-3 text-gray-500 font-bold">
+                                        <span>Ongkos Kirim</span>
+                                        <span>{selectedShipping ? `Rp ${selectedShipping.cost[0].value.toLocaleString("id-ID")}` : "-"}</span>
+                                    </div>
+                                    <div className="flex justify-between text-lg font-black italic text-gray-900 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                                        <span>Total Bayar</span>
+                                        <span className="text-amber-600">Rp {grandTotal.toLocaleString("id-ID")}</span>
+                                    </div>
                                 </div>
 
                                 <button
-                                    onClick={handleCreateOrder}
-                                    disabled={isProcessing}
-                                    className="w-full py-4 bg-gray-900 text-amber-500 rounded-2xl font-black uppercase text-xs tracking-widest mt-8 hover:bg-black transition-all disabled:bg-gray-200 shadow-xl"
+                                    onClick={onProcessOrder} // Memanggil fungsi wrapper di atas
+                                    disabled={isProcessing || !selectedShipping}
+                                    className="w-full py-4 bg-gray-900 text-amber-500 rounded-2xl font-black uppercase text-xs tracking-widest mt-4 hover:bg-black transition-all disabled:bg-gray-200 disabled:text-gray-400 shadow-xl"
                                 >
-                                    {isProcessing ? "MEMPROSES DATA..." : "KONFIRMASI DATA & BAYAR"}
+                                    {isProcessing ? "MEMPROSES..." : "LANJUT PEMBAYARAN"}
                                 </button>
                             </div>
                         )}
 
-                        {/* STEP 3: INSTRUKSI PEMBAYARAN */}
+                        {/* ================= STEP 3: PEMBAYARAN (MENAMPILKAN TOTAL AKHIR) ================= */}
                         {step === 3 && (
                             <div className="animate-fadeIn flex flex-col h-full text-center">
                                 <h3 className="text-xl font-black italic uppercase mb-8 text-gray-900">Selesaikan <span className="text-amber-500">Pembayaran</span></h3>
@@ -224,7 +366,7 @@ const ProductDetailModal = ({
                                     </div>
                                     <p className="text-2xl font-black text-gray-900 tracking-widest mb-4 italic">{bankAccount}</p>
                                     <button
-                                        onClick={() => handleCopy("1234567890")}
+                                        onClick={() => handleCopy(bankAccount)}
                                         className={`px-6 py-2 rounded-xl text-[10px] font-black transition-all ${copied ? 'bg-black text-amber-500' : 'bg-amber-500 text-black hover:bg-amber-600 shadow-md'}`}
                                     >
                                         {copied ? "BERHASIL DISALIN!" : "SALIN NO. REKENING"}
@@ -233,12 +375,12 @@ const ProductDetailModal = ({
                                 </div>
 
                                 <div className="mb-6 text-center">
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Nominal Transfer:</p>
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Total Transfer:</p>
                                     <p className="text-3xl font-black text-amber-600">
-                                        Rp {(parseInt(selectedVariant?.price || product.base_price) * quantity).toLocaleString("id-ID")}
+                                        Rp {grandTotal.toLocaleString("id-ID")}
                                     </p>
                                     <p className="text-[9px] font-bold text-gray-400 uppercase mt-1 italic">
-                                        ({quantity} Item x Rp {parseInt(selectedVariant?.price || product.base_price).toLocaleString("id-ID")})
+                                        (Sudah termasuk ongkir {selectedShipping?.service})
                                     </p>
                                 </div>
 
