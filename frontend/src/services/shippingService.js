@@ -9,21 +9,10 @@ export const searchLocationApi = async (query) => {
 
         const rawData = response.data.data || [];
 
-        // --- PERBAIKAN: MAPPING DATA ---
-        // Kita ubah data mentah dari API menjadi format standar { id, label }
-        // agar komponen LocationSearch bisa membacanya dengan benar.
         return rawData.map(item => ({
-            // Ambil ID dari berbagai kemungkinan nama field
             id: item.id || item.subdistrict_id || item.city_id || item.district_id,
-
-            // Gabungkan Label agar informatif (Kecamatan, Kota, Provinsi)
             label: item.label || `${item.subdistrict_name || item.city_name}, ${item.province_name || item.province || ''}`,
-
-            // Simpan data asli untuk referensi jika perlu
-            original: item,
-
-            // Tipe lokasi (Kota/Kabupaten/Kecamatan)
-            type: item.type || "Kecamatan"
+            type: item.type || "Lokasi"
         }));
 
     } catch (error) {
@@ -32,36 +21,43 @@ export const searchLocationApi = async (query) => {
     }
 };
 
-// 2. Service Cek Ongkir
+// 2. Service Cek Ongkir (DIPERBAIKI)
 export const checkOngkirApi = async (destinationId, weight, courier) => {
     try {
+        if (!destinationId) return [];
+
         const payload = {
             destination: destinationId,
             weight: parseInt(weight),
             courier: courier
         };
 
-        console.log("DEBUG REQUEST:", payload); // Cek di Console Browser
-
         const response = await api.post("/shipping/cost", payload);
+        const responseData = response.data?.data;
 
-        console.log("DEBUG RESPONSE:", response.data); // Cek hasil asli dari Backend
+        // --- LOGIKA BARU YANG LEBIH PINTAR ---
+        if (Array.isArray(responseData) && responseData.length > 0) {
 
-        // Struktur RajaOngkir biasanya: response.data.data[0].costs
-        // Tapi kita harus fleksibel ceknya
-        const rajaOngkirData = response.data?.data;
+            // Cek Item Pertama
+            const firstItem = responseData[0];
 
-        if (Array.isArray(rajaOngkirData) && rajaOngkirData.length > 0) {
-            // Jika akun Pro (biasanya return array kurir)
-            return rajaOngkirData[0].costs || [];
-        } else if (rajaOngkirData?.costs) {
-            // Jika struktur langsung costs
-            return rajaOngkirData.costs;
+            // KASUS A: Struktur Bersarang (Standar RajaOngkir)
+            // [ { code: "jne", costs: [...] } ]
+            if (firstItem.costs) {
+                return firstItem.costs;
+            }
+
+            // KASUS B: Struktur Rata/Flat (Kemungkinan API Anda saat ini)
+            // [ { service: "REG", cost: [...] }, { service: "YES", ... } ]
+            // Jika item pertama punya 'service' atau 'cost', berarti ini sudah daftarnya!
+            if (firstItem.service || firstItem.cost) {
+                return responseData;
+            }
         }
 
         return [];
     } catch (error) {
-        console.error("DEBUG ERROR SERVICE:", error);
+        console.error("Gagal cek ongkir: ", error);
         return [];
     }
 };
