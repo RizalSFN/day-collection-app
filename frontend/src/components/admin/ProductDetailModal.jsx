@@ -36,13 +36,6 @@ const ProductDetailModal = ({
     const [selectedShipping, setSelectedShipping] = useState(null); // Ongkir yang dipilih
     const [loadingShipping, setLoadingShipping] = useState(false);
 
-    // 1. Hitung Total Harga Dasar
-    const totalStock = variants.reduce((acc, v) => acc + (v.stock || 0), 0);
-    const productPrice = parseInt(selectedVariant?.price || product.base_price);
-    const subTotal = productPrice * quantity;
-
-    // 2. Hitung Grand Total (Produk + Ongkir)
-    const grandTotal = subTotal + (selectedShipping ? selectedShipping.cost[0].value : 0);
 
     // Reset state saat modal ditutup/dibuka
     useEffect(() => {
@@ -55,6 +48,14 @@ const ProductDetailModal = ({
     }, [isOpen]);
 
     if (!isOpen || !product) return null;
+
+    // 1. Hitung Total Harga Dasar
+    const totalStock = variants.reduce((acc, v) => acc + (v.stock || 0), 0);
+    const productPrice = parseInt(selectedVariant?.price || product.base_price);
+    const subTotal = productPrice * quantity;
+
+    // 2. Hitung Grand Total (Produk + Ongkir)
+    const grandTotal = subTotal + (selectedShipping ? selectedShipping.cost[0].value : 0);
 
     const handleCopy = (text) => {
         navigator.clipboard.writeText(text);
