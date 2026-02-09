@@ -22,6 +22,9 @@ export const createOrderService = async (payload) => {
                 total_amount: parseInt(payload.total_amount),
                 checkout_method: payload.checkout_method,
                 status: payload.status || (payload.checkout_method === "BANK_TRANSFER" ? "WAITING_PAYMENT" : "PENDING"),
+                shipping_cost: payload.shipping_cost,
+                shipping_courier: payload.shipping_courier,
+                shipping_service: payload.shipping_service,
 
                 // Menghubungkan Order ke Product utama (karena relasinya wajib)
                 product: {
