@@ -1,4 +1,4 @@
-import api from "../api"; // Pastikan path ini benar sesuai file api.js Anda
+import api from "./api"; // Pastikan path ini benar sesuai file api.js Anda
 
 // 1. Service Cari Lokasi (Autocomplete)
 export const searchLocationApi = async (query) => {
