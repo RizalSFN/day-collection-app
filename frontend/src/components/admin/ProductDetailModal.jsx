@@ -72,24 +72,22 @@ const ProductDetailModal = ({
         setSelectedShipping(null);
 
         try {
-            // 1. Ambil berat dari produk, jika tidak ada/null, pakai 1000 gram
             const baseWeight = product.weight ? parseInt(product.weight) : 1000;
-
-            // 2. Pastikan quantity minimal 1
-            const qty = quantity || 1;
-
-            // 3. Hitung total
-            const totalWeight = baseWeight * qty;
-
-            console.log("Cek Ongkir Debug:", { destinationId, totalWeight }); // Debugging log
+            const totalWeight = baseWeight * (quantity || 1);
 
             // Panggil API
             const costs = await checkOngkirApi(destinationId, totalWeight, "jne");
-            setShippingOptions(Array.isArray(costs) ? costs : []);
+
+            console.log("DATA ONGKIR DITERIMA MODAL:", costs); // Cek di Console
+
+            if (costs && costs.length > 0) {
+                setShippingOptions(costs);
+            } else {
+                alert("Ongkir tidak ditemukan untuk lokasi ini. Coba pilih kota lain atau kurir lain.");
+            }
         } catch (error) {
             console.error(error);
-            alert("Gagal mengecek ongkir.");
-            setShippingOptions([]); // Pastikan tetap array kosong
+            alert("Terjadi kesalahan saat cek ongkir.");
         } finally {
             setLoadingShipping(false);
         }

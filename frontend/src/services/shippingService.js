@@ -35,32 +35,33 @@ export const searchLocationApi = async (query) => {
 // 2. Service Cek Ongkir
 export const checkOngkirApi = async (destinationId, weight, courier) => {
     try {
-        // Validasi Pre-Flight (Cegah request jika data kosong)
-        if (!destinationId) {
-            console.warn("Cek Ongkir dibatalkan: ID Tujuan kosong");
-            return [];
-        }
-
         const payload = {
             destination: destinationId,
             weight: parseInt(weight),
             courier: courier
         };
 
-        // Debugging: Lihat apa yang dikirim ke backend
-        console.log("Mengirim Cek Ongkir:", payload);
+        console.log("DEBUG REQUEST:", payload); // Cek di Console Browser
 
         const response = await api.post("/shipping/cost", payload);
 
-        // Ambil data costs dari hasil pertama
-        const results = response.data?.data;
-        if (results && Array.isArray(results) && results.length > 0) {
-            return results[0].costs || [];
+        console.log("DEBUG RESPONSE:", response.data); // Cek hasil asli dari Backend
+
+        // Struktur RajaOngkir biasanya: response.data.data[0].costs
+        // Tapi kita harus fleksibel ceknya
+        const rajaOngkirData = response.data?.data;
+
+        if (Array.isArray(rajaOngkirData) && rajaOngkirData.length > 0) {
+            // Jika akun Pro (biasanya return array kurir)
+            return rajaOngkirData[0].costs || [];
+        } else if (rajaOngkirData?.costs) {
+            // Jika struktur langsung costs
+            return rajaOngkirData.costs;
         }
 
         return [];
     } catch (error) {
-        console.error("Gagal cek ongkir (API): ", error.response?.data || error.message);
-        throw error;
+        console.error("DEBUG ERROR SERVICE:", error);
+        return [];
     }
 };
