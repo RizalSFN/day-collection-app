@@ -68,20 +68,20 @@ const ProductDetailModal = ({
         if (!destinationId) return;
 
         setLoadingShipping(true);
-        setShippingOptions([]); // Reset pilihan sebelumnya
+        setShippingOptions([]);
         setSelectedShipping(null);
 
         try {
-            // Asumsi berat default 1kg (1000g) per item. 
-            // Jika di database ada field weight, ganti 1000 dengan product.weight
-            const totalWeight = 1000 * quantity;
-
-            // Panggil API (Default kurir JNE)
+            const totalWeight = product.weight * quantity;
             const costs = await checkOngkirApi(destinationId, totalWeight, "jne");
-            setShippingOptions(costs);
+
+            // Pengaman: Pastikan costs adalah array, jika tidak, pakai []
+            setShippingOptions(Array.isArray(costs) ? costs : []);
+
         } catch (error) {
             console.error(error);
-            alert("Gagal mengecek ongkir. Pastikan koneksi internet lancar.");
+            alert("Gagal mengecek ongkir.");
+            setShippingOptions([]); // Pastikan tetap array kosong
         } finally {
             setLoadingShipping(false);
         }
@@ -114,7 +114,9 @@ const ProductDetailModal = ({
             shipping_address: `${buyerData.buyer_address}, ${fullLocationLabel}`,
 
             // Simpan Info Kurir untuk referensi admin
-            shipping_courier: `JNE ${selectedShipping.service} (Est. ${selectedShipping.cost[0].etd} hari)`
+            shipping_courier: `JNE ${selectedShipping.service} (Est. ${selectedShipping.cost[0].etd} hari)`,
+
+            status: "WAITING_PAYMENT"
         };
 
         // Panggil fungsi milik Parent
@@ -287,8 +289,8 @@ const ProductDetailModal = ({
                                                 <Truck size={16} />
                                                 <p className="text-[10px] font-black uppercase tracking-widest">Pengiriman</p>
                                             </div>
-                                            {/* Tombol Cek Ongkir */}
-                                            {destinationId && shippingOptions.length === 0 && (
+                                            {/* Cek shippingOptions dengan aman */}
+                                            {destinationId && (!shippingOptions || shippingOptions.length === 0) && (
                                                 <button
                                                     onClick={handleCheckOngkir}
                                                     disabled={loadingShipping}
@@ -299,8 +301,8 @@ const ProductDetailModal = ({
                                             )}
                                         </div>
 
-                                        {/* List Pilihan Ongkir */}
-                                        {shippingOptions.length > 0 ? (
+                                        {/* List Pilihan Ongkir dengan PENGAMAN (?. dan &&) */}
+                                        {shippingOptions && shippingOptions.length > 0 ? (
                                             <div className="space-y-2 max-h-40 overflow-y-auto custom-scrollbar pr-1">
                                                 {shippingOptions.map((opt, idx) => (
                                                     <div
@@ -321,7 +323,10 @@ const ProductDetailModal = ({
                                             </div>
                                         ) : (
                                             !loadingShipping && destinationId && (
-                                                <p className="text-[10px] text-gray-400 italic text-center py-2">Klik tombol Cek Ongkir di atas.</p>
+                                                <p className="text-[10px] text-gray-400 italic text-center py-2">
+                                                    {/* Pesan jika ongkir kosong */}
+                                                    Klik tombol Cek Ongkir atau coba lokasi lain.
+                                                </p>
                                             )
                                         )}
                                         {!destinationId && (

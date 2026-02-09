@@ -23,11 +23,19 @@ export const checkOngkirApi = async (destinationId, weight, courier) => {
 
         const response = await api.post("/shipping/cost", payload);
 
-        // Backend mengembalikan { status: 'success', data: [...] }
-        // Kita ambil data[0].costs karena RajaOngkir membungkusnya dalam array
-        return response.data.data[0].costs;
+        // --- PERBAIKAN DI SINI ---
+        // Cek apakah data ada dan array-nya tidak kosong
+        const results = response.data?.data;
+
+        if (results && Array.isArray(results) && results.length > 0) {
+            // Ambil costs dari hasil pertama (JNE/Pos/dll)
+            return results[0].costs || [];
+        }
+
+        return []; // Selalu return array kosong jika data tidak ada
+
     } catch (error) {
         console.error("Gagal cek ongkir: ", error);
-        throw error; // Lempar error agar UI bisa menampilkan alert
+        return []; // Return array kosong saat error, JANGAN throw error agar UI tidak crash
     }
-}
+};
