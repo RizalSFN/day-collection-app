@@ -72,12 +72,20 @@ const ProductDetailModal = ({
         setSelectedShipping(null);
 
         try {
-            const totalWeight = product.weight * quantity;
+            // 1. Ambil berat dari produk, jika tidak ada/null, pakai 1000 gram
+            const baseWeight = product.weight ? parseInt(product.weight) : 1000;
+
+            // 2. Pastikan quantity minimal 1
+            const qty = quantity || 1;
+
+            // 3. Hitung total
+            const totalWeight = baseWeight * qty;
+
+            console.log("Cek Ongkir Debug:", { destinationId, totalWeight }); // Debugging log
+
+            // Panggil API
             const costs = await checkOngkirApi(destinationId, totalWeight, "jne");
-
-            // Pengaman: Pastikan costs adalah array, jika tidak, pakai []
             setShippingOptions(Array.isArray(costs) ? costs : []);
-
         } catch (error) {
             console.error(error);
             alert("Gagal mengecek ongkir.");
