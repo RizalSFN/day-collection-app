@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import DashboardLayout from "../../layouts/DashboardLayout";
 import { getOrders, updateOrderStatus } from "../../services/orderService";
-import { Search, Eye, CheckCircle, XCircle, Clock, CreditCard, User, MapPin, Phone, CheckCircle2 } from "lucide-react";
+import { Search, Eye, CheckCircle, XCircle, Clock, CreditCard, User, MapPin, Phone, CheckCircle2, ShoppingBag, Calendar } from "lucide-react";
 import { toast } from "react-toastify";
 
 const Order = () => {
@@ -10,8 +10,8 @@ const Order = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
-    const [pendingAction, setPendingAction] = useState({ id: null, status: null })
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+    const [pendingAction, setPendingAction] = useState({ id: null, status: null });
 
     useEffect(() => {
         fetchOrders();
@@ -21,10 +21,12 @@ const Order = () => {
         setLoading(true);
         try {
             const data = await getOrders();
-            setOrders(data);
+            // Sorting agar order terbaru muncul paling atas
+            const sortedData = data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+            setOrders(sortedData);
         } catch (error) {
             console.error("Gagal memuat data pesanan:", error);
-            toast.error("Gagal memuat data pesanan")
+            toast.error("Gagal memuat data pesanan");
         }
         setLoading(false);
     };
@@ -40,11 +42,8 @@ const Order = () => {
         setLoading(true);
         try {
             await updateOrderStatus(pendingAction.id, pendingAction.status);
-
-            // Tutup semua modal terkait
             setIsConfirmModalOpen(false);
             setIsDetailModalOpen(false);
-
             toast.success("Berhasil memperbarui status pesanan");
             fetchOrders();
         } catch (error) {
@@ -52,254 +51,304 @@ const Order = () => {
             toast.error("Gagal memperbarui status pesanan");
         } finally {
             setLoading(false);
-            // Reset pending action (opsional, tapi good practice)
             setPendingAction({ id: null, status: null });
         }
     };
 
     const getStatusStyle = (status) => {
         switch (status) {
-            case 'WAITING_VERIFICATION': return 'bg-blue-100 text-blue-600';
-            case 'PAID': return 'bg-green-100 text-green-600';
-            case 'CANCELLED': return 'bg-red-100 text-red-600';
-            case 'WAITING_PAYMENT': return 'bg-amber-100 text-amber-600';
-            default: return 'bg-gray-100 text-gray-500';
+            case 'WAITING_VERIFICATION': return 'bg-blue-50 text-blue-600 border border-blue-200';
+            case 'PAID': return 'bg-green-50 text-green-600 border border-green-200';
+            case 'CANCELLED': return 'bg-red-50 text-red-600 border border-red-200';
+            case 'WAITING_PAYMENT': return 'bg-amber-50 text-amber-600 border border-amber-200';
+            default: return 'bg-gray-50 text-gray-500 border border-gray-200';
         }
+    };
+
+    // Format Tanggal
+    const formatDate = (dateString) => {
+        if (!dateString) return "-";
+        return new Date(dateString).toLocaleDateString("id-ID", {
+            day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
     };
 
     return (
         <DashboardLayout>
-            <div className="p-6 md:p-10 bg-white min-h-screen">
+            <div className="p-6 md:p-10 bg-gray-50 min-h-screen">
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 uppercase italic">Manajemen <span className="text-amber-500">Pesanan</span></h1>
-                        <p className="text-gray-500 text-sm">Pantau pesanan masuk dan verifikasi pembayaran pelanggan.</p>
+                        <h1 className="text-3xl font-bold text-gray-900 uppercase italic tracking-tight">Manajemen <span className="text-amber-500">Pesanan</span></h1>
+                        <p className="text-gray-500 text-sm mt-1">Pantau pesanan masuk dan verifikasi pembayaran pelanggan.</p>
                     </div>
                 </div>
 
-                {/* Filter & Search */}
-                <div className="bg-amber-50/50 p-4 rounded-3xl mb-6 flex items-center gap-3 border border-amber-100">
-                    <Search className="text-amber-500" size={20} />
+                {/* Search Bar */}
+                <div className="bg-white p-4 rounded-2xl mb-6 flex items-center gap-3 border border-gray-200 shadow-sm focus-within:border-amber-500 focus-within:ring-2 focus-within:ring-amber-100 transition-all">
+                    <Search className="text-gray-400" size={20} />
                     <input
                         type="text"
-                        placeholder="Cari nama pelanggan atau kode order..."
-                        className="bg-transparent outline-0 border-none focus:ring-0 w-full text-gray-700"
+                        placeholder="Cari Order ID (misal: ORD-...) atau Nama Pelanggan..."
+                        className="bg-transparent outline-none border-none w-full text-gray-700 placeholder-gray-400 text-sm"
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
 
                 {/* Order Table */}
                 {loading ? (
-                    <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+                    <div className="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-gray-100 shadow-sm">
                         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-amber-500 mb-4"></div>
-                        <p>Memuat data pesanan...</p>
+                        <p className="text-gray-400 text-sm animate-pulse">Sedang memuat data...</p>
                     </div>
                 ) : (
-                    <div className="overflow-x-auto bg-white rounded-3xl border border-gray-100 shadow-sm">
-                        <table className="w-full text-left">
-                            <thead className="bg-gray-50 text-gray-400 uppercase text-xs tracking-widest">
-                                <tr>
-                                    <th className="px-6 py-4">Order Code</th>
-                                    <th className="px-6 py-4">Pelanggan</th>
-                                    <th className="px-6 py-4">Total</th>
-                                    <th className="px-6 py-4">Status</th>
-                                    <th className="px-6 py-4 text-center">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-50">
-                                {orders.length > 0 ? (
-                                    orders
-                                        .filter(o => o.buyer_name.toLowerCase().includes(searchTerm.toLowerCase()) || o.order_code.toLowerCase().includes(searchTerm.toLowerCase()))
-                                        .map((order) => (
-                                            <tr key={order.id} className="hover:bg-amber-50/20 transition">
-                                                <td className="px-6 py-4 font-mono text-sm font-bold text-gray-600">
-                                                    #{order.order_code}
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <div className="font-bold text-gray-800">{order.buyer_name}</div>
-                                                    <div className="text-xs text-gray-400">{order.buyer_phone}</div>
-                                                </td>
-                                                <td className="px-6 py-4 font-medium text-gray-700">
-                                                    Rp {parseInt(order.total_amount).toLocaleString('id-ID')}
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter ${getStatusStyle(order.status)}`}>
-                                                        {order.status.replace('_', ' ')}
-                                                    </span>
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <div className="flex justify-center gap-2">
+                    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
+                                <thead className="bg-gray-50 text-gray-400 uppercase text-[10px] font-bold tracking-widest border-b border-gray-100">
+                                    <tr>
+                                        <th className="px-6 py-5">Order ID & Waktu</th>
+                                        <th className="px-6 py-5">Pelanggan</th>
+                                        <th className="px-6 py-5">Total</th>
+                                        <th className="px-6 py-5">Status</th>
+                                        <th className="px-6 py-5 text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-50">
+                                    {orders.length > 0 ? (
+                                        orders
+                                            .filter(o => o.buyer_name.toLowerCase().includes(searchTerm.toLowerCase()) || o.order_code.toLowerCase().includes(searchTerm.toLowerCase()))
+                                            .map((order) => (
+                                                <tr key={order.id} className="hover:bg-amber-50/30 transition-colors duration-200">
+                                                    <td className="px-6 py-4">
+                                                        <div className="font-mono text-xs font-bold text-gray-800 bg-gray-100 px-2 py-1 rounded w-fit mb-1">
+                                                            #{order.order_code}
+                                                        </div>
+                                                        <div className="text-[10px] text-gray-400 flex items-center gap-1">
+                                                            <Calendar size={10} /> {formatDate(order.created_at)}
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        <div className="text-sm font-bold text-gray-800">{order.buyer_name}</div>
+                                                        <div className="text-xs text-gray-400">{order.buyer_phone}</div>
+                                                    </td>
+                                                    <td className="px-6 py-4 font-bold text-amber-600">
+                                                        Rp {parseInt(order.total_amount).toLocaleString('id-ID')}
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wide ${getStatusStyle(order.status)}`}>
+                                                            {order.status.replace('_', ' ')}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-center">
                                                         <button
                                                             onClick={() => { setSelectedOrder(order); setIsDetailModalOpen(true); }}
-                                                            className="flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition shadow-md shadow-amber-100"
+                                                            className="inline-flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-100 hover:border-amber-500 hover:text-amber-500 text-gray-600 rounded-xl text-xs font-bold transition-all shadow-sm hover:shadow-md"
                                                         >
-                                                            <Eye size={14} /> Detail & Verifikasi
+                                                            <Eye size={14} /> Detail
                                                         </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan="5" className="text-center py-20">
-                                            <div className="flex flex-col items-center opacity-60">
-                                                <p className="italic">Belum ada data pesanan.</p>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
+                                                    </td>
+                                                </tr>
+                                            ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="5" className="text-center py-20">
+                                                <div className="flex flex-col items-center opacity-40">
+                                                    <ShoppingBag size={48} className="mb-2 text-gray-300" />
+                                                    <p className="italic text-gray-400">Belum ada pesanan masuk.</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 )}
             </div>
 
-            {/* Modal Detail & Verifikasi Pembayaran */}
+            {/* =================================================================================
+                MODAL DETAIL & VERIFIKASI (LAYOUT BARU)
+               ================================================================================= */}
             {isDetailModalOpen && selectedOrder && (
-                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                    <div className="bg-white w-full max-w-4xl rounded-[2.5rem] shadow-2xl p-8 max-h-[90vh] overflow-y-auto scrollbar-hide">
-                        <div className="flex justify-between items-start mb-8">
-                            <div>
-                                <h2 className="text-2xl font-bold text-gray-900 italic uppercase">Detail <span className="text-amber-500">Pesanan</span></h2>
-                                <p className="text-gray-400 font-mono text-sm">#{selectedOrder.order_code}</p>
-                            </div>
-                            <button onClick={() => setIsDetailModalOpen(false)} className="p-2 bg-gray-50 rounded-full text-gray-400 hover:text-gray-600">
-                                <XCircle size={24} />
-                            </button>
-                        </div>
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
+                    <div className="bg-white w-full max-w-5xl rounded-4xl shadow-2xl overflow-hidden flex flex-col md:flex-row max-h-[90vh]">
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {/* Kiri: Bukti Pembayaran */}
-                            <div className="space-y-4">
-                                <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
-                                    <CreditCard size={14} className="text-amber-500" /> Bukti Transfer
-                                </h4>
-                                <div className="aspect-3/4 bg-gray-50 rounded-3xl border-4 border-gray-100 overflow-hidden relative group">
-                                    {selectedOrder.payment_proof ? (
+                        {/* KOLOM KIRI: BUKTI TRANSFER (Focus Area) */}
+                        <div className="md:w-5/12 bg-gray-900 p-6 flex flex-col relative">
+                            <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+
+                            <div className="relative z-10 flex justify-between items-center mb-6 text-white">
+                                <h3 className="text-sm font-bold uppercase tracking-widest flex items-center gap-2">
+                                    <CreditCard size={16} className="text-amber-500" /> Bukti Pembayaran
+                                </h3>
+                            </div>
+
+                            <div className="flex-1 bg-gray-800/50 rounded-2xl border-2 border-dashed border-gray-700 flex items-center justify-center overflow-hidden relative group">
+                                {selectedOrder.payment_proof ? (
+                                    <>
                                         <img
                                             src={selectedOrder.payment_proof.image_url}
                                             alt="Bukti Transfer"
-                                            className="w-full h-full object-contain cursor-zoom-in"
-                                            onClick={() => window.open(selectedOrder.payment_proof.image_url, '_blank')}
+                                            className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
                                         />
-                                    ) : (
-                                        <div className="flex flex-col items-center justify-center h-full text-gray-300">
-                                            <Clock size={48} className="mb-2" />
-                                            <p className="text-xs font-bold uppercase">Belum ada bukti</p>
+                                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                            <button
+                                                onClick={() => window.open(selectedOrder.payment_proof.image_url, '_blank')}
+                                                className="px-6 py-2 bg-white text-black rounded-full text-xs font-bold uppercase hover:bg-amber-500 hover:text-white transition-colors"
+                                            >
+                                                Lihat Full Size
+                                            </button>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="text-center text-gray-500">
+                                        <Clock size={40} className="mx-auto mb-3 opacity-50" />
+                                        <p className="text-xs font-bold uppercase tracking-widest">Belum Diupload</p>
+                                        <p className="text-[10px] mt-1">User belum mengirim bukti</p>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Info Status Singkat di bawah gambar */}
+                            <div className="mt-6 pt-6 border-t border-gray-800 relative z-10">
+                                <p className="text-[10px] text-gray-400 uppercase tracking-widest mb-1">Status Pesanan Saat Ini</p>
+                                <span className={`inline-block px-3 py-1 rounded-md text-xs font-bold uppercase ${getStatusStyle(selectedOrder.status)}`}>
+                                    {selectedOrder.status.replace('_', ' ')}
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* KOLOM KANAN: DETAIL DATA & AKSI */}
+                        <div className="md:w-7/12 bg-white flex flex-col">
+                            {/* Modal Header */}
+                            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-20">
+                                <div>
+                                    <h2 className="text-xl font-black text-gray-900 italic uppercase">Verifikasi <span className="text-amber-500">Order</span></h2>
+                                    <p className="text-xs font-mono text-gray-400 mt-1">ID: #{selectedOrder.order_code}</p>
+                                </div>
+                                <button onClick={() => setIsDetailModalOpen(false)} className="p-2 bg-gray-50 hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-full transition-colors">
+                                    <XCircle size={24} />
+                                </button>
+                            </div>
+
+                            {/* Scrollable Content */}
+                            <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
+
+                                {/* Info Pengiriman (Card Style) */}
+                                <div className="bg-amber-50/40 p-5 rounded-2xl border border-amber-100">
+                                    <h4 className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                        <MapPin size={12} /> Data Pengiriman
+                                    </h4>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <p className="text-[10px] text-gray-400 uppercase font-bold mb-1">Penerima</p>
+                                            <p className="text-sm font-bold text-gray-800">{selectedOrder.buyer_name}</p>
+                                            <p className="text-xs text-gray-500 flex items-center gap-1 mt-1"><Phone size={10} /> {selectedOrder.buyer_phone}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] text-gray-400 uppercase font-bold mb-1">Alamat Tujuan</p>
+                                            <p className="text-xs text-gray-700 leading-relaxed font-medium">{selectedOrder.buyer_address}</p>
+                                        </div>
+                                    </div>
+                                    {/* Jika ada kurir */}
+                                    {selectedOrder.shipping_courier && (
+                                        <div className="mt-3 pt-3 border-t border-amber-100/50">
+                                            <p className="text-[10px] text-gray-400 uppercase font-bold mb-1">Kurir</p>
+                                            <p className="text-xs font-bold text-gray-800">{selectedOrder.shipping_courier}</p>
                                         </div>
                                     )}
                                 </div>
-                            </div>
 
-                            {/* Kanan: Info Pelanggan & Produk */}
-                            <div className="space-y-6">
-                                <div className="bg-amber-50/50 p-6 rounded-3xl border border-amber-100">
-                                    <h4 className="text-xs font-black text-amber-600 uppercase tracking-widest mb-4">Informasi Pengiriman</h4>
+                                {/* List Produk (Receipt Style) */}
+                                <div>
+                                    <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                        <ShoppingBag size={12} /> Rincian Belanja
+                                    </h4>
                                     <div className="space-y-3">
-                                        <div className="flex items-start gap-3 text-sm text-gray-700">
-                                            <User size={16} className="text-amber-500 shrink-0" />
-                                            <span className="font-bold">{selectedOrder.buyer_name}</span>
-                                        </div>
-                                        <div className="flex items-start gap-3 text-sm text-gray-700">
-                                            <Phone size={16} className="text-amber-500 shrink-0" />
-                                            <span>{selectedOrder.buyer_phone}</span>
-                                        </div>
-                                        <div className="flex items-start gap-3 text-sm text-gray-700">
-                                            <MapPin size={16} className="text-amber-500 shrink-0" />
-                                            <span className="text-xs leading-relaxed">{selectedOrder.buyer_address}</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-3">
-                                    <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest">Item Pesanan</h4>
-                                    <div className="space-y-2">
                                         {selectedOrder.items.map((item, idx) => (
-                                            <div key={idx} className="flex justify-between items-center bg-gray-50 p-3 rounded-2xl border border-gray-100">
-                                                <div>
-                                                    <p className="text-sm font-bold text-gray-800">{item.product.name}</p>
-                                                    <p className="text-[10px] text-gray-400 uppercase font-bold">{item.product_variants?.color} - {item.product_variants?.size}</p>
+                                            <div key={idx} className="flex gap-4 p-3 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors">
+                                                {/* Gambar Produk Kecil (Jika ada) */}
+                                                <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden shrink-0">
+                                                    <img
+                                                        src={item.product?.main_image || "https://placehold.co/100"}
+                                                        alt={item.product.name}
+                                                        className="w-full h-full object-cover"
+                                                    />
                                                 </div>
-                                                <div className="text-right text-sm">
-                                                    <p className="font-bold text-amber-600">x{item.quantity}</p>
-                                                    <p className="text-[10px] text-gray-400">Rp {item.price.toLocaleString()}</p>
+                                                <div className="grow">
+                                                    <p className="text-sm font-bold text-gray-800 line-clamp-1">{item.product.name}</p>
+                                                    <p className="text-[10px] text-gray-400 uppercase font-bold mt-0.5">
+                                                        {item.product_variants ? `${item.product_variants.color} - ${item.product_variants.size}` : "Default"}
+                                                    </p>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="text-xs font-bold text-gray-500">x{item.quantity}</p>
+                                                    <p className="text-sm font-bold text-amber-600">Rp {item.price.toLocaleString()}</p>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
-                                    <div className="pt-4 border-t border-dashed flex justify-between items-center">
-                                        <span className="font-bold text-gray-900 uppercase italic">Total Pembayaran</span>
-                                        <span className="text-xl font-black text-amber-500 tracking-tighter">Rp {selectedOrder.total_amount.toLocaleString()}</span>
+
+                                    {/* Total Summary */}
+                                    <div className="mt-6 pt-4 border-t-2 border-dashed border-gray-100 flex justify-between items-end">
+                                        <div className="text-right w-full">
+                                            <p className="text-xs text-gray-400 mb-1">Total Tagihan</p>
+                                            <p className="text-2xl font-black text-gray-900 tracking-tighter">
+                                                Rp {parseInt(selectedOrder.total_amount).toLocaleString('id-ID')}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
+                            </div>
 
-                                {/* Action Buttons */}
-                                <div className="grid grid-cols-2 gap-3 pt-6">
-                                    <button
-                                        onClick={() => handleInitiateStatusUpdate(selectedOrder.id, 'CANCELLED')}
-                                        className="flex items-center justify-center gap-2 py-4 rounded-2xl bg-red-50 text-red-500 hover:bg-red-500 hover:text-white font-bold transition-all"
-                                    >
-                                        <XCircle size={18} /> Batalkan
-                                    </button>
-                                    <button
-                                        onClick={() => handleInitiateStatusUpdate(selectedOrder.id, 'PAID')}
-                                        className="flex items-center justify-center gap-2 py-4 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-bold shadow-lg shadow-amber-200 transition-all active:scale-95"
-                                    >
-                                        <CheckCircle size={18} /> Verifikasi Lunas
-                                    </button>
-                                </div>
+                            {/* Action Buttons (Sticky Bottom) */}
+                            <div className="p-6 border-t border-gray-100 bg-gray-50 grid grid-cols-2 gap-3">
+                                <button
+                                    onClick={() => handleInitiateStatusUpdate(selectedOrder.id, 'CANCELLED')}
+                                    className="flex items-center justify-center gap-2 py-3.5 rounded-xl border-2 border-transparent bg-red-100 text-red-600 hover:bg-red-200 font-bold text-xs uppercase tracking-widest transition-all"
+                                >
+                                    <XCircle size={16} /> Tolak / Batalkan
+                                </button>
+                                <button
+                                    onClick={() => handleInitiateStatusUpdate(selectedOrder.id, 'PAID')}
+                                    className="flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gray-900 text-amber-500 hover:bg-black font-bold text-xs uppercase tracking-widest shadow-lg transition-all active:scale-95"
+                                >
+                                    <CheckCircle size={16} /> Terima Pembayaran
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Modal Konfirmasi Update Status */}
+            {/* =================================================================================
+                MODAL KONFIRMASI (Alert Style)
+               ================================================================================= */}
             {isConfirmModalOpen && (
-                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-60 flex items-center justify-center p-4">
-                    <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl animate-fadeIn text-center">
-
-                        {/* Ikon & Warna Dinamis berdasarkan Status */}
-                        <div className={`w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 
-                ${pendingAction.status === 'CANCELLED' ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-500'}`}>
-
-                            {pendingAction.status === 'CANCELLED' ? (
-                                <XCircle size={40} />
-                            ) : (
-                                <CheckCircle2 size={40} />
-                            )}
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-60 flex items-center justify-center p-4 animate-fadeIn">
+                    <div className="bg-white w-full max-w-xs rounded-4xl p-6 shadow-2xl text-center transform scale-100 transition-all">
+                        <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${pendingAction.status === 'CANCELLED' ? 'bg-red-100 text-red-500' : 'bg-green-100 text-green-500'}`}>
+                            {pendingAction.status === 'CANCELLED' ? <XCircle size={32} /> : <CheckCircle2 size={32} />}
                         </div>
-
-                        {/* Judul & Deskripsi Dinamis */}
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">
-                            {pendingAction.status === 'CANCELLED' ? 'Batalkan Pesanan?' : 'Verifikasi Pembayaran?'}
+                        <h3 className="text-lg font-bold text-gray-900 mb-2">
+                            {pendingAction.status === 'CANCELLED' ? 'Tolak Pesanan?' : 'Konfirmasi Lunas?'}
                         </h3>
-
-                        <p className="text-gray-500 text-sm mb-8 px-4 leading-relaxed">
+                        <p className="text-xs text-gray-500 mb-6 leading-relaxed">
                             {pendingAction.status === 'CANCELLED'
-                                ? "Tindakan ini akan membatalkan pesanan secara permanen dan stok akan dikembalikan."
-                                : "Pastikan bukti pembayaran valid. Status pesanan akan diubah menjadi Lunas/Dikemas."}
+                                ? "Pesanan akan dibatalkan permanen. Pastikan alasan penolakan sudah jelas."
+                                : "Pastikan nominal bukti transfer sesuai dengan total tagihan."}
                         </p>
-
-                        {/* Tombol Aksi */}
-                        <div className="flex flex-col gap-3">
+                        <div className="flex flex-col gap-2">
                             <button
                                 onClick={handleExecuteUpdate}
                                 disabled={loading}
-                                className={`w-full py-4 rounded-2xl font-bold text-white shadow-lg transition-all active:scale-95 disabled:opacity-50
-                        ${pendingAction.status === 'CANCELLED'
-                                        ? 'bg-red-500 hover:bg-red-600 shadow-red-100'
-                                        : 'bg-green-500 hover:bg-green-600 shadow-green-100'}`}
+                                className={`w-full py-3 rounded-xl font-bold text-white text-xs uppercase tracking-widest shadow-lg transition-all active:scale-95 disabled:opacity-50 ${pendingAction.status === 'CANCELLED' ? 'bg-red-500 hover:bg-red-600' : 'bg-green-600 hover:bg-green-700'}`}
                             >
                                 {loading ? "Memproses..." : "Ya, Lanjutkan"}
                             </button>
-
-                            <button
-                                onClick={() => setIsConfirmModalOpen(false)}
-                                className="w-full py-4 text-gray-400 font-semibold hover:text-gray-600 transition-colors"
-                            >
-                                Batalkan
+                            <button onClick={() => setIsConfirmModalOpen(false)} className="py-3 text-xs font-bold text-gray-400 hover:text-gray-600 transition-colors">
+                                Batal
                             </button>
                         </div>
                     </div>
