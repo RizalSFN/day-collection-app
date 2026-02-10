@@ -207,7 +207,7 @@ const Product = () => {
                             </div>
                             <div>
                                 <label className="text-sm font-semibold text-gray-600 mb-1 block">Harga (Base Price)</label>
-                                <input name="harga" type="number" value={formData.harga} onChange={handleInputChange} className="w-full p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-amber-500" required />
+                                <input name="harga" type="number" value={formData.base_price} onChange={handleInputChange} className="w-full p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-amber-500" required />
                             </div>
                             <div className="md:col-span-2">
                                 <label className="text-sm font-semibold text-gray-600 mb-1 block">Deskripsi</label>
