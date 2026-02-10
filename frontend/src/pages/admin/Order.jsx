@@ -17,6 +17,7 @@ const Order = () => {
         fetchOrders();
     }, []);
 
+    // pemanggilan data
     const fetchOrders = async () => {
         setLoading(true);
         try {

@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getProducts, createProduct, updateProduct, deleteProduct } from "../../services/productService";
 import DashboardLayout from "../../layouts/DashboardLayout";
-import { Plus, Pencil, Trash2, Search, Edit } from "lucide-react";
-import ModalCreateProduct from "../../components/admin/ModalCreateProduct";
-import ModalUpdateProduct from "../../components/admin/ModalUpdateProduct";
-import ModalDeleteProduct from "../../components/admin/ModalDeleteProduct";
+import { Plus, Trash2, Search, Edit } from "lucide-react";
 import { toast } from "react-toastify";
 
 const Product = () => {
@@ -21,7 +18,7 @@ const Product = () => {
         name: "",
         slug: "",
         description: "",
-        harga: "", // Sesuai parameter payload Anda
+        base_price: "", // Sesuai parameter payload Anda
         is_active: "active",
         main_image: null
     });
@@ -89,7 +86,7 @@ const Product = () => {
     };
 
     const resetForm = () => {
-        setFormData({ name: "", slug: "", description: "", harga: "", is_active: "active", main_image: null });
+        setFormData({ name: "", slug: "", description: "", base_price: "", is_active: "active", main_image: null });
         setEditingProduct(null);
     }
 

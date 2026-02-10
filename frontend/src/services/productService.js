@@ -19,7 +19,7 @@ export const createProduct = async (payload) => {
         formData.append("name", payload.name);
         formData.append("slug", payload.slug);
         formData.append("description", payload.description);
-        formData.append("base_price", payload.harga); // Pastikan backend terima 'base_price'
+        formData.append("base_price", payload.base_price); // Pastikan backend terima 'base_price'
         formData.append("status", payload.is_active);
 
         // PERBAIKAN: Langsung append payload.main_image (karena sudah file object)
@@ -43,17 +43,24 @@ export const createProduct = async (payload) => {
 
 export const updateProduct = async (id, data) => {
     try {
-        const token = getToken()
+        const token = getToken();
         const formData = new FormData();
 
+        // 1. Append Data Teks (Pastikan mapping sesuai state di Component)
         formData.append("name", data.name);
         formData.append("slug", data.slug);
         formData.append("description", data.description);
-        formData.append("base_price", data.base_price);
-        formData.append("status", data.status);
 
-        if (data.main_image && data.main_image.length > 0) {
-            formData.append("main_image", data.main_image[0]);
+        // Perbaikan: Ambil dari 'data.harga' karena di component namanya 'harga'
+        formData.append("base_price", data.base_price);
+
+        // Perbaikan: Ambil dari 'data.is_active' karena di component namanya 'is_active'
+        formData.append("status", data.is_active);
+
+        // 2. Logic Gambar (Hanya kirim jika user upload file baru)
+        // Kita cek apakah tipe datanya adalah 'File'. Jika string (URL lama), jangan kirim.
+        if (data.main_image instanceof File) {
+            formData.append("main_image", data.main_image);
         }
 
         const response = await api.put(`/products/${id}`, formData, {
@@ -61,13 +68,14 @@ export const updateProduct = async (id, data) => {
                 "Content-Type": "multipart/form-data",
                 Authorization: `Bearer ${token}`
             }
-        })
-        return response.data
+        });
+
+        return response.data;
     } catch (error) {
         console.error("Gagal mengubah data produk: ", error);
-        return []
+        throw error; // Throw error agar toast di component bisa muncul
     }
-}
+};
 
 export const deleteProduct = async (id) => {
     try {
