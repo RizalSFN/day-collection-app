@@ -1,17 +1,12 @@
 import React, { useState } from "react";
-import { Search, Package, Clock, CheckCircle2, XCircle, Truck, MapPin, CreditCard, ChevronRight, ArrowLeft } from "lucide-react";
+import { Search, Package, Clock, CheckCircle2, XCircle, Truck, MapPin, CreditCard, ChevronRight, ArrowLeft, ShoppingBag } from "lucide-react";
 import MainLayout from "../layouts/MainLayout";
 import { trackOrderApi } from "../services/orderService";
 
 const TrackingOrder = () => {
     const [keyword, setKeyword] = useState("");
-
-    // State untuk menyimpan HASIL PENCARIAN (Array)
     const [orderList, setOrderList] = useState([]);
-
-    // State untuk menyimpan ORDER YANG DIPILIH untuk dilihat detailnya
     const [selectedOrder, setSelectedOrder] = useState(null);
-
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
@@ -46,22 +41,15 @@ const TrackingOrder = () => {
 
     const getStatusInfo = (status) => {
         switch (status) {
-            case "WAITING_PAYMENT":
-                return { label: "Menunggu Pembayaran", icon: <CreditCard size={20} />, color: "text-amber-500", bg: "bg-amber-50" };
-            case "WAITING_VERIFICATION":
-                return { label: "Menunggu Verifikasi", icon: <Clock size={20} />, color: "text-blue-500", bg: "bg-blue-50" };
-            case "PAID":
-                return { label: "Lunas", icon: <CheckCircle2 size={20} />, color: "text-green-500", bg: "bg-green-50" };
-            case "SHIPPED":
-                return { label: "Dikirim", icon: <Truck size={20} />, color: "text-purple-500", bg: "bg-purple-50" };
-            case "CANCELLED":
-                return { label: "Dibatalkan", icon: <XCircle size={20} />, color: "text-red-500", bg: "bg-red-50" };
-            default:
-                return { label: "Diproses", icon: <Package size={20} />, color: "text-gray-500", bg: "bg-gray-50" };
+            case "WAITING_PAYMENT": return { label: "Menunggu Pembayaran", icon: <CreditCard size={20} />, color: "text-amber-500", bg: "bg-amber-50" };
+            case "WAITING_VERIFICATION": return { label: "Menunggu Verifikasi", icon: <Clock size={20} />, color: "text-blue-500", bg: "bg-blue-50" };
+            case "PAID": return { label: "Lunas / Dikemas", icon: <CheckCircle2 size={20} />, color: "text-green-500", bg: "bg-green-50" };
+            case "SHIPPED": return { label: "Dikirim", icon: <Truck size={20} />, color: "text-purple-500", bg: "bg-purple-50" };
+            case "CANCELLED": return { label: "Dibatalkan", icon: <XCircle size={20} />, color: "text-red-500", bg: "bg-red-50" };
+            default: return { label: "Diproses", icon: <Package size={20} />, color: "text-gray-500", bg: "bg-gray-50" };
         }
     };
 
-    // --- KOMPONEN KECIL: LIST ITEM (Untuk hasil pencarian banyak) ---
     const OrderListItem = ({ order }) => (
         <div
             onClick={() => setSelectedOrder(order)}
@@ -85,24 +73,29 @@ const TrackingOrder = () => {
         </div>
     );
 
+    // Helper hitung subtotal produk
+    const calculateSubtotal = (items) => {
+        return items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    };
+
     return (
         <MainLayout>
             <div className="bg-gray-50 min-h-screen pt-32 pb-20 px-6">
                 <div className="max-w-3xl mx-auto">
 
-                    {/* Header: Sembunyikan jika sedang melihat detail */}
+                    {/* Header */}
                     {!selectedOrder && (
                         <div className="text-center mb-12">
                             <h1 className="text-3xl font-black italic uppercase tracking-tighter text-gray-900">
                                 Lacak <span className="text-amber-500">Pesanan</span>
                             </h1>
                             <p className="text-[10px] text-gray-400 mt-2 uppercase font-black tracking-[0.3em]">
-                                Input kode order, nomor telepon penerima atau nama penerima
+                                Input kode order, nomor telepon atau nama penerima
                             </p>
                         </div>
                     )}
 
-                    {/* Search Bar: Sembunyikan jika sedang melihat detail */}
+                    {/* Search Bar */}
                     {!selectedOrder && (
                         <form onSubmit={handleSearch} className="relative mb-12 group">
                             <input
@@ -129,7 +122,7 @@ const TrackingOrder = () => {
                         </div>
                     )}
 
-                    {/* KONDISI 1: Menampilkan List jika hasil > 1 dan belum ada yang dipilih */}
+                    {/* List Result */}
                     {!selectedOrder && orderList.length > 0 && (
                         <div className="space-y-4 animate-slideUp">
                             <p className="text-center text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">
@@ -141,10 +134,9 @@ const TrackingOrder = () => {
                         </div>
                     )}
 
-                    {/* KONDISI 2: Menampilkan Detail Pesanan (DESAIN BARU ANDA) */}
+                    {/* Detail Pesanan (With Shipping Info) */}
                     {selectedOrder && (
                         <div className="animate-slideUp">
-                            {/* Tombol Back */}
                             <button
                                 onClick={() => setSelectedOrder(null)}
                                 className="flex items-center gap-2 text-[10px] font-black text-gray-500 uppercase mb-6 hover:text-amber-500 transition-colors"
@@ -152,8 +144,7 @@ const TrackingOrder = () => {
                                 <ArrowLeft size={16} /> Kembali ke pencarian
                             </button>
 
-                            {/* --- DISINI CARD DETAIL PESANAN YANG ANDA INGINKAN --- */}
-                            <div className="bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-gray-100 animate-slideUp">
+                            <div className="bg-white rounded-[2.5rem] shadow-2xl overflow-hidden border border-gray-100">
                                 {/* Status Header */}
                                 <div className={`p-8 flex items-center justify-between ${getStatusInfo(selectedOrder.status).bg}`}>
                                     <div>
@@ -168,6 +159,7 @@ const TrackingOrder = () => {
                                 </div>
 
                                 <div className="p-8 space-y-8">
+                                    {/* Info Header */}
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
                                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">ID Transaksi</p>
@@ -181,6 +173,7 @@ const TrackingOrder = () => {
 
                                     <hr className="border-gray-50" />
 
+                                    {/* Info Pengiriman */}
                                     <div className="space-y-4">
                                         <div className="flex gap-4">
                                             <div className="w-10 h-10 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500 shrink-0">
@@ -192,10 +185,30 @@ const TrackingOrder = () => {
                                                 <p className="text-[11px] text-gray-500 mt-1 leading-relaxed uppercase">{selectedOrder.buyer_address}</p>
                                             </div>
                                         </div>
+
+                                        {/* Tampilkan Ekspedisi (Jika Ada) */}
+                                        {selectedOrder.shipping_courier && (
+                                            <div className="flex gap-4">
+                                                <div className="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-500 shrink-0">
+                                                    <Truck size={20} />
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Ekspedisi Pengiriman</p>
+                                                    <p className="text-sm font-bold text-gray-700 uppercase">
+                                                        {selectedOrder.shipping_courier}
+                                                        {selectedOrder.shipping_service && ` - ${selectedOrder.shipping_service}`}
+                                                    </p>
+                                                    {/* Bisa tambah No Resi disini jika backend sudah support */}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
 
+                                    {/* Rincian Produk & Biaya */}
                                     <div className="space-y-4">
-                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">Rincian Item</p>
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest italic">Rincian Biaya</p>
+
+                                        {/* List Items */}
                                         {selectedOrder.items?.map((item, idx) => (
                                             <div key={idx} className="flex items-center gap-4 bg-gray-50 p-4 rounded-3xl border border-gray-100">
                                                 <div className="w-14 h-14 rounded-xl bg-white overflow-hidden shrink-0 border border-gray-100">
@@ -206,7 +219,7 @@ const TrackingOrder = () => {
                                                     />
                                                 </div>
                                                 <div className="grow">
-                                                    <p className="text-[11px] font-black uppercase italic text-gray-800">
+                                                    <p className="text-[11px] font-black uppercase italic text-gray-800 line-clamp-1">
                                                         {item.product.name}
                                                     </p>
                                                     <p className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">
@@ -217,12 +230,33 @@ const TrackingOrder = () => {
                                                     </p>
                                                 </div>
                                                 <div className="text-right">
-                                                    <p className="text-sm font-black text-amber-600">x{item.quantity || item.quality}</p>
+                                                    <p className="text-sm font-black text-amber-600">x{item.quantity}</p>
                                                 </div>
                                             </div>
                                         ))}
+
+                                        {/* Rincian Ongkir & Total */}
+                                        <div className="mt-4 pt-4 border-t-2 border-dashed border-gray-100 space-y-2 px-2">
+                                            <div className="flex justify-between text-xs font-medium text-gray-500">
+                                                <span>Subtotal Produk</span>
+                                                <span>Rp {calculateSubtotal(selectedOrder.items).toLocaleString('id-ID')}</span>
+                                            </div>
+                                            <div className="flex justify-between text-xs font-medium text-gray-500">
+                                                <span>Ongkos Kirim</span>
+                                                <span className="font-bold text-gray-700">
+                                                    Rp {parseInt(selectedOrder.shipping_cost || 0).toLocaleString('id-ID')}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between items-end pt-2 border-t border-gray-50 mt-2">
+                                                <p className="text-xs text-gray-900 font-black uppercase">Total Bayar</p>
+                                                <p className="text-xl font-black text-amber-500 tracking-tighter">
+                                                    Rp {parseInt(selectedOrder.total_amount).toLocaleString('id-ID')}
+                                                </p>
+                                            </div>
+                                        </div>
                                     </div>
 
+                                    {/* Footer Info */}
                                     <div className="bg-gray-900 text-white p-6 rounded-4xl flex items-center gap-4 shadow-xl shadow-gray-200">
                                         <div className="p-3 bg-amber-500 rounded-2xl text-black">
                                             <Clock size={20} strokeWidth={3} />
