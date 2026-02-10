@@ -161,7 +161,7 @@ const Product = () => {
                                             <td className="px-6 py-4">
                                                 <div className="flex justify-center gap-2">
                                                     <button
-                                                        onClick={() => { setEditingProduct(product); setFormData({ ...product, harga: product.base_price, is_active: product.status }); setIsModalOpen(true); }}
+                                                        onClick={() => { setEditingProduct(product); setFormData({ ...product, is_active: product.status }); setIsModalOpen(true); }}
                                                         className="p-2 text-amber-600 hover:bg-amber-100 rounded-lg transition"
                                                     >
                                                         <Edit size={18} />
