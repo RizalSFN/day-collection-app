@@ -114,7 +114,9 @@ const Login = () => {
                     <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500 mr-1">
                         2026
                     </a>
-                    - VirioTech
+                    <a href="https://www.linkedin.com/in/rizalsofiana/" target="_blank" className="font-semibold text-black hover:underline">
+                        - VirioTech
+                    </a>
                 </p>
             </div>
         </div>
