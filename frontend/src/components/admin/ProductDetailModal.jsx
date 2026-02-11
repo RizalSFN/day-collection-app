@@ -33,6 +33,8 @@ const ProductDetailModal = ({
     const [shippingOptions, setShippingOptions] = useState([]);
     const [selectedShipping, setSelectedShipping] = useState(null);
     const [loadingShipping, setLoadingShipping] = useState(false);
+    const [showError, setShowError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
 
     // Reset state saat modal ditutup/dibuka
     useEffect(() => {
@@ -74,17 +76,16 @@ const ProductDetailModal = ({
 
             const costs = await checkOngkirApi(destinationId, totalWeight, "jne");
 
-            // Debugging
-            console.log("DATA ONGKIR DITERIMA MODAL:", costs);
-
             if (costs && costs.length > 0) {
                 setShippingOptions(costs);
             } else {
-                alert("Ongkir tidak ditemukan untuk lokasi ini.");
+                setErrorMessage("Ongkir tidak ditemukan untuk lokasi ini.")
+                setShowError(true)
             }
         } catch (error) {
             console.error(error);
-            alert("Terjadi kesalahan saat cek ongkir.");
+            setErrorMessage("Terjadi kesalahan saat cek ongkir.")
+            setShowError(true)
         } finally {
             setLoadingShipping(false);
         }
@@ -92,11 +93,13 @@ const ProductDetailModal = ({
 
     const onProcessOrder = () => {
         if (!buyerData.buyer_name || !buyerData.buyer_phone || !buyerData.buyer_address) {
-            alert("Mohon lengkapi Nama, WA, dan Alamat Detail.");
+            setErrorMessage("Mohon lengkapi Nama, WA, dan Alamat Detail.")
+            setShowError(true)
             return;
         }
         if (!destinationId || !selectedShipping) {
-            alert("Mohon pilih Lokasi dan Layanan Pengiriman (Cek Ongkir).");
+            setErrorMessage("Mohon pilih Lokasi dan Layanan Pengiriman (Cek Ongkir).")
+            setShowError(true)
             return;
         }
 
@@ -404,6 +407,31 @@ const ProductDetailModal = ({
                     </div>
                 </div>
             </div>
+
+            {showError && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-60 flex items-center justify-center p-6 animate-fadeIn">
+                    <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 text-center shadow-2xl relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-24 bg-linear-to-b from-red-50 to-transparent z-0"></div>
+                        <div className="relative z-10">
+                            <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-red-100">
+                                <XCircle size={40} className="text-red-500" strokeWidth={3} />
+                            </div>
+                            <h3 className="text-2xl font-black text-gray-900 uppercase italic mb-2">
+                                Terjadi <span className="text-red-500">Kesalahan</span>
+                            </h3>
+                            <p className="text-xs text-gray-500 font-medium mb-8 leading-relaxed px-4">
+                                {errorMessage}
+                            </p>
+                            <button
+                                onClick={() => setShowError(false)}
+                                className="w-full py-4 bg-red-500 text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-red-600 transition-all shadow-xl"
+                            >
+                                Tutup & Coba Lagi
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
