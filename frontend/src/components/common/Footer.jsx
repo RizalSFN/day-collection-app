@@ -90,9 +90,9 @@ export default function Footer() {
             </div>
 
             <div className="border-t border-gray-200 py-4 text-center text-sm text-gray-500">
-                © {new Date().getFullYear()} Day Collection. All rights reserved.
+                © {new Date().getFullYear()} Day Collection. All rights reserved. -
                 <a href="https://www.linkedin.com/in/rizalsofiana/" target="_blank" className="ml-1 font-semibold text-black hover:underline">
-                    - VirioTech
+                    VirioTech
                 </a>
             </div>
         </footer>
