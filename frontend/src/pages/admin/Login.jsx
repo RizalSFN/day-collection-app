@@ -112,8 +112,9 @@ const Login = () => {
                 <p className="mt-10 text-center text-sm/6 text-gray-500">
                     Copyright@DayCollection
                     <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
-                        2026
+                        2026 -
                     </a>
+                    VirioTech
                 </p>
             </div>
         </div>
