@@ -32,25 +32,28 @@ export const searchLocationApi = async (query) => {
 };
 
 // 2. Service Cek Ongkir
-export const checkOngkirApi = async (destinationId, weight, courier) => {
+export const checkOngkirApi = async (destinationId, weight, courier, districtName = "") => {
     try {
         if (!destinationId) return [];
 
         const payload = {
             destination: destinationId,
             weight: parseInt(weight),
-            courier: courier
+            courier: courier,
+
+            // TAMBAHAN: Kirim Nama Kecamatan buat bantu backend mapping ID
+            district_name: districtName
         };
 
         const response = await api.post("/shipping/cost", payload);
-        const responseData = response.data?.data;
 
+        // ... (sisanya sama)
+        const responseData = response.data?.data;
         if (Array.isArray(responseData) && responseData.length > 0) {
             const firstItem = responseData[0];
             if (firstItem.costs) return firstItem.costs;
             if (firstItem.service || firstItem.cost) return responseData;
         }
-
         return [];
     } catch (error) {
         console.error("Gagal cek ongkir: ", error);
