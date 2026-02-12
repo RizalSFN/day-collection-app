@@ -46,6 +46,10 @@ export const calculateCostService = async (origin, destination, weight, courier)
         params.append("weight", cleanWeight);
         params.append("courier", courier.toLowerCase());
 
+        console.log("=== DEBUG ONGKIR ===");
+        console.log(`Origin: ${cleanOrigin} (Type: city)`);
+        console.log(`Destination: ${cleanDest} (Type: subdistrict)`);
+
         console.log("=== SENDING FORM DATA ===", params.toString());
 
         // Axios akan otomatis mengirim ini sebagai application/x-www-form-urlencoded
