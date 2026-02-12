@@ -10,7 +10,7 @@ export const searchLocationApi = async (query) => {
         const rawData = response.data.data || [];
 
         return rawData.map(item => ({
-            id: item.id || item.subdistrict_id || item.city_id || item.district_id,
+            id: item.subdistrict_id || item.id || item.city_id || item.district_id,
             label: item.label || `${item.subdistrict_name || item.city_name}, ${item.province_name || item.province || ''}`,
             type: item.type || "Lokasi"
         }));
