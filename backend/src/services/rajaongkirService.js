@@ -40,7 +40,7 @@ export const calculateCostService = async (origin, destination, weight, courier)
         // Ini kuncinya! Jangan kirim object JSON mentah.
         const params = new URLSearchParams();
         params.append("origin", cleanOrigin);
-        params.append("originType", "subdistrict")
+        params.append("originType", "city")
         params.append("destination", cleanDest);
         params.append("destinationType", "subdistrict")
         params.append("weight", cleanWeight);
