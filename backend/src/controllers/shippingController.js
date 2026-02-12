@@ -6,7 +6,7 @@ import { searchDestinationService, calculateCostService } from "../services/raja
  */
 export const searchLocation = async (req, res) => {
     try {
-        const { query } = req.query; 
+        const { query } = req.query;
 
         // Validasi sederhana
         if (!query || query.length < 3) {
@@ -37,23 +37,39 @@ export const searchLocation = async (req, res) => {
  */
 export const checkOngkir = async (req, res) => {
     try {
-        const { destination, weight, courier } = req.body;
+        // Kita terima district_name (nama kecamatan) dari frontend
+        const { destination, weight, courier, district_name } = req.body;
 
-        // Validasi Input Frontend
         if (!destination || !weight || !courier) {
-            return res.status(400).json({
-                msg: "Data tujuan, berat, dan kurir wajib diisi"
-            });
+            return res.status(400).json({ msg: "Data tidak lengkap" });
         }
 
-        // Ambil ID Toko dari .env
-        const origin = process.env.STORE_CITY_ID;
+        const originCityId = process.env.STORE_CITY_ID; // 55 (Bandung)
+        let finalDestinationId = destination; // Default: Pakai ID dari frontend (5146)
 
-        if (!origin) {
-            return res.status(500).json({ msg: "Konfigurasi toko (Origin) belum diset di server" });
+        // --- LOGIKA AUTO-CORRECT ID ---
+        if (district_name) {
+            console.log(`Mencari ID Kecamatan untuk: ${district_name} di Kota ID: ${originCityId}`);
+
+            // 1. Ambil semua kecamatan di Kota Bandung (55)
+            const districts = await getDistrictsByCityService(originCityId);
+
+            // 2. Cari yang namanya COCOK (Misal: "MARGAHAYU")
+            const foundDistrict = districts.find(
+                d => d.name.toUpperCase() === district_name.toUpperCase()
+            );
+
+            // 3. Jika ketemu, GANTI ID tujuan menjadi ID Kecamatan (474)
+            if (foundDistrict) {
+                console.log(`✅ MATCH FOUND! Mengganti ID ${destination} -> ${foundDistrict.id} (${foundDistrict.name})`);
+                finalDestinationId = foundDistrict.id;
+            } else {
+                console.log("❌ Tidak ditemukan kecocokan kecamatan lokal.");
+            }
         }
+        // ------------------------------
 
-        const data = await calculateCostService(origin, destination, weight, courier);
+        const data = await calculateCostService(originCityId, finalDestinationId, weight, courier);
 
         res.status(200).json({
             status: "success",
@@ -61,14 +77,8 @@ export const checkOngkir = async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error Check Ongkir:", error.response?.data || error.message);
-
-        // Menangkap pesan error spesifik dari Komerce jika ada
-        const errorMsg = error.response?.data?.message || "Gagal menghitung ongkir";
-
-        res.status(500).json({
-            msg: errorMsg,
-            detail: error.response?.data
-        });
+        // ... (error handling sama)
+        console.error(error);
+        res.status(500).json({ msg: "Gagal cek ongkir" });
     }
 };

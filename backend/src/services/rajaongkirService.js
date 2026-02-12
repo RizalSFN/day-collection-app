@@ -29,6 +29,16 @@ export const searchDestinationService = async (query) => {
     }
 };
 
+export const getDistrictsByCityService = async (cityId) => {
+    try {
+        const response = await rajaOngkirClient.get(`/destination/district/${cityId}`);
+        return response.data.data;
+    } catch (error) {
+        console.error("Gagal ambil kecamatan:", error.message);
+        return [];
+    }
+};
+
 export const calculateCostService = async (origin, destination, weight, courier) => {
     try {
         // Konversi tipe data
