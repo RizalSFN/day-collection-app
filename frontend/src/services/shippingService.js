@@ -1,4 +1,4 @@
-import api from "./api"; // Pastikan path ini benar sesuai file api.js Anda
+import api from "./api"; // Pastikan path ini benar
 
 // 1. Service Cari Lokasi (Autocomplete)
 export const searchLocationApi = async (query) => {
@@ -10,8 +10,18 @@ export const searchLocationApi = async (query) => {
         const rawData = response.data.data || [];
 
         return rawData.map(item => ({
-            id: item.district_id || item.subdistrict_id || item.city_id || item.id,
-            label: item.label || `${item.subdistrict_name || item.city_name}, ${item.province_name || item.province || ''}`,
+            // --- PERBAIKAN FATAL DI SINI ---
+            // Urutan Prioritas Pengambilan ID:
+            // 1. subdistrict_id (Ini biasanya ID Kecamatan yang valid untuk RajaOngkir Pro/Starter)
+            // 2. district_id (Nama lain dari kecamatan di beberapa response)
+            // 3. city_id (Jika user memilih Kota)
+            // 4. id (Fallback terakhir - biasanya ID Desa yang bikin error)
+
+            id: item.subdistrict_id || item.district_id || item.city_id || item.id,
+
+            // Kita simpan juga nama lengkapnya
+            label: item.label || `${item.subdistrict_name || item.name}, ${item.city_name}, ${item.province_name}`,
+
             type: item.type || "Lokasi"
         }));
 
@@ -21,7 +31,7 @@ export const searchLocationApi = async (query) => {
     }
 };
 
-// 2. Service Cek Ongkir (DIPERBAIKI)
+// 2. Service Cek Ongkir
 export const checkOngkirApi = async (destinationId, weight, courier) => {
     try {
         if (!destinationId) return [];
@@ -35,24 +45,10 @@ export const checkOngkirApi = async (destinationId, weight, courier) => {
         const response = await api.post("/shipping/cost", payload);
         const responseData = response.data?.data;
 
-        // --- LOGIKA BARU YANG LEBIH PINTAR ---
         if (Array.isArray(responseData) && responseData.length > 0) {
-
-            // Cek Item Pertama
             const firstItem = responseData[0];
-
-            // KASUS A: Struktur Bersarang (Standar RajaOngkir)
-            // [ { code: "jne", costs: [...] } ]
-            if (firstItem.costs) {
-                return firstItem.costs;
-            }
-
-            // KASUS B: Struktur Rata/Flat (Kemungkinan API Anda saat ini)
-            // [ { service: "REG", cost: [...] }, { service: "YES", ... } ]
-            // Jika item pertama punya 'service' atau 'cost', berarti ini sudah daftarnya!
-            if (firstItem.service || firstItem.cost) {
-                return responseData;
-            }
+            if (firstItem.costs) return firstItem.costs;
+            if (firstItem.service || firstItem.cost) return responseData;
         }
 
         return [];
