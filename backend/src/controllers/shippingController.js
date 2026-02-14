@@ -38,7 +38,7 @@ export const searchLocation = async (req, res) => {
 export const checkOngkir = async (req, res) => {
     try {
         // Kita terima district_name (nama kecamatan) dari frontend
-        const { destination, weight, courier, district_name } = req.body;
+        const { destination, weight, courier, district_name, city_name } = req.body;
 
         if (!destination || !weight || !courier) {
             return res.status(400).json({ msg: "Data tidak lengkap" });
@@ -97,8 +97,6 @@ export const checkOngkir = async (req, res) => {
         console.log(`🚀 Cek Ongkir: Origin ${originCityId} -> Dest ${finalDestinationId}`);
 
         const data = await calculateCostService(originCityId, finalDestinationId, weight, courier);
-
-        res.status(200).json({ status: "success", data: data });
 
         res.status(200).json({
             status: "success",
