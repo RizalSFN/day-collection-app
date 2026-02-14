@@ -29,6 +29,37 @@ export const searchDestinationService = async (query) => {
     }
 };
 
+export const getAllCitiesService = async () => {
+    try {
+        const response = await rajaOngkirClient.get("/destination/domestic-destination?limit=500&type=city");
+        // Note: Endpoint ini mungkin berbeda tergantung Komerce/RajaOngkir. 
+        // Jika endpoint domestic-destination search city tidak support all, gunakan endpoint native RajaOngkir:
+        // const response = await rajaOngkirClient.get("/city"); // Endpoint standar RajaOngkir
+
+        // Asumsi pakai endpoint standar RajaOngkir /city untuk list kota
+        // Jika error, sesuaikan dengan endpoint Komerce yang mengembalikan list kota.
+        return response.data.data || response.data.rajaongkir.results;
+    } catch (error) {
+        return [];
+    }
+};
+
+export const findCityIdByName = async (cityName) => {
+    try {
+        // Karena kita tidak tahu ID kotanya, kita cari via search endpoint yang Anda punya
+        // Atau ambil semua kota dan filter
+        const response = await rajaOngkirClient.get("/destination/domestic-destination", {
+            params: { search: cityName, limit: 10 } // Cari kota berdasarkan nama
+        });
+
+        // Filter hasil yang tipenya 'city' atau 'Kabupaten/Kota'
+        // Ambil ID-nya. Bisa jadi ada banyak (Kab. Bandung, Kota Bandung), kita return array
+        return response.data.data.filter(c => c.city_name.toUpperCase().includes(cityName.toUpperCase()));
+    } catch (error) {
+        return [];
+    }
+};
+
 export const getDistrictsByCityService = async (cityId) => {
     try {
         const response = await rajaOngkirClient.get(`/destination/district/${cityId}`);
