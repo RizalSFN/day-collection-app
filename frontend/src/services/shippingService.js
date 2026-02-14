@@ -44,7 +44,7 @@ export const searchLocationApi = async (query) => {
 };
 
 // 2. Service Cek Ongkir
-export const checkOngkirApi = async (destinationId, weight, courier, districtName, cityName) => {
+export const checkOngkirApi = async (destinationId, weight, courier) => {
     try {
         if (!destinationId) return [];
 
