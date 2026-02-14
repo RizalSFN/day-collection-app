@@ -1,5 +1,17 @@
 import api from "./api"; // Pastikan path ini benar
 
+const DISTRICT_CORRECTION_MAP = {
+    // Area Margahayu / Sayati
+    "5146": "474", // Sayati -> Margahayu
+    "5144": "474", // Margahayu Selatan -> Margahayu
+    "5145": "474", // Margahayu Tengah -> Margahayu
+    "5147": "474", // Sukamenak -> Margahayu
+    "5148": "474", // Sulaeman -> Margahayu
+
+    // Area Lain di Bandung (Contoh jika ada yang error lagi)
+    // Anda bisa menambahkan ID lain di sini jika menemukan ongkir mahal lagi
+};
+
 // 1. Service Cari Lokasi (Autocomplete)
 export const searchLocationApi = async (query) => {
     try {
@@ -36,14 +48,16 @@ export const checkOngkirApi = async (destinationId, weight, courier, districtNam
     try {
         if (!destinationId) return [];
 
+        const fixedDestinationId = DISTRICT_CORRECTION_MAP[String(destinationId)] || destinationId;
+
         const payload = {
-            destination: destinationId,
+            destination: fixedDestinationId,
             weight: parseInt(weight),
             courier: courier,
 
             // TAMBAHAN: Kirim Nama Kecamatan buat bantu backend mapping ID
-            district_name: districtName,
-            city_name: cityName
+            // district_name: districtName,
+            // city_name: cityName
         };
 
         const response = await api.post("/shipping/cost", payload);
