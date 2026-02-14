@@ -35,6 +35,7 @@ const ProductDetailModal = ({
     const [loadingShipping, setLoadingShipping] = useState(false);
     const [showError, setShowError] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
+    const [districtName, setDistrictName] = useState("");
 
     // Reset state saat modal ditutup/dibuka
     useEffect(() => {
@@ -74,7 +75,7 @@ const ProductDetailModal = ({
             const baseWeight = product.weight ? parseInt(product.weight) : 1000;
             const totalWeight = baseWeight * (quantity || 1);
 
-            const costs = await checkOngkirApi(destinationId, totalWeight, "jne");
+            const costs = await checkOngkirApi(destinationId, totalWeight, "jne", districtName);
 
             if (costs && costs.length > 0) {
                 setShippingOptions(costs);
@@ -258,6 +259,7 @@ const ProductDetailModal = ({
                                             if (item) {
                                                 setDestinationId(item.id);
                                                 setFullLocationLabel(item.label);
+                                                setDistrictName(item.district_name)
                                                 setShippingOptions([]);
                                                 setSelectedShipping(null);
                                             } else {
