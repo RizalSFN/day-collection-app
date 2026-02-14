@@ -32,7 +32,7 @@ export const searchLocationApi = async (query) => {
 };
 
 // 2. Service Cek Ongkir
-export const checkOngkirApi = async (destinationId, weight, courier, districtName = "") => {
+export const checkOngkirApi = async (destinationId, weight, courier, districtName, cityName) => {
     try {
         if (!destinationId) return [];
 
@@ -42,7 +42,8 @@ export const checkOngkirApi = async (destinationId, weight, courier, districtNam
             courier: courier,
 
             // TAMBAHAN: Kirim Nama Kecamatan buat bantu backend mapping ID
-            district_name: districtName
+            district_name: districtName,
+            city_name: cityName
         };
 
         const response = await api.post("/shipping/cost", payload);
