@@ -44,12 +44,12 @@ export default function Home() {
                 </div>
 
                 {/* Image Section */}
-                <div className="md:w-1/2 mb-10 md:mb-0 flex justify-center bg-red-500">
+                <div className="md:w-1/2 mb-10 md:mb-0 flex justify-center">
                     {banner ? (
                         <img
                             src={banner.image_url}
                             alt={banner.title || "Banner Utama"}
-                            className="w-80 md:w-96 rounded-2xl object-cover"
+                            className="w-80 md:w-96 rounded-2xl object-cover bg-red-500"
                         />
                     ) : (
                         // UBAH 3: Tampilkan Skeleton Loading / Placeholder jika banner belum siap
