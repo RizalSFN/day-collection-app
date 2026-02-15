@@ -44,7 +44,7 @@ export default function Home() {
                 </div>
 
                 {/* Image Section */}
-                <div className="md:w-1/2 mb-10 md:mb-0 flex justify-center">
+                <div className="md:w-1/2 mb-10 md:mb-0 flex justify-center bg-red-500">
                     {banner ? (
                         <img
                             src={banner.image_url}
