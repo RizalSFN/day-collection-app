@@ -49,7 +49,7 @@ export default function Home() {
                         <img
                             src={banner.image_url}
                             alt={banner.title || "Banner Utama"}
-                            className="w-80 md:w-96 rounded-2xl object-cover bg-red-500"
+                            className="w-80 md:w-96 rounded-2xl object-cover"
                         />
                     ) : (
                         // UBAH 3: Tampilkan Skeleton Loading / Placeholder jika banner belum siap
