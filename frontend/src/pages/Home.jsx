@@ -61,7 +61,7 @@ export default function Home() {
             </section>
 
             {/* Product Preview Section */}
-            <section id="koleksi" className="py-20 bg-[#FDFBF7] rounded-[3rem] mt-12 px-6">
+            <section id="koleksi" className="py-20 rounded-[3rem] mt-12 px-6">
                 <div className="max-w-6xl mx-auto">
                     <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
                         <div className="text-left">

@@ -195,7 +195,7 @@ export default function Product() {
 
     return (
         <MainLayout>
-            <div className="bg-gray-50 min-h-screen pb-20">
+            <div className="min-h-screen pb-20">
                 {/* Search & Header */}
                 <section className="bg-white border-b border-gray-100 pt-24 pb-10 px-6">
                     <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
