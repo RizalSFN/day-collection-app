@@ -155,13 +155,13 @@ const Product = () => {
                                             <td className="px-6 py-4 font-medium text-gray-700">
                                                 Rp {parseInt(product.base_price).toLocaleString('id-ID')}
                                             </td>
+                                            <td className="px-6 py-4 font-medium text-gray-700">
+                                                {product.weight ? product.weight : "-"}
+                                            </td>
                                             <td className="px-6 py-4">
                                                 <span className={`px-3 py-1 rounded-full text-xs font-bold ${product.status === 'active' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-500'}`}>
                                                     {product.status}
                                                 </span>
-                                            </td>
-                                            <td className="px-6 py-4 font-medium text-gray-700">
-                                                {product.weight ? product.weight : "-"}
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex justify-center gap-2">
@@ -202,7 +202,7 @@ const Product = () => {
                     <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl p-8 max-h-[90vh] overflow-y-auto scrollbar-hide">
                         <h2 className="text-2xl font-bold mb-6">{editingProduct ? 'Edit Produk' : 'Tambah Produk Baru'}</h2>
                         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="md:col-span-2">
+                            <div>
                                 <label className="text-sm font-semibold text-gray-600 mb-1 block">Nama Produk</label>
                                 <input name="name" value={formData.name} onChange={handleInputChange} className="w-full p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-amber-500" required />
                             </div>
