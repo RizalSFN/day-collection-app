@@ -88,7 +88,7 @@ const Order = () => {
                     <Search className="text-gray-400" size={20} />
                     <input
                         type="text"
-                        placeholder="Cari Order ID (misal: ORD-...) atau Nama Pelanggan..."
+                        placeholder="Cari Order ID (misal: INV-...) atau Nama Pelanggan..."
                         className="bg-transparent outline-none border-none w-full text-gray-700 placeholder-gray-400 text-sm"
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
