@@ -20,7 +20,8 @@ const Product = () => {
         description: "",
         base_price: "", // Sesuai parameter payload Anda
         is_active: "active",
-        main_image: null
+        main_image: null,
+        weight: ""
     });
 
     useEffect(() => {
@@ -86,7 +87,7 @@ const Product = () => {
     };
 
     const resetForm = () => {
-        setFormData({ name: "", slug: "", description: "", base_price: "", is_active: "active", main_image: null });
+        setFormData({ name: "", slug: "", description: "", base_price: "", is_active: "active", main_image: null, weight: "" });
         setEditingProduct(null);
     }
 
@@ -133,6 +134,7 @@ const Product = () => {
                                 <tr>
                                     <th className="px-6 py-4">Produk</th>
                                     <th className="px-6 py-4">Harga</th>
+                                    <th className="px-6 py-4">Berat (gram)</th>
                                     <th className="px-6 py-4">Status</th>
                                     <th className="px-6 py-4 text-center">Aksi</th>
                                 </tr>
@@ -157,6 +159,9 @@ const Product = () => {
                                                 <span className={`px-3 py-1 rounded-full text-xs font-bold ${product.status === 'active' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-500'}`}>
                                                     {product.status}
                                                 </span>
+                                            </td>
+                                            <td className="px-6 py-4 font-medium text-gray-700">
+                                                {product.weight}
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex justify-center gap-2">
@@ -208,6 +213,10 @@ const Product = () => {
                             <div>
                                 <label className="text-sm font-semibold text-gray-600 mb-1 block">Harga (Base Price)</label>
                                 <input name="base_price" type="number" value={formData.base_price} onChange={handleInputChange} className="w-full p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-amber-500" required />
+                            </div>
+                            <div>
+                                <label className="text-sm font-semibold text-gray-600 mb-1 block">Berat (Gram)</label>
+                                <input name="weight" type="number" value={formData.weight} onChange={handleInputChange} className="w-full p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-amber-500" required />
                             </div>
                             <div className="md:col-span-2">
                                 <label className="text-sm font-semibold text-gray-600 mb-1 block">Deskripsi</label>

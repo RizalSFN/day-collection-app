@@ -21,6 +21,7 @@ export const createProduct = async (payload) => {
         formData.append("description", payload.description);
         formData.append("base_price", payload.base_price); // Pastikan backend terima 'base_price'
         formData.append("status", payload.is_active);
+        formData.append("weight", payload.weight);
 
         // PERBAIKAN: Langsung append payload.main_image (karena sudah file object)
         if (payload.main_image) {
@@ -56,6 +57,7 @@ export const updateProduct = async (id, data) => {
 
         // Perbaikan: Ambil dari 'data.is_active' karena di component namanya 'is_active'
         formData.append("status", data.is_active);
+        formData.append("weight", data.weight);
 
         // 2. Logic Gambar (Hanya kirim jika user upload file baru)
         // Kita cek apakah tipe datanya adalah 'File'. Jika string (URL lama), jangan kirim.
