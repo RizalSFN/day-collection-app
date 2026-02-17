@@ -161,7 +161,7 @@ const Product = () => {
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 font-medium text-gray-700">
-                                                {product.weight}
+                                                {product.weight ? product.weight : "-"}
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex justify-center gap-2">
@@ -183,7 +183,7 @@ const Product = () => {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="4" className="text-center py-20">
+                                        <td colSpan="5" className="text-center py-20">
                                             <div className="flex flex-col items-center opacity-60">
                                                 <p className="italic">Belum ada data produk.</p>
                                             </div>
