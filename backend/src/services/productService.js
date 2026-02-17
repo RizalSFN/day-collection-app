@@ -22,7 +22,8 @@ export const createProduct = async (data, filePath) => {
             // KONVERSI TIPE DATA PENTING!
             base_price: parseInt(data.base_price),
 
-            status: data.status
+            status: data.status,
+            weight: data.weight
         }
     });
 }
@@ -59,7 +60,8 @@ export const updateProduct = async (id, data, filePath) => {
         slug: data.slug,
         description: data.description,
         base_price: data.base_price,
-        status: data.status
+        status: data.status,
+        weight: data.weight
     }
 
     if (filePath) {
