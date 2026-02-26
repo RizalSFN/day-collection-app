@@ -128,7 +128,7 @@ const Product = () => {
                         <p>Memuat data produk...</p>
                     </div>
                 ) : (
-                    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm w-full overflow-hidden">
+                    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm w-full min-w-0 overflow-hidden">
                         <div className="w-full overflow-x-auto scrollbar-hide">
                             <table className="w-full min-w-200 text-left whitespace-nowrap">
                                 <thead className="bg-gray-50 text-gray-400 uppercase text-xs tracking-widest">
