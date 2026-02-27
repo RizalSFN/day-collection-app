@@ -11,7 +11,7 @@ const DashboardLayout = ({ children }) => {
     const closeSidebar = () => setIsSidebarOpen(false);
 
     return (
-        <div className="flex bg-[#f8f8f8] min-h-screen">
+        <div className="flex bg-white min-h-screen">
             {/* Sidebar */}
             <Sidebar isOpen={isSidebarOpen} closeSidebar={closeSidebar} />
 
