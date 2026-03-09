@@ -226,7 +226,7 @@ const TrackingOrder = () => {
                                                         {item.product_variants?.color} / {item.product_variants?.size}
                                                     </p>
                                                     <p className="text-[9px] font-black text-amber-500 mt-1">
-                                                        Rp {parseInt(selectedOrder.total_amount - selectedOrder.shipping_cost).toLocaleString("id-ID")}
+                                                        Rp {parseInt(item.price).toLocaleString("id-ID")}
                                                     </p>
                                                 </div>
                                                 <div className="text-right">
@@ -239,7 +239,7 @@ const TrackingOrder = () => {
                                         <div className="mt-4 pt-4 border-t-2 border-dashed border-gray-100 space-y-2 px-2">
                                             <div className="flex justify-between text-xs font-medium text-gray-500">
                                                 <span>Subtotal Produk</span>
-                                                <span>Rp {calculateSubtotal(selectedOrder.items).toLocaleString('id-ID')}</span>
+                                                <span>Rp {parseInt(selectedOrder.total_amount - selectedOrder.shipping_cost).toLocaleString('id-ID')}</span>
                                             </div>
                                             <div className="flex justify-between text-xs font-medium text-gray-500">
                                                 <span>Ongkos Kirim</span>
