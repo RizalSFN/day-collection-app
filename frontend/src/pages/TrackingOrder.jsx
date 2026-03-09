@@ -74,9 +74,9 @@ const TrackingOrder = () => {
     );
 
     // Helper hitung subtotal produk
-    const calculateSubtotal = (items) => {
-        return items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-    };
+    // const calculateSubtotal = (items) => {
+    //     return items.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    // };
 
     return (
         <MainLayout>

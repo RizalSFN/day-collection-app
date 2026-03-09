@@ -127,7 +127,7 @@ export default function Product() {
                     variant_id: payloadReceived.variant_id ? parseInt(payloadReceived.variant_id) : null,
                     quantity: payloadReceived.quantity,
                     // Harga satuan disimpan untuk referensi history
-                    price: payloadReceived.total_price / payloadReceived.quantity // Estimasi harga per unit rata-rata (termasuk ongkir)
+                    price: (payloadReceived.total_price / payloadReceived.quantity) - payloadReceived.shipping_cost // Estimasi harga per unit rata-rata (termasuk ongkir)
                 }],
 
                 // Opsional: Jika backend punya kolom khusus untuk nyatat kurir
