@@ -275,19 +275,19 @@ const Order = () => {
 
                                     {/* --- INFORMASI ONGKIR & TOTAL (LANGSUNG DARI DB) --- */}
                                     <div className="mt-6 pt-4 border-t-2 border-dashed border-gray-100 space-y-2">
-                                        {/* Subtotal Item (Hitung manual dari items karena biasanya DB cuma simpan total) */}
-                                        <div className="flex justify-between text-xs font-medium text-gray-500">
-                                            <span>Subtotal Produk</span>
-                                            <span>
-                                                Rp {selectedOrder.items.reduce((acc, item) => acc + (item.price * item.quantity), 0).toLocaleString('id-ID')}
-                                            </span>
-                                        </div>
-
                                         {/* Ongkos Kirim (Dari Kolom Database) */}
                                         <div className="flex justify-between text-xs font-medium text-gray-500">
                                             <span>Ongkos Kirim ({selectedOrder.shipping_courier || 'Ekspedisi'})</span>
                                             <span className="font-bold text-gray-700">
                                                 Rp {selectedOrder.shipping_cost.toLocaleString('id-ID')}
+                                            </span>
+                                        </div>
+
+                                        {/* Subtotal Item (Hitung manual dari items karena biasanya DB cuma simpan total) */}
+                                        <div className="flex justify-between text-xs font-medium text-gray-500">
+                                            <span>Subtotal Produk</span>
+                                            <span>
+                                                Rp {selectedOrder.items.reduce((acc, item) => acc + (item.price * item.quantity), 0).toLocaleString('id-ID')}
                                             </span>
                                         </div>
 
