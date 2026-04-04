@@ -287,7 +287,7 @@ const Order = () => {
                                         <div className="flex justify-between text-xs font-medium text-gray-500">
                                             <span>Ongkos Kirim ({selectedOrder.shipping_courier || 'Ekspedisi'})</span>
                                             <span className="font-bold text-gray-700">
-                                                Rp {parseInt(selectedOrder.shipping_cost || 0).toLocaleString('id-ID')}
+                                                Rp {selectedOrder.shipping_cost.toLocaleString('id-ID')}
                                             </span>
                                         </div>
 
