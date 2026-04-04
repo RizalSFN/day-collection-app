@@ -285,7 +285,7 @@ const Order = () => {
 
                                         {/* Subtotal Item (Hitung manual dari items karena biasanya DB cuma simpan total) */}
                                         <div className="flex justify-between text-xs font-medium text-gray-500">
-                                            <span>Subtotal Produk</span>
+                                            <span>Subtotal</span>
                                             <span>
                                                 Rp {selectedOrder.items.reduce((acc, item) => acc + (item.price * item.quantity), 0).toLocaleString('id-ID')}
                                             </span>
