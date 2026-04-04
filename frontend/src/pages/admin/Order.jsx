@@ -25,12 +25,15 @@ const Order = () => {
             // Sort order terbaru di atas
             const sortedData = data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
             setOrders(sortedData);
+
         } catch (error) {
             console.error("Gagal memuat data pesanan:", error);
             toast.error("Gagal memuat data pesanan");
         }
         setLoading(false);
     };
+    console.log(orders);
+
 
     const handleInitiateStatusUpdate = (id, status) => {
         setPendingAction({ id, status });
