@@ -279,7 +279,7 @@ const Order = () => {
                                         <div className="flex justify-between text-xs font-medium text-gray-500">
                                             <span>Subtotal Produk</span>
                                             <span>
-                                                Rp {(selectedOrder.item.product_variants.price * selectedOrder.item.quantity).toLocaleString('id-ID')}
+                                                Rp {(selectedOrder.product_variants.price * selectedOrder.quantity).toLocaleString('id-ID')}
                                             </span>
                                         </div>
 
