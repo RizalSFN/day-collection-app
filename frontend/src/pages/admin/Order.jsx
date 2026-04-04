@@ -279,7 +279,7 @@ const Order = () => {
                                         <div className="flex justify-between text-xs font-medium text-gray-500">
                                             <span>Subtotal Produk</span>
                                             <span>
-                                                Rp {selectedOrder.items.reduce((acc, item) => acc + (item.product_variants.price * item.quantity), 0).toLocaleString('id-ID')}
+                                                Rp {(selectedOrder.item.product_variants.price * selectedOrder.item.quantity).toLocaleString('id-ID')}
                                             </span>
                                         </div>
 
