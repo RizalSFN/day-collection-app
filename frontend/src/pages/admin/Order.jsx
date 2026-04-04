@@ -32,7 +32,7 @@ const Order = () => {
         }
         setLoading(false);
     };
-    console.log(orders);
+    console.log(selectedOrder);
 
 
     const handleInitiateStatusUpdate = (id, status) => {
