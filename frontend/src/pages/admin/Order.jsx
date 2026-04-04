@@ -267,7 +267,7 @@ const Order = () => {
                                                 </div>
                                                 <div className="text-right">
                                                     <p className="text-xs font-bold text-gray-500">x{item.quantity}</p>
-                                                    <p className="text-sm font-bold text-amber-600">Rp {parseInt(item.price - item.shipping_cost).toLocaleString()}</p>
+                                                    <p className="text-sm font-bold text-amber-600">Rp {(parseInt(item.price) - parseInt(item.shipping_cost)).toLocaleString()}</p>
                                                 </div>
                                             </div>
                                         ))}
