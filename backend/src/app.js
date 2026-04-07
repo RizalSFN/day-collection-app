@@ -20,7 +20,7 @@ app.set('trust proxy', 1);
 
 // Konfigurasi CORS
 const corsOptions = {
-    origin: ["https://daycollection.my.id", "http://localhost:5173"],
+    origin: ["https://www.daycollection.my.id", "http://localhost:5173"],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
     credentials: true, // Izinkan cookie/header auth
     allowedHeaders: "Content-Type, Authorization, X-Requested-With"
